@@ -1,0 +1,254 @@
+/* =====================================================================
+   ระบบสต๊อกและแผนผลิต ฟินร่า — เซิร์ฟเวอร์ของบริษัท
+   รันด้วย Node.js อย่างเดียว ไม่ต้องติดตั้ง package เพิ่ม
+   เริ่มใช้งาน:  node server.js
+   ===================================================================== */
+const http=require('http'), fs=require('fs'), path=require('path'), url=require('url');
+const store=require('./store'), auth=require('./auth'), backup=require('./backup'), {ROLES,PERMS,tabsFor,rolesOf,roleNames,deptOf}=require('./roles');
+const {netOf,matNetOf}=require('./signs');
+
+const PORT=process.env.PORT||8080;
+const PUB=path.join(__dirname,'public');
+const AUDIT=path.join(__dirname,'data','audit.log');
+
+/* ---------- helpers ---------- */
+const MIME={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8',
+  '.css':'text/css; charset=utf-8','.json':'application/json; charset=utf-8',
+  '.png':'image/png','.jpg':'image/jpeg','.svg':'image/svg+xml','.ico':'image/x-icon'};
+function send(res,code,body,headers){
+  const h=Object.assign({'Cache-Control':'no-store'},headers||{});
+  if(typeof body==='object'&&!Buffer.isBuffer(body)){h['Content-Type']='application/json; charset=utf-8';body=JSON.stringify(body)}
+  res.writeHead(code,h); res.end(body);
+}
+function readBody(req){
+  return new Promise((ok,bad)=>{
+    let d=''; let n=0;
+    req.on('data',c=>{n+=c.length; if(n>5e7){bad(new Error('too_big'));req.destroy();return} d+=c});
+    req.on('end',()=>{ try{ ok(d?JSON.parse(d):{}) }catch(e){ bad(new Error('bad_json')) } });
+    req.on('error',bad);
+  });
+}
+function cookies(req){
+  const o={}; (req.headers.cookie||'').split(';').forEach(p=>{const i=p.indexOf('=');if(i>0)o[p.slice(0,i).trim()]=decodeURIComponent(p.slice(i+1).trim())});
+  return o;
+}
+function audit(user,action,detail){
+  const line=JSON.stringify({t:new Date().toISOString(),u:user?user.username:'-',a:action,d:detail})+'\n';
+  fs.appendFile(AUDIT,line,()=>{});
+}
+
+/* ---------- realtime ---------- */
+const clients=new Set();
+function broadcast(pathChanged){
+  const msg='data: '+JSON.stringify({path:pathChanged})+'\n\n';
+  clients.forEach(c=>{ try{c.write(msg)}catch(e){} });
+}
+
+/* ---------- permissions ---------- */
+function has(u,p){ return auth.permsOf(u).indexOf(p)>=0 }
+function need(u,p){ if(!has(u,p)){const e=new Error('forbidden');e.code='forbidden';e.perm=p;throw e} }
+
+function checkDocWrite(u,p,body){
+  if(p.startsWith('master/')) { need(u,'master.edit'); return body }
+  if(p==='stock/baseline'||p==='stock/matbaseline'){
+    need(u,'stock.count');
+    body.by=u.name; body.uid=u.id;          /* ใครตรวจนับ — ปลอมไม่ได้ */
+    return body;
+  }
+  if(p.startsWith('lines/')) {
+    need(u,'produce.station');
+    if(body.status==='run'){ body.operator=u.name; body.uid=u.id }   /* คนคุมเครื่อง = บัญชีที่ล็อกอิน */
+    return body;
+  }
+  if(p.startsWith('ledger/')) return checkLedger(u,p,body);
+  const e=new Error('forbidden'); e.code='forbidden'; throw e;
+}
+function idx(list){ const m={}; (list||[]).forEach(x=>{ if(x&&x.id)m[x.id]=x }); return m }
+function checkLedger(u,p,body){
+  const cur=store.readDoc(p)||{entries:[],mat:[]};
+  const a=idx(cur.entries), b=idx(body.entries);
+  const added=[],removed=[];
+  for(const k in b) if(!a[k]) added.push(b[k]);
+  for(const k in a) if(!b[k]) removed.push(a[k]);
+  if(removed.length) need(u,'sell.delete');
+  added.forEach(e=>{
+    if(e.type==='sell'){
+      if(e.channel==='ขายส่ง') need(u,'sell.wholesale'); else need(u,'sell.walk');
+    } else if(e.line) need(u,'produce.station');
+    else need(u,'produce.log');
+    e.uid=u.id; e.uname=u.name;              /* ใครบันทึก — ปลอมไม่ได้ */
+    /* ช่อง by ที่ใช้แสดงในรายงาน ก็ผูกกับบัญชีเช่นกัน
+       ยกเว้นบิลขายส่ง ที่ by = ชื่อคนขับรถ ซึ่งอาจไม่ใช่คนออกบิล */
+    if(!(e.type==='sell'&&e.channel==='ขายส่ง')) e.by=u.name;
+  });
+  const am=idx(cur.mat), bm=idx(body.mat);
+  const addedM=[],removedM=[];
+  for(const k in bm) if(!am[k]) addedM.push(bm[k]);
+  for(const k in am) if(!bm[k]) removedM.push(am[k]);
+  if(addedM.some(x=>x.type!=='auto')) need(u,'mat.move');
+  if(removedM.length) need(u,'mat.move');
+  addedM.forEach(e=>{ e.uid=u.id; e.uname=u.name; if(e.type!=='auto') e.by=u.name });
+  /* ยอดสุทธิคำนวณที่เซิร์ฟเวอร์เสมอ ฝั่งหน้าเว็บแก้ไม่ได้ */
+  body.net=netOf(body.entries);
+  body.matNet=matNetOf(body.mat);
+  if(added.length||removed.length||addedM.length||removedM.length)
+    audit(u,'ledger',{date:p.split('/')[1],add:added.length,del:removed.length,mat:addedM.length});
+  return body;
+}
+function canRead(u,p){
+  if(p==='master/costs') return has(u,'money.view');
+  return true;
+}
+
+/* ---------- API ---------- */
+async function api(req,res,u,parts,q){
+  const m=req.method;
+
+  if(parts[0]==='login'&&m==='POST'){
+    const b=await readBody(req);
+    const user=auth.verify(b.username,b.password);
+    if(!user){ audit(null,'login_fail',{username:b.username}); return send(res,401,{error:'invalid'}) }
+    const tok=auth.sign(user,b.remember?30:1);
+    audit(user,'login',{});
+    return send(res,200,{ok:true},{'Set-Cookie':'fs='+tok+'; HttpOnly; SameSite=Lax; Path=/; Max-Age='+(b.remember?2592000:86400)});
+  }
+  if(parts[0]==='health'){ return send(res,200,{ok:true,users:auth.count(),at:new Date().toISOString()}) }
+  if(parts[0]==='logout'){ return send(res,200,{ok:true},{'Set-Cookie':'fs=; HttpOnly; Path=/; Max-Age=0'}) }
+
+  if(!u) return send(res,401,{error:'auth'});
+
+  if(parts[0]==='me'&&m==='GET'){
+    const perms=auth.permsOf(u), rl=rolesOf(u);
+    return send(res,200,{user:{id:u.id,name:u.name,username:u.username,role:rl[0]||'',roles:rl,
+      roleName:roleNames(rl),dept:u.dept||deptOf(rl)},perms,tabs:tabsFor(perms),permLabels:PERMS,roles:ROLES});
+  }
+  if(parts[0]==='stream'){
+    res.writeHead(200,{'Content-Type':'text/event-stream','Cache-Control':'no-cache','Connection':'keep-alive'});
+    res.write('retry: 3000\n\n'); clients.add(res);
+    const ping=setInterval(()=>{try{res.write(': ping\n\n')}catch(e){}},25000);
+    req.on('close',()=>{clearInterval(ping);clients.delete(res)});
+    return;
+  }
+  if(parts[0]==='doc'){
+    const p=parts.slice(1).join('/');
+    if(m==='GET'){
+      if(!canRead(u,p)) return send(res,200,{exists:false});
+      const d=store.readDoc(p);
+      return send(res,200,{exists:!!d,data:d||null,version:d?d.__v:0});
+    }
+    if(m==='PUT'){
+      const b=await readBody(req);
+      let body;
+      try{ body=checkDocWrite(u,p,b.data||{}) }
+      catch(e){ return send(res,403,{error:'forbidden',perm:e.perm||''}) }
+      try{
+        const out=await store.writeDoc(p,body,b.ifVersion);
+        broadcast(p);
+        return send(res,200,{ok:true,version:out.__v});
+      }catch(e){
+        if(e.code==='version_mismatch') return send(res,409,{error:'version_mismatch',version:e.version});
+        return send(res,500,{error:'write_failed'});
+      }
+    }
+    if(m==='DELETE'){
+      try{ checkDocWrite(u,p,{entries:[],mat:[]}) }catch(e){ return send(res,403,{error:'forbidden'}) }
+      await store.deleteDoc(p); broadcast(p); audit(u,'delete',{path:p});
+      return send(res,200,{ok:true});
+    }
+  }
+  if(parts[0]==='col'&&m==='GET'){
+    const col=parts.slice(1).join('/');
+    const docs=store.listCollection(col).filter(d=>canRead(u,col+'/'+d.id));
+    return send(res,200,{docs});
+  }
+  if(parts[0]==='lease'&&m==='POST'){
+    const b=await readBody(req);
+    return send(res,200,store.acquire(parts.slice(1).join('/'),b.holder||'x',b.ttlMs));
+  }
+  /* ---- สำรองข้อมูล / กู้คืนข้อมูล (เฉพาะคนที่จัดการผู้ใช้ได้) ---- */
+  if(parts[0]==='backup'&&m==='GET'){
+    if(!has(u,'user.manage')) return send(res,403,{error:'forbidden'});
+    const dump=backup.exportAll();
+    audit(u,'backup_export',dump.counts);
+    const name='finra-backup-'+new Date().toISOString().slice(0,10)+'.json';
+    return send(res,200,Buffer.from(JSON.stringify(dump,null,2),'utf8'),{
+      'Content-Type':'application/json; charset=utf-8',
+      'Content-Disposition':'attachment; filename="'+name+'"'
+    });
+  }
+  if(parts[0]==='restore'&&m==='POST'){
+    if(!has(u,'user.manage')) return send(res,403,{error:'forbidden'});
+    const b=await readBody(req);
+    const bad=backup.check(b&&b.data);
+    if(bad) return send(res,400,{error:'bad_file',message:bad});
+    try{
+      const r=backup.importAll(b.data,{keepUsers:!!b.keepUsers});
+      audit(u,'backup_restore',r);
+      broadcast('*');
+      return send(res,200,{ok:true,...r});
+    }catch(e){ return send(res,400,{error:'restore_failed',message:String(e&&e.message||e)}) }
+  }
+  if(parts[0]==='users'){
+    if(m==='GET'){ need2(res,u,'user.manage'); if(!has(u,'user.manage'))return;
+      return send(res,200,{users:auth.listUsers(),roles:ROLES}) }
+    if(m==='POST'){ if(!has(u,'user.manage'))return send(res,403,{error:'forbidden'});
+      const b=await readBody(req);
+      if(!b.username||!b.password)return send(res,400,{error:'missing'});
+      if(String(b.password).length<4)return send(res,400,{error:'short_password'});
+      try{ const nu=auth.addUser(b); audit(u,'user_add',{username:nu.username,roles:(nu.roles||[]).join('+')});
+        return send(res,200,{ok:true,id:nu.id}) }
+      catch(e){ return send(res,400,{error:e.message}) }
+    }
+    if(m==='PUT'){ if(!has(u,'user.manage'))return send(res,403,{error:'forbidden'});
+      const b=await readBody(req);
+      try{ auth.updateUser(b.id,b); audit(u,'user_update',{id:b.id});
+        return send(res,200,{ok:true}) }
+      catch(e){ return send(res,400,{error:e.message}) }
+    }
+  }
+  if(parts[0]==='password'&&m==='POST'){
+    const b=await readBody(req);
+    if(!auth.verify(u.username,b.old||''))return send(res,400,{error:'wrong_password'});
+    if(String(b.new||'').length<4)return send(res,400,{error:'short_password'});
+    auth.updateUser(u.id,{password:b.new}); audit(u,'password_change',{});
+    return send(res,200,{ok:true});
+  }
+  return send(res,404,{error:'not_found'});
+}
+function need2(res,u,p){ if(!has(u,p)) send(res,403,{error:'forbidden'}) }
+
+/* ---------- static + router ---------- */
+const server=http.createServer(async (req,res)=>{
+  try{
+    const q=url.parse(req.url,true), p=decodeURIComponent(q.pathname);
+    const u=auth.readToken(cookies(req).fs);
+    if(p.startsWith('/api/')){
+      return await api(req,res,u,p.slice(5).split('/').filter(Boolean),q.query);
+    }
+    let f=p==='/'?'/index.html':p;
+    const full=path.join(PUB,path.normalize(f).replace(/^(\.\.[/\\])+/,''));
+    if(!full.startsWith(PUB)) return send(res,403,'no');
+    fs.readFile(full,(e,d)=>{
+      if(e) return send(res,404,'ไม่พบหน้านี้');
+      send(res,200,d,{'Content-Type':MIME[path.extname(full)]||'application/octet-stream'});
+    });
+  }catch(e){ send(res,500,{error:String(e&&e.message||e)}) }
+});
+server.listen(PORT,()=>{
+  const nets=require('os').networkInterfaces(); const ips=[];
+  Object.values(nets).forEach(a=>a.forEach(x=>{if(x.family==='IPv4'&&!x.internal)ips.push(x.address)}));
+  console.log('');
+  console.log('============================================================');
+  console.log('   FINRA STOCK SERVER  -  RUNNING');
+  console.log('============================================================');
+  console.log('   This computer   : http://localhost:'+PORT);
+  ips.forEach(ip=>console.log('   Other computers : http://'+ip+':'+PORT));
+  console.log('============================================================');
+  if(auth.count()===0){
+    console.log('');
+    console.log('   [!!] No users yet. Close this window and run  2-ADD-USER.bat');
+  }
+  console.log('');
+  console.log('   Keep this window open. Closing it stops the system.');
+  console.log('');
+});
