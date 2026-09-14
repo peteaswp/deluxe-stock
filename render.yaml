@@ -1,0 +1,19 @@
+# Render Blueprint - Finra stock system
+# Region: Singapore (closest to Thailand)
+services:
+  - type: web
+    name: finra-stock
+    runtime: node
+    region: singapore
+    plan: starter                 # $7/month, 512 MB RAM
+    buildCommand: echo "no build step needed"
+    startCommand: node server.js
+    healthCheckPath: /api/health
+    autoDeployTrigger: commit
+    disk:
+      name: finra-data            # keeps data/ across restarts and deploys
+      mountPath: /opt/render/project/src/data
+      sizeGB: 1                   # $0.25/month
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
