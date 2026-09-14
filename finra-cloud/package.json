@@ -1,0 +1,9 @@
+{
+  "name": "finra-stock-server",
+  "version": "1.0.0",
+  "description": "ระบบสต๊อก ผลิต และขายออก - บริษัท ดีลักซ์ วอเตอร์ จำกัด",
+  "main": "server.js",
+  "scripts": { "start": "node server.js", "adduser": "node adduser.js", "import": "node import.js" },
+  "dependencies": {},
+  "engines": { "node": ">=18" }
+}
