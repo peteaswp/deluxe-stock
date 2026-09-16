@@ -8,6 +8,19 @@ const store=require('./store'), auth=require('./auth'), backup=require('./backup
 const {netOf,matNetOf}=require('./signs');
 const pricing=require('./pricing');
 
+/* รหัสรุ่น: คิดจากไฟล์หลักที่กำลังรันอยู่จริง
+   ใช้บอกว่าอัปเดตไฟล์แล้วแต่ยังไม่ได้ปิด-เปิดเซิร์ฟเวอร์ใหม่ */
+const BUILD=(()=>{
+  try{
+    const h=require('crypto').createHash('sha1');
+    ['server.js','roles.js','pricing.js','store.js','public/index.html'].forEach(f=>{
+      try{ h.update(fs.readFileSync(path.join(__dirname,f))) }catch(e){}
+    });
+    return h.digest('hex').slice(0,8);
+  }catch(e){ return 'unknown' }
+})();
+const STARTED=new Date().toISOString();
+
 const PORT=process.env.PORT||8080;
 const PUB=path.join(__dirname,'public');
 const AUDIT=path.join(__dirname,'data','audit.log');
@@ -50,6 +63,8 @@ function has(u,p){ return auth.permsOf(u).indexOf(p)>=0 }
 function need(u,p){ if(!has(u,p)){const e=new Error('forbidden');e.code='forbidden';e.perm=p;throw e} }
 
 function checkDocWrite(u,p,body){
+  if(p==='master/customers'){ need(u,'cust.edit'); return body }
+  if(p==='master/prices')   { need(u,'price.edit'); return body }
   if(p.startsWith('master/')) { need(u,'master.edit'); return body }
   if(p==='stock/baseline'||p==='stock/matbaseline'){
     need(u,'stock.count');
@@ -73,13 +88,13 @@ function checkLedger(u,p,body){
   for(const k in b) if(!a[k]) added.push(b[k]);
   for(const k in a) if(!b[k]) removed.push(a[k]);
   if(removed.length) need(u,'sell.delete');
-  if(removed.some(e=>e&&e.back===true)) need(u,'master.edit');
+  if(removed.some(e=>e&&e.back===true)) need(u,'sale.backdate');
   added.forEach(e=>{
     if(e.type==='sell'){
       if(e.back===true){
-        /* ยอดขายย้อนหลังที่ผู้จัดการกรอกเอง — ไม่ใช่บิลจริง จึงไม่ต้องมีทะเบียนรถ
-           แต่ต้องเป็นคนที่แก้ข้อมูลหลักได้เท่านั้น */
-        need(u,'master.edit');
+        /* ยอดขายย้อนหลัง — ไม่ใช่บิลจริง จึงไม่ต้องมีทะเบียนรถ
+           แต่ต้องมีสิทธิ์กรอกยอดย้อนหลังเท่านั้น */
+        need(u,'sale.backdate');
       }else{
         if(e.channel==='ขายส่ง') need(u,'sell.wholesale'); else need(u,'sell.walk');
         /* ทุกบิลต้องมีเลขบิล และบิลขายส่งต้องมีทะเบียนรถ — กันไว้ที่เซิร์ฟเวอร์ */
@@ -95,7 +110,7 @@ function checkLedger(u,p,body){
     if(!(e.type==='sell'&&e.channel==='ขายส่ง')) e.by=u.name;
   });
   /* ---- ราคาขาย: เซิร์ฟเวอร์คิดเองทุกครั้ง ----
-     ยกเว้นบิลที่ผู้มีสิทธิ์ตั้งราคาเอง (priceRule='manual') ซึ่งต้องมีสิทธิ์ money.view
+     ยกเว้นบิลที่ตั้งราคาเอง (priceRule='manual') ซึ่งต้องมีสิทธิ์ price.edit
      เรตตามจำนวนคิดจากจำนวนแพ็ครวมทั้งบิล จึงต้องจัดกลุ่มตามเลขบิลก่อน */
   const sells=added.filter(e=>e.type==='sell');
   if(sells.length){
@@ -111,7 +126,7 @@ function checkLedger(u,p,body){
       let packs=0;
       grp[k].forEach(e=>{ if(isPack(e.skuId))packs+=(parseFloat(e.qty)||0) });
       grp[k].forEach(e=>{
-        if(e.priceRule==='manual'){ need(u,'money.view') }
+        if(e.priceRule==='manual'){ need(u,'price.edit') }
         else{
           const r=pricing.priceFor({skuId:e.skuId,channel:e.channel,totalPacks:packs,
             customer:e.custId?CU[e.custId]:null,prices:PR,costs:CO,
@@ -146,6 +161,16 @@ function canRead(u,p){
   return true;
 }
 
+/* ไฟล์บนดิสก์ถูกแก้หลังเซิร์ฟเวอร์เริ่มทำงานหรือไม่
+   ถ้าใช่ แปลว่าอัปเดตแล้วแต่ยังไม่ได้ปิด-เปิดใหม่ ต้องเตือนผู้ใช้ */
+function staleBuild(){
+  try{
+    const t0=new Date(STARTED).getTime();
+    return ['server.js','roles.js','pricing.js','store.js','auth.js','public/index.html']
+      .some(f=>{ try{ return fs.statSync(path.join(__dirname,f)).mtimeMs>t0+1000 }catch(e){ return false } });
+  }catch(e){ return false }
+}
+
 /* ---------- API ---------- */
 async function api(req,res,u,parts,q){
   const m=req.method;
@@ -158,7 +183,10 @@ async function api(req,res,u,parts,q){
     audit(user,'login',{});
     return send(res,200,{ok:true},{'Set-Cookie':'fs='+tok+'; HttpOnly; SameSite=Lax; Path=/; Max-Age='+(b.remember?2592000:86400)});
   }
-  if(parts[0]==='health'){ return send(res,200,{ok:true,users:auth.count(),at:new Date().toISOString()}) }
+  if(parts[0]==='health'){
+    return send(res,200,{ok:true,users:auth.count(),at:new Date().toISOString(),
+      build:BUILD,started:STARTED,stale:staleBuild()});
+  }
   if(parts[0]==='logout'){ return send(res,200,{ok:true},{'Set-Cookie':'fs=; HttpOnly; Path=/; Max-Age=0'}) }
 
   if(!u) return send(res,401,{error:'auth'});
@@ -166,7 +194,8 @@ async function api(req,res,u,parts,q){
   if(parts[0]==='me'&&m==='GET'){
     const perms=auth.permsOf(u), rl=rolesOf(u);
     return send(res,200,{user:{id:u.id,name:u.name,username:u.username,role:rl[0]||'',roles:rl,
-      roleName:roleNames(rl),dept:u.dept||deptOf(rl)},perms,tabs:tabsFor(perms),permLabels:PERMS,roles:ROLES});
+      roleName:roleNames(rl),dept:u.dept||deptOf(rl)},perms,tabs:tabsFor(perms),permLabels:PERMS,roles:ROLES,
+      build:BUILD,stale:staleBuild()});
   }
   if(parts[0]==='stream'){
     res.writeHead(200,{'Content-Type':'text/event-stream','Cache-Control':'no-cache','Connection':'keep-alive'});

@@ -1359,6 +1359,17 @@ function runningLines(){
   return out;
 }
 
+/* วันนี้ยังไม่มียอด — บอกไปเลยว่าล่าสุดคือวันไหน กันเข้าใจผิดว่าข้อมูลหาย */
+function lastDayNote(kind){
+  var days=sortedDays().slice().reverse(), t=todayISO();
+  for(var i=0;i<days.length;i++){
+    var d=days[i]; if(d>=t)continue;
+    var st=dayStats(d), v= kind==='sell' ? st.sold : st.prod;
+    if(v>0) return 'แพ็ค · ล่าสุด '+esc(thDate(d))+' <b class="num">'+n(v)+'</b>';
+  }
+  return 'แพ็ค';
+}
+
 /* ---------------- render: dashboard ---------------- */
 function renderDash(){
   renderForms();
@@ -1371,6 +1382,8 @@ function renderDash(){
   $('kpi-prod').textContent=n(tt.prod+tt.live);
   $('kpi-prod-u').textContent= tt.live>0? ('แพ็ค · กำลังผลิตอีก '+n(tt.live)) : 'แพ็ค';
   $('kpi-sell').textContent=n(tt.sell);
+  $('kpi-sell-u').innerHTML= tt.sell>0 ? 'แพ็ค' : lastDayNote('sell');
+  if(tt.prod+tt.live<=0)$('kpi-prod-u').innerHTML=lastDayNote('prod');
   $('kpi-avg').textContent=n1(av.total);
   var avn=$('avg-days');if(avn)avn.textContent=av.days?('จาก '+av.days+' วันทำการ'):'ยังไม่มีข้อมูลขาย';
   $('kpi-urgent').textContent=n(urgent.length);
@@ -1631,7 +1644,7 @@ async function stopRun(id){
   S.pending[id]=0;
   if(S.flushT){clearTimeout(S.flushT);S.flushT=null}
   var s=skuById(st.skuId);
-  if(packs<=0){ if(!await askConfirm('รอบนี้ยังไม่มีจำนวน จะยกเลิกรอบผลิตใช่หรือไม่?','ยกเลิกรอบ'))return; }
+  if(packs<=0){ if(!await askConfirm('รอบนี้ยังไม่มีจำนวน จะยกเลิกรอบผลิตใช่ไหม?','ยกเลิกรอบ'))return; }
   var hours=st.startedAt?Math.max(0,(Date.now()-new Date(st.startedAt).getTime())/3600000):0;
   if(packs>0){
     var iso=todayISO();
@@ -2838,7 +2851,12 @@ function renderReport(){
   /* ----- ตารางรายวัน ----- */
   var tb=$('rep-days');tb.innerHTML='';
   if(!list.length){
-    tb.innerHTML='<tr><td colspan="11"><div class="empty">ยังไม่มีข้อมูลในช่วงวันที่เลือก</div></td></tr>';
+    var all=sortedDays().filter(function(d){return dayStats(d).sold>0});
+    var hint= all.length
+      ? ('ยังไม่มียอดในช่วงที่เลือก — มีข้อมูลตั้งแต่ '+esc(thDate(all[0]))+
+         ' ถึง '+esc(thDate(all[all.length-1]))+' ลองกด "30 วัน" หรือเลือกช่วงเอง')
+      : 'ยังไม่มียอดขายในระบบเลย';
+    tb.innerHTML='<tr><td colspan="11"><div class="empty">'+hint+'</div></td></tr>';
     $('rep-foot').innerHTML='';
   }else{
     list.forEach(function(d){
@@ -3938,7 +3956,7 @@ $('btn-oem-add').onclick=async function(){
   var want=pickedSizes('ob-size');
   if(!want.length){toast('ติ๊กขนาดอย่างน้อย 1 ขนาด');return}
   var dup=S.skus.some(function(s){return String(s.brand).trim()===brand});
-  if(dup&&!await askConfirm('มีแบรนด์ "'+brand+'" อยู่แล้ว จะปรับขนาดที่ทำให้ตรงกับที่ติ๊กใช่หรือไม่?','ปรับขนาด'))return;
+  if(dup&&!await askConfirm('มีแบรนด์ "'+brand+'" อยู่แล้ว จะปรับขนาดที่ทำให้ตรงกับที่ติ๊กใช่ไหม?','ปรับขนาด'))return;
   $('btn-oem-add').disabled=true;
   if(await applyBrandSizes(brand,want)){
     toast(dup?('ปรับขนาดของ '+brand+' แล้ว'):('เพิ่มแบรนด์ '+brand+' แล้ว '+want.length+' ขนาด'));
@@ -3960,6 +3978,21 @@ $('oem-body').addEventListener('click',async function(ev){
 /* ---------------- banners ---------------- */
 function renderBanners(){
   var host=$('banners');host.innerHTML='';
+  /* อัปเดตไฟล์แล้วแต่ยังไม่ได้ปิด-เปิดเซิร์ฟเวอร์ใหม่ */
+  if(S.stale){
+    var bs=el('div','banner demo');
+    bs.innerHTML='<span>'+ICON.warn+'</span><div class="grow"><b>ระบบยังใช้เวอร์ชันเก่าอยู่</b> — '+
+      'ไฟล์ถูกอัปเดตแล้ว แต่เซิร์ฟเวอร์ยังไม่ได้ปิด-เปิดใหม่ ของใหม่จะยังไม่ขึ้น '+
+      'ให้ปิดหน้าต่างเซิร์ฟเวอร์แล้วเปิดใหม่อีกครั้ง</div>';
+    host.appendChild(bs);
+  }
+  if(S.newBuild){
+    var bn=el('div','banner info');
+    bn.innerHTML='<span>'+ICON.warn+'</span><div class="grow"><b>มีเวอร์ชันใหม่แล้ว</b> — กดปุ่มนี้เพื่อโหลดหน้าใหม่</div>';
+    var rb=el('button','btn sm primary','โหลดหน้าใหม่');
+    rb.onclick=function(){try{location.reload(true)}catch(e){location.reload()}};
+    bn.appendChild(rb); host.appendChild(bn);
+  }
   var demo=sortedDays().some(function(d){return S.days[d].demo});
   if(demo){
     var b=el('div','banner demo');
@@ -4123,7 +4156,7 @@ async function addSku(){
 }
 async function clearDemo(){
   if(!requireDb())return;
-  if(!await askConfirm('ลบข้อมูลตัวอย่างทั้งหมด และตั้งสต๊อกเป็น 0 ใช่หรือไม่?','ล้างข้อมูล'))return;
+  if(!await askConfirm('ลบข้อมูลตัวอย่างทั้งหมด และตั้งสต๊อกเป็น 0 ใช่ไหม?','ล้างข้อมูล'))return;
   var days=sortedDays().filter(function(d){return S.days[d].demo});
   try{
     for(var i=0;i<days.length;i++){await S.db.doc('ledger/'+days[i]).delete()}
@@ -4220,7 +4253,7 @@ $('btn-csv-import').onclick=async function(){
   });
   var dayKeys=Object.keys(byDay);
   if(!dayKeys.length){toast('ไม่พบแถวที่นำเข้าได้ — ตรวจการจับคู่คอลัมน์');return}
-  if(!await askConfirm('นำเข้า '+n(ok)+' รายการ ใน '+dayKeys.length+' วัน'+(bad?' (ข้าม '+n(bad)+' แถวที่อ่านไม่ได้)':'')+' ใช่หรือไม่?','นำเข้า'))return;
+  if(!await askConfirm('นำเข้า '+n(ok)+' รายการ ใน '+dayKeys.length+' วัน'+(bad?' (ข้าม '+n(bad)+' แถวที่อ่านไม่ได้)':'')+' ใช่ไหม?','นำเข้า'))return;
   $('btn-csv-import').disabled=true;
   var done=0;
   for(var i=0;i<dayKeys.length;i++){
@@ -4474,6 +4507,8 @@ function startApp(me){
   S.tabs=me.tabs||['dash']; S.roles=me.roles; S.permLabels=me.permLabels;
   S.admin=P('master.edit');
   S.me=me.user;
+  S.build=me.build||''; S.stale=!!me.stale; S.newBuild=false;
+  watchBuild();
   $('login').classList.add('hidden');
   $('chip-role').textContent=me.user.name;
   $('um-name').textContent=me.user.name;
@@ -4538,6 +4573,22 @@ function startApp(me){
     setConn(true,'เชื่อมต่อแล้ว · อัปเดตสด');
     renderAll();
   },err);
+}
+/* คอยดูว่าเซิร์ฟเวอร์เปลี่ยนเวอร์ชันหรือยัง จะได้เตือนให้โหลดหน้าใหม่ */
+function watchBuild(){
+  if(S.buildTimer)return;
+  S.buildTimer=setInterval(function(){
+    fetch('/api/health',{credentials:'same-origin',cache:'no-store'})
+      .then(function(r){return r.json()})
+      .then(function(h){
+        if(!h||!h.build)return;
+        var changed=(S.build&&h.build!==S.build);
+        var stale=!!h.stale;
+        if(changed!==S.newBuild||stale!==S.stale){
+          S.newBuild=changed; S.stale=stale; renderBanners();
+        }
+      },function(){});
+  },60000);
 }
 FS.me().then(function(r){
   if(r.__status===200){ startApp(r) }
