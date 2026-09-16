@@ -246,6 +246,13 @@ footer.foot{margin-top:26px;padding-top:14px;border-top:1px solid var(--line);co
   #printarea{display:block!important;position:static;padding:0}
   @page{size:A4;margin:14mm}
 }
+.formgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(258px,1fr));gap:12px}
+.formcard{border:1px solid var(--line);border-radius:11px;padding:13px 14px;background:var(--surface-2);
+  display:flex;flex-direction:column;gap:8px}
+.formcard h3{margin:0;font-size:14.5px;font-weight:600;font-family:var(--f-ui)}
+.formcard p{margin:0;font-size:12.5px;color:var(--muted);line-height:1.45;flex:1}
+.formcard .row{gap:7px}
+.formcard .ic{font-size:19px;line-height:1}
 .sizebox{display:flex;flex-wrap:wrap;gap:7px}
 .sizebox label{display:inline-flex;align-items:center;gap:6px;font-family:var(--f-ui);font-size:13.5px;
   background:var(--surface);border:1px solid var(--line-2);border-radius:99px;padding:6px 13px 6px 9px;cursor:pointer;white-space:nowrap}
@@ -341,6 +348,11 @@ details.fold .panel-b{padding-top:0}
         </table>
       </div>
     </section>
+
+    <section class="panel">
+      <div class="panel-h"><h2>แบบฟอร์มและคู่มือ</h2><span class="sub">กดพิมพ์ออกกระดาษ หรือดาวน์โหลดเก็บไว้</span></div>
+      <div class="panel-b"><div class="formgrid" id="form-list"></div></div>
+    </section>
   </div>
 
   <!-- ================= LINE STATION ================= -->
@@ -381,7 +393,8 @@ details.fold .panel-b{padding-top:0}
         </div>
         <div class="row" style="margin-bottom:12px">
           <button class="btn" id="btn-lbl-prev">ดูตัวอย่าง</button>
-          <button class="btn primary" id="btn-lbl-dl">ดาวน์โหลดไฟล์สำหรับพิมพ์</button>
+          <button class="btn primary" id="btn-lbl-print">พิมพ์ป้ายเลย</button>
+          <button class="btn" id="btn-lbl-dl">ดาวน์โหลดเก็บไว้</button>
           <span class="note" id="lbl-note"></span>
         </div>
         <div class="labelbox" id="lbl-preview"><div class="empty">กด "ดูตัวอย่าง" เพื่อดูป้าย</div></div>
@@ -663,7 +676,7 @@ details.fold .panel-b{padding-top:0}
     <section class="panel" id="back-panel">
       <div class="panel-h"><h2>กรอกยอดขายย้อนหลัง</h2><span class="sub">สำหรับผู้จัดการ · ใส่ยอดของวันที่ผ่านมาเองได้</span></div>
       <div class="panel-b">
-        <div class="note" id="back-locked">ต้องเป็นผู้จัดการถึงจะกรอกยอดย้อนหลังได้</div>
+        <div class="note" id="back-locked">ต้องมีสิทธิ์ "กรอก-แก้ยอดขายย้อนหลัง" จึงจะใช้ส่วนนี้ได้ — ผู้จัดการตั้งให้ได้ที่แท็บตั้งค่า</div>
         <div id="back-ui" class="hidden">
           <div class="note" style="margin-bottom:12px">
             เลือกวันที่ แล้วใส่จำนวนแพ็คที่ขายไปในวันนั้น ระบบจะคิดเงินให้ตามราคาที่ตั้งไว้
@@ -801,7 +814,7 @@ details.fold .panel-b{padding-top:0}
     <section class="panel" id="cust-panel">
       <div class="panel-h"><h2>ทะเบียนลูกค้า</h2><span class="sub">ชื่อ ที่อยู่ เบอร์ และราคาที่ตกลงกันไว้</span></div>
       <div class="panel-b">
-        <p class="note hidden" id="cust-locked">ต้องมีสิทธิ์แก้ข้อมูลหลัก จึงจะแก้ทะเบียนลูกค้าได้</p>
+        <p class="note hidden" id="cust-locked">ต้องมีสิทธิ์ "เพิ่ม-แก้ทะเบียนลูกค้า" จึงจะแก้ส่วนนี้ได้</p>
         <div id="cust-ui">
           <h3 class="ui" style="font-size:14px;margin:0 0 8px">เพิ่มลูกค้าใหม่</h3>
           <div class="grid2">
@@ -835,7 +848,7 @@ details.fold .panel-b{padding-top:0}
     <section class="panel" id="price-panel">
       <div class="panel-h"><h2>ราคาขาย</h2><span class="sub">ราคาหน้าโรงงาน · เรตขายส่งตามจำนวน · โปรโมชั่นตามช่วงวันที่</span></div>
       <div class="panel-b">
-        <p class="note hidden" id="price-locked">ต้องมีสิทธิ์แก้ข้อมูลหลัก จึงจะแก้ราคาได้</p>
+        <p class="note hidden" id="price-locked">ต้องมีสิทธิ์ "ตั้งราคาขาย" จึงจะแก้ส่วนนี้ได้</p>
         <div id="price-ui">
           <h3 class="ui" style="font-size:14px;margin:0 0 4px">เรตขายส่ง ตามจำนวนแพ็คทั้งบิล</h3>
           <p class="note" style="margin:0 0 10px">ลูกค้าสั่งรวมกันได้ถึงขั้นไหน ก็ได้ราคานั้นทุกรายการในบิล</p>
@@ -1144,7 +1157,39 @@ function palletsOf(s,packs){var pp=packsPerPallet(s);if(!pp)return {full:0,rem:0
 function palletText(s,packs){var pp=packsPerPallet(s);if(!pp)return '—';var p=palletsOf(s,packs);return p.full+(p.rem?' + '+p.rem:'')}
 
 /* ---------------- ตัวช่วยกลาง ---------------- */
-function canMoney(){ return (typeof P==='function') ? !!P('money.view') : !!S.admin }
+function canMoney(){ return can('money.view') }
+function can(perm){ return (typeof P==='function') ? !!P(perm) : !!S.admin }
+/* บันทึกไฟล์: บนเซิร์ฟเวอร์ใช้การดาวน์โหลดของเบราว์เซอร์ ในหน้าตัวอย่างใช้ของระบบ */
+function saveFile(name,data,mime){
+  mime=mime||'text/plain;charset=utf-8';
+  if(typeof FS!=='undefined'&&FS&&FS.download) return FS.download(name,data,mime);
+  if(S.downloads) return S.downloads.save({filename:name,data:data});
+  /* ทางสำรอง: สร้างลิงก์ดาวน์โหลดเอง */
+  try{
+    var b=new Blob([data],{type:mime}), a=document.createElement('a');
+    a.href=URL.createObjectURL(b); a.download=name;
+    document.body.appendChild(a); a.click();
+    setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},2000);
+    return Promise.resolve({status:'saved'});
+  }catch(e){ return Promise.reject(e) }
+}
+/* สั่งพิมพ์เอกสารทันที โดยไม่ต้องดาวน์โหลดก่อน */
+function printDoc(html,label){
+  var old=$('printframe'); if(old)old.remove();
+  var f=document.createElement('iframe');
+  f.id='printframe';
+  f.setAttribute('aria-hidden','true');
+  f.style.cssText='position:fixed;right:0;bottom:0;width:1px;height:1px;opacity:0;border:0;pointer-events:none';
+  document.body.appendChild(f);
+  f.onload=function(){
+    setTimeout(function(){
+      try{ f.contentWindow.focus(); f.contentWindow.print() }
+      catch(e){ toast('เบราว์เซอร์นี้สั่งพิมพ์ไม่ได้ ลองกดดาวน์โหลดแล้วเปิดไฟล์แทน') }
+    },350);
+  };
+  f.srcdoc=html;
+  if(label)toast(label);
+}
 function whoNow(){ return (typeof meName==='function') ? meName() : ((S.me&&S.me.name)||'ไม่ระบุ') }
 
 /* ---------------- ลูกค้าและราคา ---------------- */
@@ -1316,6 +1361,7 @@ function runningLines(){
 
 /* ---------------- render: dashboard ---------------- */
 function renderDash(){
+  renderForms();
   var st=stockMap(),tot=0,tanks=0;
   activeSkus().forEach(function(s){if(isPack(s))tot+=st[s.id]||0;else tanks+=st[s.id]||0});
   var tt=todayTotals(),av=avgSales(30);
@@ -1793,7 +1839,7 @@ function labelCss(o){
   '@media screen{body{background:#e9edee;padding:6mm 0}'+
     '.sheet{margin:0 auto 5mm;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.2)}}';
 }
-function labelDoc(o){
+function labelDoc(o,noAuto){
   var per=o.L.per, html='', i=0;
   while(i<o.count){
     html+='<div class="sheet">';
@@ -1803,7 +1849,7 @@ function labelDoc(o){
   return '<!doctype html><html lang="th"><head><meta charset="utf-8">'+
     '<title>ป้ายพาเลท '+esc(o.sku.brand)+' '+esc(o.sku.size)+'</title>'+
     '<style>'+labelCss(o)+'</style></head><body>'+html+
-    '<script>window.onload=function(){setTimeout(function(){window.print()},500)}<\/script>'+
+    (noAuto?'':'<script>window.onload=function(){setTimeout(function(){window.print()},500)}<\/script>')+
     '</body></html>';
 }
 $('btn-lbl-prev').onclick=function(){
@@ -1827,13 +1873,19 @@ function lblNote(o){
     (o.L.per>1?(' (ประหยัด '+(o.count-sheets)+' แผ่น)'):'')+
     ' · สแกน 1 ครั้งเข้าสต๊อก '+n(packsPerPallet(o.sku))+' แพ็คเข้าสต๊อก';
 }
+$('btn-lbl-print').onclick=function(){
+  var o=labelOpts();if(!o.sku){toast('เลือกสินค้าก่อน');return}
+  printDoc(labelDoc(o,true),
+    'กำลังเปิดหน้าต่างพิมพ์ · '+o.count+' ดวง ('+Math.ceil(o.count/o.L.per)+' แผ่น)');
+};
 $('btn-lbl-dl').onclick=async function(){
   var o=labelOpts();if(!o.sku){toast('เลือกสินค้าก่อน');return}
-  if(!S.downloads){toast('หน้านี้ดาวน์โหลดไฟล์ไม่ได้');return}
+  var nm='ป้ายพาเลท-'+o.sku.brand+'-'+String(o.sku.size).replace(/\s/g,'')+
+         (o.lot?('-LOT'+o.lot):'')+'.html';
   try{
-    await FS.download('pallet-'+o.sku.id+(o.lot?('-'+o.lot):'')+'.html',labelDoc(o),'text/html;charset=utf-8');
-    toast('บันทึกไฟล์แล้ว '+o.count+' ดวง ('+Math.ceil(o.count/o.L.per)+' แผ่น) — เปิดไฟล์แล้วสั่งพิมพ์');
-  }catch(e){toast(e&&e.code==='user_declined'?'ยกเลิกการบันทึก':'บันทึกไฟล์ไม่สำเร็จ')}
+    await saveFile(nm,labelDoc(o),'text/html;charset=utf-8');
+    toast('ดาวน์โหลดแล้ว '+o.count+' ดวง — เปิดไฟล์แล้วกด Ctrl+P เพื่อพิมพ์');
+  }catch(e){toast(e&&e.code==='user_declined'?'ยกเลิกการบันทึก':'ดาวน์โหลดไม่สำเร็จ')}
 };
 ['lbl-sku','lbl-mode','lbl-lot','lbl-seq','lbl-start','lbl-n'].forEach(function(id){
   var e=$(id);if(e)e.addEventListener('change',function(){var o=labelOpts();if(o.sku)lblNote(o)});
@@ -1941,10 +1993,10 @@ function renderSale(){
   }
   var fp=$('btn-freeprice');
   if(fp){
-    fp.classList.toggle('hidden',!canMoney());
+    fp.classList.toggle('hidden',!can('price.edit'));
     fp.setAttribute('aria-pressed',String(!!SALE.free));
     fp.textContent= SALE.free? 'ใช้ราคาอัตโนมัติ' : 'แก้ราคาเอง';
-    if(!canMoney())SALE.free=false;
+    if(!can('price.edit'))SALE.free=false;
   }
   [].forEach.call(document.querySelectorAll('.bill-p'),function(i){i.classList.toggle('hidden',!SALE.free)});
   var tg=$('btn-brands'),hid=hiddenBrandCount();
@@ -2906,7 +2958,7 @@ $('btn-back-del').onclick=async function(){
       return {entries:entries.filter(function(e){return e.back!==true})};
     });
     toast('ลบแล้ว'); $('back-body').dataset.sig=''; renderBackfill();
-  }catch(e){toast('ลบไม่สำเร็จ — ต้องเป็นผู้จัดการ')}
+  }catch(e){toast('ลบไม่สำเร็จ — ต้องมีสิทธิ์กรอกยอดขายย้อนหลัง')}
 };
 $('btn-rep-day').onclick=function(){
   printDay(REP.pick||($('rep-from').value&&REP.period==='custom'?$('rep-to').value:todayISO()));
@@ -2937,6 +2989,272 @@ $('btn-rep-csv').onclick=async function(){
   await saveRows(out,'finra-sales-'+r.from+'_'+r.to+'.csv');
 };
 
+/* ---------------- แบบฟอร์มและคู่มือ ---------------- */
+function formCss(){
+  return '@page{size:A4;margin:12mm}'+
+  'html,body{margin:0;padding:0;background:#fff;color:#000;'+
+    'font-family:"Tahoma","Sarabun","TH Sarabun New",sans-serif;font-size:12px}'+
+  '.pg{padding:0 0 10mm}'+
+  '.hd{display:flex;align-items:center;gap:10px;border-bottom:2px solid #000;padding-bottom:7px;margin-bottom:12px}'+
+  '.hd img{width:40px;height:auto}'+
+  '.hd .co{flex:1}.hd .co b{font-size:15px}.hd .co div{font-size:11px;color:#444}'+
+  '.hd .ti{text-align:right}.hd .ti b{font-size:16px}'+
+  '.hd .ti div{font-size:10.5px;color:#444}'+
+  'h2{font-size:13px;margin:14px 0 6px;border-bottom:1px solid #999;padding-bottom:3px}'+
+  'table{width:100%;border-collapse:collapse;font-size:11.5px}'+
+  'th,td{border:1px solid #999;padding:4px 6px;height:20px;text-align:center}'+
+  'th{background:#eee;font-weight:700}'+
+  'td.l,th.l{text-align:left}'+
+  '.meta{display:flex;flex-wrap:wrap;gap:6px 18px;margin-bottom:10px;font-size:12px}'+
+  '.meta span{white-space:nowrap}'+
+  '.ln{display:inline-block;border-bottom:1px dotted #333;min-width:120px;vertical-align:-2px}'+
+  '.ln.w2{min-width:200px}.ln.w3{min-width:300px}'+
+  '.sign{display:flex;gap:26px;margin-top:22px;font-size:11.5px}'+
+  '.sign div{flex:1;text-align:center}'+
+  '.sign i{display:block;border-top:1px solid #444;margin-bottom:4px;padding-top:0}'+
+  '.note{font-size:10.5px;color:#555;margin-top:8px}'+
+  '.man h3{font-size:12.5px;margin:12px 0 4px}'+
+  '.man p,.man li{font-size:11.5px;line-height:1.6;margin:3px 0}'+
+  '.man ol,.man ul{margin:4px 0 4px 18px;padding:0}'+
+  '.man .tip{background:#f2f2f2;border-inline-start:3px solid #666;padding:6px 9px;margin:7px 0}'+
+  '@media screen{body{background:#e9edee;padding:8mm 0}'+
+    '.pg{width:210mm;min-height:297mm;box-sizing:border-box;padding:12mm;margin:0 auto 6mm;'+
+    'background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.2)}}';
+}
+function formHead(title,sub){
+  return '<div class="hd"><img src="'+DW_LOGO+'" alt="">'+
+    '<div class="co"><b>บริษัท ดีลักซ์ วอเตอร์ จำกัด</b><div>น้ำดื่มฟินร่า · DELUXE WATER CO., LTD.</div></div>'+
+    '<div class="ti"><b>'+esc(title)+'</b><div>'+esc(sub||'')+'</div></div></div>';
+}
+function formDoc(title,inner,sub){
+  return '<!doctype html><html lang="th"><head><meta charset="utf-8"><title>'+esc(title)+
+    '</title><style>'+formCss()+'</style></head><body>'+
+    '<div class="pg">'+formHead(title,sub)+inner+'</div></body></html>';
+}
+function blankRows(cols,rows){
+  var h='';
+  for(var r=0;r<rows;r++){ h+='<tr>'; for(var c=0;c<cols;c++)h+='<td>&nbsp;</td>'; h+='</tr>' }
+  return h;
+}
+function signRow(names){
+  return '<div class="sign">'+names.map(function(x){
+    return '<div><i></i>'+esc(x)+'<br><span style="font-size:10px;color:#666">วันที่ ......../......../........</span></div>';
+  }).join('')+'</div>';
+}
+
+/* ---- 1. แผนการผลิตประจำวัน ---- */
+function formPlan(){
+  var lines=linesCfg();
+  var body='<div class="meta"><span>วันที่ <span class="ln"></span></span>'+
+    '<span>กะ <span class="ln"></span></span>'+
+    '<span>หัวหน้ากะ <span class="ln w2"></span></span></div>'+
+    '<table><thead><tr><th style="width:28px">#</th><th class="l">สินค้า</th><th>ไลน์</th>'+
+    '<th>เป้าหมาย (แพ็ค)</th><th>เริ่ม</th><th>เลิก</th><th>ชม.เดินเครื่อง</th>'+
+    '<th>ผลิตได้จริง</th><th>ของเสีย</th><th class="l">ผู้คุมเครื่อง</th></tr></thead><tbody>';
+  for(var i=1;i<=16;i++){
+    body+='<tr><td>'+i+'</td><td class="l">&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>'+
+      '<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="l">&nbsp;</td></tr>';
+  }
+  body+='</tbody><tfoot><tr><th colspan="3" class="l">รวม</th><th>&nbsp;</th><th colspan="2">&nbsp;</th>'+
+    '<th>&nbsp;</th><th>&nbsp;</th><th>&nbsp;</th><th>&nbsp;</th></tr></tfoot></table>'+
+    '<h2>ปัญหาที่พบระหว่างผลิต / เครื่องหยุด</h2>'+
+    '<table><thead><tr><th style="width:70px">เวลา</th><th>ไลน์</th><th class="l">อาการ / สาเหตุ</th>'+
+    '<th style="width:70px">หยุดกี่นาที</th><th class="l">แก้ไขอย่างไร</th></tr></thead><tbody>'+
+    blankRows(5,5)+'</tbody></table>'+
+    '<div class="note">ไลน์ที่ใช้งาน: '+lines.map(function(l){return esc(l.name||l.id)}).join(' · ')+'</div>'+
+    signRow(['ผู้บันทึก','หัวหน้าฝ่ายผลิต','ผู้จัดการ']);
+  return formDoc('แผนการผลิตประจำวัน',body,'FM-PR-01');
+}
+
+/* ---- 2. ใบแจ้งซ่อมเครื่องจักร ---- */
+function formRepair(){
+  var body='<div class="meta"><span>เลขที่ใบแจ้ง <span class="ln"></span></span>'+
+    '<span>วันที่แจ้ง <span class="ln"></span></span>'+
+    '<span>เวลา <span class="ln" style="min-width:70px"></span></span></div>'+
+    '<h2>ส่วนที่ 1 — ผู้แจ้ง</h2>'+
+    '<div class="meta"><span>ชื่อผู้แจ้ง <span class="ln w2"></span></span>'+
+    '<span>แผนก / ไลน์ <span class="ln"></span></span></div>'+
+    '<div class="meta"><span>เครื่องจักร / อุปกรณ์ <span class="ln w3"></span></span></div>'+
+    '<table><thead><tr><th class="l">อาการที่พบ</th></tr></thead><tbody>'+blankRows(1,4)+'</tbody></table>'+
+    '<div class="meta" style="margin-top:8px"><span>ความเร่งด่วน: '+
+    '&#9744; หยุดผลิตทันที &nbsp; &#9744; ผลิตต่อได้แต่ต้องซ่อม &nbsp; &#9744; ซ่อมเมื่อว่าง</span></div>'+
+    '<h2>ส่วนที่ 2 — ช่างซ่อมบำรุง</h2>'+
+    '<div class="meta"><span>ผู้รับงาน <span class="ln w2"></span></span>'+
+    '<span>เริ่มซ่อม <span class="ln" style="min-width:90px"></span></span>'+
+    '<span>เสร็จ <span class="ln" style="min-width:90px"></span></span>'+
+    '<span>รวม <span class="ln" style="min-width:60px"></span> นาที</span></div>'+
+    '<table><thead><tr><th class="l">สาเหตุ และวิธีแก้ไข</th></tr></thead><tbody>'+blankRows(1,4)+'</tbody></table>'+
+    '<h2>อะไหล่ที่ใช้</h2>'+
+    '<table><thead><tr><th style="width:28px">#</th><th class="l">รายการ</th><th>จำนวน</th>'+
+    '<th>หน่วย</th><th>ราคา/หน่วย</th><th>รวมเงิน</th></tr></thead><tbody>'+
+    blankRows(6,5)+'</tbody></table>'+
+    '<div class="meta" style="margin-top:10px"><span>ผลการซ่อม: '+
+    '&#9744; ใช้งานได้ปกติ &nbsp; &#9744; ใช้งานได้ชั่วคราว &nbsp; &#9744; ต้องส่งซ่อมภายนอก</span></div>'+
+    signRow(['ผู้แจ้ง','ช่างผู้ซ่อม','หัวหน้าฝ่ายผลิต']);
+  return formDoc('ใบแจ้งซ่อมเครื่องจักร',body,'FM-MT-01');
+}
+
+/* ---- 3. ใบเบิกสินค้า / วัตถุดิบจากคลัง ---- */
+function formIssue(){
+  var body='<div class="meta"><span>เลขที่ใบเบิก <span class="ln"></span></span>'+
+    '<span>วันที่ <span class="ln"></span></span>'+
+    '<span>แผนก / ไลน์ที่เบิก <span class="ln w2"></span></span></div>'+
+    '<table><thead><tr><th style="width:28px">#</th><th class="l">รายการ</th>'+
+    '<th>จำนวนที่ขอ</th><th>จำนวนที่จ่าย</th><th>หน่วย</th><th class="l">หมายเหตุ</th></tr></thead><tbody>'+
+    blankRows(6,14)+'</tbody></table>'+
+    '<div class="note">เบิกแล้วต้องบันทึกเข้าระบบทุกครั้ง โดยใส่เลขที่ใบเบิกใบนี้ในช่อง "เลขที่เอกสาร"</div>'+
+    signRow(['ผู้ขอเบิก','ผู้อนุมัติ','ผู้จ่ายของ']);
+  return formDoc('ใบเบิกสินค้าจากคลัง',body,'FM-WH-01');
+}
+
+/* ---- 4. ใบรับสินค้า / วัตถุดิบ ---- */
+function formReceive(){
+  var body='<div class="meta"><span>เลขที่ใบรับ <span class="ln"></span></span>'+
+    '<span>วันที่รับ <span class="ln"></span></span></div>'+
+    '<div class="meta"><span>ผู้ขาย / ซัพพลายเออร์ <span class="ln w3"></span></span></div>'+
+    '<div class="meta"><span>เลขที่ใบส่งของผู้ขาย <span class="ln w2"></span></span>'+
+    '<span>ทะเบียนรถ <span class="ln"></span></span></div>'+
+    '<table><thead><tr><th style="width:28px">#</th><th class="l">รายการ</th><th>จำนวนตามบิล</th>'+
+    '<th>นับได้จริง</th><th>หน่วย</th><th>LOT / วันผลิต</th><th class="l">สภาพสินค้า</th></tr></thead><tbody>'+
+    blankRows(7,12)+'</tbody></table>'+
+    '<div class="meta" style="margin-top:10px"><span>ผลการตรวจรับ: '+
+    '&#9744; รับครบ ถูกต้อง &nbsp; &#9744; รับไม่ครบ &nbsp; &#9744; มีของเสียหาย (ระบุ <span class="ln w2"></span>)</span></div>'+
+    '<div class="note">รับแล้วต้องบันทึกเข้าระบบทุกครั้ง โดยใส่เลขที่ใบรับใบนี้ในช่อง "เลขที่เอกสาร"</div>'+
+    signRow(['ผู้รับของ','ผู้ตรวจนับ','หัวหน้าคลัง']);
+  return formDoc('ใบรับสินค้า / วัตถุดิบ',body,'FM-WH-02');
+}
+
+/* ---- 5. ใบส่งของ / ใบจ่ายสินค้า ---- */
+function formDelivery(){
+  var body='<div class="meta"><span>เลขที่บิล <span class="ln"></span></span>'+
+    '<span>วันที่ <span class="ln"></span></span></div>'+
+    '<div class="meta"><span>ชื่อลูกค้า <span class="ln w3"></span></span></div>'+
+    '<div class="meta"><span>ที่อยู่จัดส่ง <span class="ln w3"></span></span></div>'+
+    '<div class="meta"><span>ชื่อคนส่ง <span class="ln w2"></span></span>'+
+    '<span>ทะเบียนรถ <span class="ln"></span></span></div>'+
+    '<table><thead><tr><th style="width:28px">#</th><th class="l">สินค้า</th><th>จำนวน (แพ็ค)</th>'+
+    '<th>ราคา/แพ็ค</th><th>รวมเงิน</th></tr></thead><tbody>'+blankRows(5,12)+
+    '</tbody><tfoot><tr><th colspan="2" class="l">รวมทั้งสิ้น</th><th>&nbsp;</th><th>&nbsp;</th><th>&nbsp;</th></tr></tfoot></table>'+
+    '<div class="meta" style="margin-top:10px"><span>การชำระเงิน: '+
+    '&#9744; เงินสด <span class="ln" style="min-width:80px"></span> บาท &nbsp; '+
+    '&#9744; เงินโอน <span class="ln" style="min-width:80px"></span> บาท &nbsp; &#9744; ลงบัญชี</span></div>'+
+    signRow(['ผู้ออกบิล','ผู้ส่งของ','ผู้รับสินค้า']);
+  return formDoc('ใบส่งของ / ใบจ่ายสินค้า',body,'FM-SL-01');
+}
+
+/* ---- 6. ใบตรวจนับสต๊อก — ใส่รายชื่อสินค้าให้เลย ---- */
+function formCount(){
+  var list=activeSkus();
+  var rows='';
+  list.forEach(function(sk,i){
+    rows+='<tr><td>'+(i+1)+'</td><td class="l">'+esc(sk.brand)+' '+esc(sk.size)+'</td>'+
+      '<td>'+esc(unitOf(sk))+'</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="l">&nbsp;</td></tr>';
+  });
+  var body='<div class="meta"><span>วันที่ตรวจนับ <span class="ln"></span></span>'+
+    '<span>ผู้ตรวจนับ <span class="ln w2"></span></span>'+
+    '<span>รอบที่ <span class="ln" style="min-width:60px"></span></span></div>'+
+    '<table><thead><tr><th style="width:28px">#</th><th class="l">สินค้า</th><th>หน่วย</th>'+
+    '<th>พาเลท</th><th>+ เศษ</th><th>รวมนับได้</th><th class="l">หมายเหตุ</th></tr></thead><tbody>'+
+    rows+'</tbody></table>'+
+    '<div class="note">นับเสร็จแล้วนำตัวเลขช่อง "รวมนับได้" ไปกรอกในระบบ ที่แท็บสต๊อก &gt; ตรวจนับสต๊อก</div>'+
+    signRow(['ผู้ตรวจนับ','ผู้ทาน','หัวหน้าคลัง']);
+  return formDoc('ใบตรวจนับสต๊อกสินค้า',body,'FM-WH-03');
+}
+
+/* ---- 7. คู่มือใช้งานระบบ ---- */
+function formManual(){
+  var body='<div class="man">'+
+  '<p>คู่มือนี้เขียนให้พนักงานทุกคนอ่านเข้าใจได้ ไม่ต้องมีความรู้คอมพิวเตอร์</p>'+
+  '<h2>1. เข้าใช้งาน</h2>'+
+  '<ol><li>เปิดเว็บของบริษัทในมือถือหรือคอมพิวเตอร์</li>'+
+  '<li>ใส่ชื่อผู้ใช้และรหัสผ่านที่ได้รับ แล้วกด "เข้าสู่ระบบ"</li>'+
+  '<li>ติ๊ก "จำเครื่องนี้ไว้ 30 วัน" ถ้าเป็นเครื่องของตัวเอง</li></ol>'+
+  '<div class="tip">แต่ละคนใช้บัญชีของตัวเองเท่านั้น เพราะระบบจะบันทึกชื่อคนทำทุกครั้ง ห้ามใช้บัญชีคนอื่น</div>'+
+  '<h2>2. ขายหน้าโรงงาน</h2>'+
+  '<ol><li>ไปแท็บ <b>ขายและส่งของ</b> เลือก "ขายหน้าโรงงาน"</li>'+
+  '<li>ระบบใส่ <b>เลขที่บิล</b> ให้อัตโนมัติ (แก้ได้) — ช่องนี้ว่างไม่ได้</li>'+
+  '<li>พิมพ์ชื่อลูกค้า ถ้าเป็นลูกค้าประจำจะมีชื่อขึ้นมาให้เลือก</li>'+
+  '<li>ใส่จำนวนแพ็คในช่องของสินค้านั้น ระบบคิดเงินให้เอง</li>'+
+  '<li>ใส่เงินสด / เงินโอน แล้วกด <b>บันทึกบิล</b> สต๊อกจะถูกตัดทันที</li></ol>'+
+  '<h2>3. ขายส่ง / ขนส่ง</h2>'+
+  '<ol><li>เลือก "ขายส่ง / ขนส่ง"</li>'+
+  '<li>ต้องใส่ <b>เลขที่บิล</b> และ <b>ทะเบียนรถ</b> ทุกครั้ง ไม่ใส่จะบันทึกไม่ได้</li>'+
+  '<li>ใส่ชื่อคนส่งและชื่อลูกค้า</li>'+
+  '<li>ราคาคิดตามเรตของลูกค้ารายนั้น หรือเรตตามจำนวนที่สั่ง อันไหนถูกกว่าใช้อันนั้น</li></ol>'+
+  '<h2>4. รับเข้า / เบิกวัตถุดิบ</h2>'+
+  '<ol><li>ไปแท็บ <b>วัตถุดิบ</b> เลือกว่า "รับเข้า" หรือ "เบิกใช้"</li>'+
+  '<li>เลือกรายการ ใส่จำนวน</li>'+
+  '<li>ต้องใส่ <b>เลขที่เอกสาร</b> (เลขใบเบิกหรือใบรับของ) ทุกครั้ง</li>'+
+  '<li>กดบันทึก</li></ol>'+
+  '<h2>5. คุมเครื่องที่ไลน์ผลิต</h2>'+
+  '<ol><li>ไปแท็บ <b>ไลน์ผลิต</b> เลือกไลน์ที่ตัวเองคุม</li>'+
+  '<li>เลือกสินค้า แล้วกด "เริ่มเดินเครื่อง"</li>'+
+  '<li>ผลิตเสร็จ กด "ปิดงาน" แล้วใส่จำนวนที่ผลิตได้จริงกับของเสีย</li>'+
+  '<li>ระบบจะตัดขวดและฝาออกจากคลังให้เอง</li></ol>'+
+  '<h2>6. ป้ายพาเลท</h2>'+
+  '<ol><li>ไปแท็บ <b>ไลน์ผลิต</b> เลื่อนลงหา "ป้ายติดพาเลท"</li>'+
+  '<li>เลือกสินค้า ใส่ LOT และจำนวนป้ายที่ต้องการ</li>'+
+  '<li>กด <b>พิมพ์ป้ายเลย</b> หรือ <b>ดาวน์โหลดเก็บไว้</b></li>'+
+  '<li>ป้ายมีบาร์โค้ด สแกน 1 ครั้งเท่ากับรับเข้าสต๊อก 1 พาเลท</li></ol>'+
+  '<h2>7. สรุปยอดขายประจำวัน</h2>'+
+  '<ol><li>ไปแท็บ <b>รายงาน &amp; KPI</b></li>'+
+  '<li>เลือกช่วงวันที่ต้องการ</li>'+
+  '<li>กด <b>สรุปยอดขายรายวัน (พิมพ์)</b> จะได้รายงาน A4 พร้อมช่องเซ็น</li></ol>'+
+  '<h2>8. สิ่งที่ต้องทำทุกวัน</h2>'+
+  '<ul><li>ออกบิลทุกใบในระบบ อย่าจดใส่กระดาษอย่างเดียว</li>'+
+  '<li>ลงยอดผลิตและของเสียก่อนเลิกกะ</li>'+
+  '<li>ลงเงินสดและเงินโอนที่รับมาจริง</li>'+
+  '<li>ตรวจนับสต๊อกอย่างน้อยสัปดาห์ละครั้ง</li></ul>'+
+  '<h2>9. ถ้ามีปัญหา</h2>'+
+  '<ul><li><b>บันทึกไม่ได้ ขึ้นว่าต้องใส่เลขบิล</b> — ช่องที่มีดอกจันสีแดงต้องใส่ให้ครบ</li>'+
+  '<li><b>สต๊อกติดลบ</b> — แปลว่ายังไม่ได้ลงยอดผลิต หรือยังไม่ได้ตรวจนับใหม่ ไม่ใช่ความผิดพลาดของระบบ</li>'+
+  '<li><b>เข้าระบบไม่ได้</b> — แจ้งผู้จัดการให้ตั้งรหัสผ่านใหม่</li>'+
+  '<li><b>ตัวเลขผิด</b> — เฉพาะผู้จัดการแก้ได้ ที่แท็บรายงาน &gt; กรอกยอดขายย้อนหลัง</li></ul>'+
+  '</div>';
+  return formDoc('คู่มือใช้งานระบบ',body,'ฉบับพนักงาน');
+}
+
+var FORMS=[
+  {id:'plan',   ic:'🗓️', name:'แผนการผลิตประจำวัน',
+   desc:'ตารางลงเป้าหมาย ยอดผลิตจริง ของเสีย และปัญหาที่เครื่องหยุด', make:formPlan},
+  {id:'repair', ic:'🔧', name:'ใบแจ้งซ่อมเครื่องจักร',
+   desc:'แจ้งอาการ ช่างลงวิธีแก้ อะไหล่ที่ใช้ และเวลาที่เครื่องหยุด', make:formRepair},
+  {id:'issue',  ic:'📤', name:'ใบเบิกสินค้าจากคลัง',
+   desc:'ขอเบิกของออกจากคลัง มีช่องผู้อนุมัติและผู้จ่ายของ', make:formIssue},
+  {id:'recv',   ic:'📥', name:'ใบรับสินค้า / วัตถุดิบ',
+   desc:'ตรวจรับของจากผู้ขาย เทียบจำนวนตามบิลกับที่นับได้จริง', make:formReceive},
+  {id:'deliv',  ic:'🚚', name:'ใบส่งของ / ใบจ่ายสินค้า',
+   desc:'ใบส่งของให้ลูกค้า มีช่องทะเบียนรถ คนส่ง และลายเซ็นผู้รับ', make:formDelivery},
+  {id:'count',  ic:'📋', name:'ใบตรวจนับสต๊อก',
+   desc:'มีรายชื่อสินค้าทุกตัวพิมพ์มาให้แล้ว แค่เดินนับแล้วเติมตัวเลข', make:formCount},
+  {id:'manual', ic:'📘', name:'คู่มือใช้งานระบบ',
+   desc:'อธิบายทีละขั้นสำหรับพนักงานทุกคน แจกให้อ่านหรือติดไว้หน้างาน', make:formManual}
+];
+function renderForms(){
+  var host=$('form-list'); if(!host)return;
+  var sig=FORMS.length+'|'+skuSig;
+  if(host.dataset.sig===sig)return;
+  host.dataset.sig=sig; host.innerHTML='';
+  FORMS.forEach(function(f){
+    var c=el('div','formcard');
+    c.innerHTML='<div class="ic" aria-hidden="true">'+f.ic+'</div>'+
+      '<h3>'+esc(f.name)+'</h3><p>'+esc(f.desc)+'</p>'+
+      '<div class="row"><button class="btn sm primary" data-fprint="'+f.id+'">พิมพ์</button>'+
+      '<button class="btn sm" data-fdl="'+f.id+'">ดาวน์โหลด</button></div>';
+    host.appendChild(c);
+  });
+}
+function formById(id){ for(var i=0;i<FORMS.length;i++)if(FORMS[i].id===id)return FORMS[i];return null }
+$('form-list').addEventListener('click',async function(ev){
+  var b=ev.target.closest('button'); if(!b)return;
+  var f=formById(b.dataset.fprint||b.dataset.fdl); if(!f)return;
+  if(b.dataset.fprint){ printDoc(f.make(),'กำลังเปิดหน้าต่างพิมพ์ — '+f.name); return }
+  try{
+    await saveFile(f.name+'.html', f.make(), 'text/html;charset=utf-8');
+    toast('ดาวน์โหลดแล้ว — เปิดไฟล์แล้วกด Ctrl+P เพื่อพิมพ์');
+  }catch(e){ toast('ดาวน์โหลดไม่สำเร็จ') }
+});
+
 /* ---------------- กรอกยอดขายย้อนหลัง ---------------- */
 var BACKID='ยอดยกมา';
 function backEntries(iso){
@@ -2944,10 +3262,10 @@ function backEntries(iso){
   return (rec.entries||[]).filter(function(e){return e.back===true});
 }
 function renderBackfill(){
-  var can=S.admin;
-  $('back-locked').classList.toggle('hidden',can);
-  $('back-ui').classList.toggle('hidden',!can);
-  if(!can)return;
+  var ok=can('sale.backdate');
+  $('back-locked').classList.toggle('hidden',ok);
+  $('back-ui').classList.toggle('hidden',!ok);
+  if(!ok)return;
   if(!$('back-date').value)$('back-date').value=todayISO();
   var iso=$('back-date').value;
   var have={},rec=S.days[iso]||{};
@@ -3042,7 +3360,7 @@ async function saveBackfill(){
     toast(list.length? ('บันทึกยอดวัน '+thDate(iso)+' แล้ว '+n(list.length)+' รายการ') : ('ลบยอดย้อนหลังวัน '+thDate(iso)+' แล้ว'));
     $('back-body').dataset.sig='';
     renderBackfill();
-  }catch(e){toast('บันทึกไม่สำเร็จ — ต้องเป็นผู้จัดการ')}
+  }catch(e){toast('บันทึกไม่สำเร็จ — ต้องมีสิทธิ์กรอกยอดขายย้อนหลัง')}
   $('btn-back-save').disabled=false;
 }
 
@@ -3325,10 +3643,10 @@ function renderSet(){
 /* ---------------- ทะเบียนลูกค้า ---------------- */
 var CUSTTYPE={wh:'ขายส่ง',walk:'หน้าโรงงาน',oem:'OEM'};
 function renderCust(){
-  var can=S.admin;
-  $('cust-locked').classList.toggle('hidden',can);
-  $('cust-ui').classList.toggle('hidden',!can);
-  if(!can)return;
+  var ok=can('cust.edit');
+  $('cust-locked').classList.toggle('hidden',ok);
+  $('cust-ui').classList.toggle('hidden',!ok);
+  if(!ok)return;
   var find=($('cust-find').value||'').trim().toLowerCase();
   var list=(S.customers||[]).filter(function(c){
     return !find||String(c.name||'').toLowerCase().indexOf(find)>=0;
@@ -3356,7 +3674,7 @@ function renderCust(){
 }
 async function saveCustomers(items){
   try{ await S.db.doc('master/customers').set({items:items,updatedAt:new Date().toISOString()}); return true }
-  catch(e){ toast('บันทึกไม่สำเร็จ — ต้องมีสิทธิ์แก้ข้อมูลหลัก'); return false }
+  catch(e){ toast('บันทึกไม่สำเร็จ — ต้องมีสิทธิ์เพิ่ม-แก้ทะเบียนลูกค้า'); return false }
 }
 $('btn-cust-add').onclick=async function(){
   if(!requireDb())return;
@@ -3424,10 +3742,10 @@ $('cust-body').addEventListener('click',async function(ev){
 
 /* ---------------- ราคาขาย: เรต / โปรโมชั่น / ราคาหน้าร้าน ---------------- */
 function renderPrices(){
-  var can=S.admin;
-  $('price-locked').classList.toggle('hidden',can);
-  $('price-ui').classList.toggle('hidden',!can);
-  if(!can)return;
+  var ok=can('price.edit');
+  $('price-locked').classList.toggle('hidden',ok);
+  $('price-ui').classList.toggle('hidden',!ok);
+  if(!ok)return;
   var P=S.prices||{};
 
   var tl=$('tier-list');
@@ -3501,7 +3819,7 @@ function collectPrices(){
 }
 async function savePrices(body){
   try{ await S.db.doc('master/prices').set(body||collectPrices()); return true }
-  catch(e){ toast('บันทึกไม่สำเร็จ — ต้องมีสิทธิ์แก้ข้อมูลหลัก'); return false }
+  catch(e){ toast('บันทึกไม่สำเร็จ — ต้องมีสิทธิ์ตั้งราคาขาย'); return false }
 }
 $('btn-tier-add').onclick=function(){
   var P=S.prices||{};
@@ -3946,11 +4264,10 @@ async function exportCsv(kind){
 }
 async function saveRows(rowsOut,name){
   var csv='﻿'+rowsOut.map(function(r){return r.map(csvEscape).join(',')}).join('\r\n');
-  if(!S.downloads){toast('หน้านี้ดาวน์โหลดไฟล์ไม่ได้');return}
   try{
-    await FS.download(name,csv,'text/csv;charset=utf-8');
+    await saveFile(name,csv,'text/csv;charset=utf-8');
     toast('ดาวน์โหลดไฟล์แล้ว');
-  }catch(e){toast(e&&e.code==='user_declined'?'ยกเลิกการบันทึกไฟล์':'บันทึกไฟล์ไม่สำเร็จ')}
+  }catch(e){toast(e&&e.code==='user_declined'?'ยกเลิกการบันทึกไฟล์':'ดาวน์โหลดไม่สำเร็จ')}
 }
 
 /* ---------------- tabs & wiring ---------------- */
