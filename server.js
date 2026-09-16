@@ -6,6 +6,7 @@
 const http=require('http'), fs=require('fs'), path=require('path'), url=require('url');
 const store=require('./store'), auth=require('./auth'), backup=require('./backup'), {ROLES,PERMS,tabsFor,rolesOf,roleNames,deptOf}=require('./roles');
 const {netOf,matNetOf}=require('./signs');
+const pricing=require('./pricing');
 
 const PORT=process.env.PORT||8080;
 const PUB=path.join(__dirname,'public');
@@ -64,6 +65,7 @@ function checkDocWrite(u,p,body){
   const e=new Error('forbidden'); e.code='forbidden'; throw e;
 }
 function idx(list){ const m={}; (list||[]).forEach(x=>{ if(x&&x.id)m[x.id]=x }); return m }
+function fail(code,msg){ const e=new Error(msg); e.code='forbidden'; e.reason=code; e.msg=msg; throw e }
 function checkLedger(u,p,body){
   const cur=store.readDoc(p)||{entries:[],mat:[]};
   const a=idx(cur.entries), b=idx(body.entries);
@@ -71,9 +73,20 @@ function checkLedger(u,p,body){
   for(const k in b) if(!a[k]) added.push(b[k]);
   for(const k in a) if(!b[k]) removed.push(a[k]);
   if(removed.length) need(u,'sell.delete');
+  if(removed.some(e=>e&&e.back===true)) need(u,'master.edit');
   added.forEach(e=>{
     if(e.type==='sell'){
-      if(e.channel==='ขายส่ง') need(u,'sell.wholesale'); else need(u,'sell.walk');
+      if(e.back===true){
+        /* ยอดขายย้อนหลังที่ผู้จัดการกรอกเอง — ไม่ใช่บิลจริง จึงไม่ต้องมีทะเบียนรถ
+           แต่ต้องเป็นคนที่แก้ข้อมูลหลักได้เท่านั้น */
+        need(u,'master.edit');
+      }else{
+        if(e.channel==='ขายส่ง') need(u,'sell.wholesale'); else need(u,'sell.walk');
+        /* ทุกบิลต้องมีเลขบิล และบิลขายส่งต้องมีทะเบียนรถ — กันไว้ที่เซิร์ฟเวอร์ */
+        if(!String(e.bill||'').trim()) fail('need_bill','ทุกบิลต้องมีเลขที่บิล');
+        if(e.channel==='ขายส่ง'&&!String(e.plate||'').trim())
+          fail('need_plate','บิลขายส่งต้องใส่ทะเบียนรถ');
+      }
     } else if(e.line) need(u,'produce.station');
     else need(u,'produce.log');
     e.uid=u.id; e.uname=u.name;              /* ใครบันทึก — ปลอมไม่ได้ */
@@ -81,12 +94,45 @@ function checkLedger(u,p,body){
        ยกเว้นบิลขายส่ง ที่ by = ชื่อคนขับรถ ซึ่งอาจไม่ใช่คนออกบิล */
     if(!(e.type==='sell'&&e.channel==='ขายส่ง')) e.by=u.name;
   });
+  /* ---- ราคาขาย: เซิร์ฟเวอร์คิดเองทุกครั้ง ----
+     ยกเว้นบิลที่ผู้มีสิทธิ์ตั้งราคาเอง (priceRule='manual') ซึ่งต้องมีสิทธิ์ money.view
+     เรตตามจำนวนคิดจากจำนวนแพ็ครวมทั้งบิล จึงต้องจัดกลุ่มตามเลขบิลก่อน */
+  const sells=added.filter(e=>e.type==='sell');
+  if(sells.length){
+    const PR=store.readDoc('master/prices')||{};
+    const CO=store.readDoc('master/costs')||{};
+    const CUi=(store.readDoc('master/customers')||{}).items||[];
+    const SK=idx((store.readDoc('master/skus')||{}).items||[]);
+    const CU={}; CUi.forEach(c=>{ if(c&&c.id)CU[c.id]=c });
+    const isPack=id=>{ const k=SK[id]; return !k||(k.unit||'แพ็ค')==='แพ็ค' };
+    const grp={};
+    sells.forEach(e=>{ const k=String(e.bill||e.billNo||'_'); (grp[k]=grp[k]||[]).push(e) });
+    Object.keys(grp).forEach(k=>{
+      let packs=0;
+      grp[k].forEach(e=>{ if(isPack(e.skuId))packs+=(parseFloat(e.qty)||0) });
+      grp[k].forEach(e=>{
+        if(e.priceRule==='manual'){ need(u,'money.view') }
+        else{
+          const r=pricing.priceFor({skuId:e.skuId,channel:e.channel,totalPacks:packs,
+            customer:e.custId?CU[e.custId]:null,prices:PR,costs:CO,
+            date:String(e.ts||'').slice(0,10)});
+          e.unit=r.price; e.priceRule=r.rule;
+        }
+        e.amount=Math.round((parseFloat(e.unit)||0)*(parseFloat(e.qty)||0)*100)/100;
+      });
+    });
+  }
   const am=idx(cur.mat), bm=idx(body.mat);
   const addedM=[],removedM=[];
   for(const k in bm) if(!am[k]) addedM.push(bm[k]);
   for(const k in am) if(!bm[k]) removedM.push(am[k]);
   if(addedM.some(x=>x.type!=='auto')) need(u,'mat.move');
   if(removedM.length) need(u,'mat.move');
+  /* รับเข้า-เบิกใช้วัตถุดิบ ต้องมีเลขที่เอกสารทุกครั้ง (ยกเว้นที่ระบบตัดเองจากการผลิต) */
+  addedM.forEach(e=>{
+    if(e.type==='auto')return;
+    if(!String(e.docNo||'').trim()) fail('need_docno','รายการวัตถุดิบต้องมีเลขที่เอกสาร');
+  });
   addedM.forEach(e=>{ e.uid=u.id; e.uname=u.name; if(e.type!=='auto') e.by=u.name });
   /* ยอดสุทธิคำนวณที่เซิร์ฟเวอร์เสมอ ฝั่งหน้าเว็บแก้ไม่ได้ */
   body.net=netOf(body.entries);
@@ -140,7 +186,7 @@ async function api(req,res,u,parts,q){
       const b=await readBody(req);
       let body;
       try{ body=checkDocWrite(u,p,b.data||{}) }
-      catch(e){ return send(res,403,{error:'forbidden',perm:e.perm||''}) }
+      catch(e){ return send(res,403,{error:'forbidden',perm:e.perm||'',reason:e.reason||'',message:e.msg||''}) }
       try{
         const out=await store.writeDoc(p,body,b.ifVersion);
         broadcast(p);
