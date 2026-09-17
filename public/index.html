@@ -324,6 +324,8 @@ details.fold .panel-b{padding-top:0}
       <div class="kpi"><span class="k">ผลิตวันนี้</span><span class="v num" id="kpi-prod">—</span><span class="u" id="kpi-prod-u">แพ็ค</span></div>
       <div class="kpi"><span class="k">ขายวันนี้</span><span class="v num" id="kpi-sell">—</span><span class="u" id="kpi-sell-u">แพ็ค</span></div>
       <div class="kpi alert"><span class="k">ต้องผลิตด่วน</span><span class="v num" id="kpi-urgent">—</span><span class="u">รายการ</span></div>
+      <div class="kpi hidden" id="kpi-exp-card"><span class="k">ค่าใช้จ่าย 30 วัน</span><span class="v num" id="kpi-exp">—</span><span class="u" id="kpi-exp-u">บาท</span></div>
+      <div class="kpi hidden" id="kpi-profit-card"><span class="k">กำไรสุทธิ 30 วัน</span><span class="v num" id="kpi-profit">—</span><span class="u" id="kpi-profit-u">บาท</span></div>
     </div>
 
     <section class="panel">
@@ -347,6 +349,18 @@ details.fold .panel-b{padding-top:0}
           <div class="tip" id="efftip"></div>
         </div>
         <div class="row" style="margin-top:12px;gap:18px" id="eff-legend"></div>
+      </div>
+    </section>
+
+    <section class="panel hidden" id="money-panel">
+      <div class="panel-h"><h2>รายรับ · รายจ่าย · กำไรสุทธิ</h2>
+        <span class="sub">30 วันล่าสุด <b class="num" id="pl-sum">—</b></span></div>
+      <div class="panel-b">
+        <div class="chartbox" id="plbox">
+          <svg id="plchart" viewBox="0 0 760 230" role="img" aria-label="กราฟรายรับรายจ่ายและกำไรสุทธิรายวัน"></svg>
+          <div class="tip" id="pltip"></div>
+        </div>
+        <div class="row" style="margin-top:12px;gap:18px" id="pl-legend"></div>
       </div>
     </section>
 
@@ -806,6 +820,19 @@ details.fold .panel-b{padding-top:0}
       </div>
     </section>
 
+    <section class="panel" id="month-panel">
+      <div class="panel-h"><h2>สรุปรายเดือน</h2>
+        <span class="sub">รายรับ ต้นทุน ค่าใช้จ่าย และกำไรสุทธิ ของแต่ละเดือน · กดปุ่มพิมพ์เพื่อเอาไปเสนอ</span></div>
+      <div class="panel-b">
+        <div class="row" style="margin-bottom:12px;flex-wrap:wrap;gap:10px">
+          <button class="btn sm primary" id="btn-month-print">สรุปรายเดือน (พิมพ์)</button>
+          <button class="btn sm" id="btn-month-csv">ส่งออก CSV</button>
+          <span class="note" id="month-note">—</span>
+        </div>
+        <div class="tscroll"><table id="month-table"></table></div>
+      </div>
+    </section>
+
     <section class="panel hidden" id="rep-detail-panel">
       <div class="panel-h"><h2 id="rep-detail-h">รายละเอียดรายวัน</h2><span class="sub">แยกตามสินค้าและช่องทาง</span></div>
       <div class="panel-b tscroll"><table id="rep-detail"></table></div>
@@ -1237,6 +1264,13 @@ function n1(x){return (Math.round((x||0)*10)/10).toLocaleString('th-TH',{minimum
 function baht(x){return (Math.round(x||0)).toLocaleString('th-TH')+' ฿'}
 /* ต้นทุนต่อหน่วยมักเป็นทศนิยม เช่น ขวดละ 2.35 บาท ฝาชิ้นละ 0.18 บาท */
 function n2(x){return (Math.round((x||0)*100)/100).toLocaleString('th-TH',{minimumFractionDigits:0,maximumFractionDigits:2})}
+/* ย่อจำนวนเงินให้สั้นพอใส่บนแกนกราฟ เช่น 1.2 ล้าน */
+function kbaht(v){
+  var a=Math.abs(v);
+  if(a>=1000000)return (v<0?'-':'')+(Math.round(a/100000)/10)+'ล.';
+  if(a>=1000)return (v<0?'-':'')+Math.round(a/1000)+'พ.';
+  return String(Math.round(v));
+}
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
 function sleep(ms){return new Promise(function(r){setTimeout(r,ms)})}
 function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
@@ -1592,6 +1626,16 @@ function dailySeries(days){
   return out;
 }
 /* ประสิทธิภาพรายวัน: ผลิตได้จริง / ที่ควรได้ตามชั่วโมงเดินเครื่อง */
+/* รายรับ รายจ่าย กำไร รายวัน */
+function plSeries(days){
+  var out=[],t=todayISO();
+  for(var i=days-1;i>=0;i--){
+    var iso=addDays(t,-i), d=dayStats(iso);
+    out.push({date:iso,income:d.income,cogs:d.cogs,expense:d.expense,
+              profit:d.profit,sold:d.sold,margin:d.margin});
+  }
+  return out;
+}
 function effSeries(days){
   var out=[],t=todayISO();
   for(var i=days-1;i>=0;i--){
@@ -1682,6 +1726,7 @@ function lastDayNote(kind){
 function renderDash(){
   renderForms();
   drawEffChart();
+  drawPLChart();
   var st=stockMap(),tot=0,tanks=0;
   activeSkus().forEach(function(s){if(isPack(s))tot+=st[s.id]||0;else tanks+=st[s.id]||0});
   var tt=todayTotals(),av=avgSales(30);
@@ -1696,6 +1741,30 @@ function renderDash(){
   $('kpi-avg').textContent=n1(av.total);
   var avn=$('avg-days');if(avn)avn.textContent=av.days?('จาก '+av.days+' วันทำการ'):'ยังไม่มีข้อมูลขาย';
   $('kpi-urgent').textContent=n(urgent.length);
+  /* ค่าใช้จ่ายและกำไรสุทธิ 30 วันล่าสุด — เฉพาะคนที่ดูเงินได้ */
+  (function(){
+    var showMoney=canMoney();
+    var ec=$('kpi-exp-card'), pc=$('kpi-profit-card');
+    if(!ec||!pc)return;
+    if(!showMoney){ec.classList.add('hidden');pc.classList.add('hidden');return}
+    var t=todayISO(), from=addDays(t,-29);
+    var inc=0,cogs=0,exp=0,prof=0,nd=0;
+    sortedDays().forEach(function(iso){
+      if(iso<from||iso>t)return;
+      var d=dayStats(iso);
+      if(!d.income&&!d.expense&&!d.cogs)return;
+      inc+=d.income;cogs+=d.cogs;exp+=d.expense;prof+=d.profit;nd++;
+    });
+    if(!nd){ec.classList.add('hidden');pc.classList.add('hidden');return}
+    ec.classList.remove('hidden'); pc.classList.remove('hidden');
+    $('kpi-exp').textContent=n(exp+cogs);
+    $('kpi-exp-u').innerHTML='บาท · ค่าใช้จ่าย '+n(exp)+' + ค่าขวดฝา '+n(cogs);
+    $('kpi-profit').textContent=n(prof);
+    $('kpi-profit').style.color= prof<0? 'var(--crit)' : '';
+    $('kpi-profit-u').innerHTML= inc>0
+      ? ('บาท · '+Math.round(prof/inc*100)+'% ของรายรับ '+n(inc))
+      : 'บาท';
+  })();
   var badge=$('tab-badge'),crit=rs.filter(function(r){return r.status==='crit'}).length;
   if(crit>0){badge.textContent=crit;badge.classList.remove('hidden')}else{badge.classList.add('hidden')}
   var rb=$('tab-run'),run=runningLines().length;
@@ -1794,6 +1863,105 @@ function drawChart(){
   svg.innerHTML=s;
   chartPts=data.map(function(d,i){return {x:x(i),y:y(d.qty),date:d.date,qty:d.qty}});
 }
+var plPts=[];
+function drawPLChart(){
+  var svg=$('plchart'); if(!svg)return;
+  var panel=$('money-panel');
+  if(!canMoney()){ panel.classList.add('hidden'); return }
+  var W=760,H=230,L=76,R=16,T=18,B=30;
+  var data=plSeries(30);
+  var has=data.filter(function(d){return d.income||d.expense||d.cogs});
+  if(!has.length){ panel.classList.add('hidden'); return }
+  panel.classList.remove('hidden');
+  var iw=W-L-R, ih=H-T-B;
+  var x=function(i){return L+(data.length<2?iw/2:i*iw/(data.length-1))};
+  var hi=0,lo=0;
+  data.forEach(function(d){
+    var out=d.cogs+d.expense;
+    if(d.income>hi)hi=d.income; if(out>hi)hi=out;
+    if(d.profit>hi)hi=d.profit; if(d.profit<lo)lo=d.profit;
+  });
+  var span=(hi-lo)||1, top=hi+span*0.12, bot=lo-(lo<0?span*0.12:0);
+  var y=function(v){return T+ih-((v-bot)/((top-bot)||1))*ih};
+  var s='';
+  for(var g=0;g<=3;g++){
+    var v=bot+(top-bot)*g/3, yy=y(v);
+    s+='<line x1="'+L+'" y1="'+yy.toFixed(1)+'" x2="'+(W-R)+'" y2="'+yy.toFixed(1)+'" stroke="var(--grid)" stroke-width="1"/>'+
+       '<text x="'+(L-8)+'" y="'+(yy+4).toFixed(1)+'" text-anchor="end" font-family="var(--f-num)" font-size="11" fill="var(--muted)">'+kbaht(v)+'</text>';
+  }
+  /* เส้นศูนย์ ถ้ามีวันที่ขาดทุน */
+  if(bot<0)s+='<line x1="'+L+'" y1="'+y(0).toFixed(1)+'" x2="'+(W-R)+'" y2="'+y(0).toFixed(1)+
+    '" stroke="var(--axis)" stroke-width="1.5"/>';
+  /* แท่งคู่: รายรับ กับ รายจ่ายรวม (ต้นทุน+ค่าใช้จ่าย) */
+  var bw=Math.max(3,Math.min(9,iw/data.length*0.3));
+  data.forEach(function(d,i){
+    var out=d.cogs+d.expense;
+    if(d.income>0){
+      var yi=y(d.income), h0=y(Math.max(0,bot))-yi;
+      s+='<rect x="'+(x(i)-bw-1).toFixed(1)+'" y="'+yi.toFixed(1)+'" width="'+bw.toFixed(1)+
+         '" height="'+Math.max(1,h0).toFixed(1)+'" rx="1.5" fill="var(--good)" fill-opacity=".8"/>';
+    }
+    if(out>0){
+      var yo=y(out), h1=y(Math.max(0,bot))-yo;
+      s+='<rect x="'+(x(i)+1).toFixed(1)+'" y="'+yo.toFixed(1)+'" width="'+bw.toFixed(1)+
+         '" height="'+Math.max(1,h1).toFixed(1)+'" rx="1.5" fill="var(--crit)" fill-opacity=".7"/>';
+    }
+  });
+  /* เส้นกำไรสุทธิ */
+  var line='',any=false;
+  data.forEach(function(d,i){
+    if(!d.income&&!d.expense&&!d.cogs)return;
+    line+=(any?'L':'M')+x(i).toFixed(1)+' '+y(d.profit).toFixed(1)+' '; any=true;
+  });
+  if(any)s+='<path d="'+line+'" fill="none" stroke="var(--accent)" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>';
+  data.forEach(function(d,i){
+    var last=(i===data.length-1);
+    if(i%6!==1&&!last)return;
+    s+='<text x="'+x(i).toFixed(1)+'" y="'+(H-9)+'" text-anchor="'+(last?'end':'middle')+
+       '" font-family="var(--f-num)" font-size="11.5" fill="var(--muted)">'+thShort(d.date)+'</text>';
+  });
+  s+='<line id="plcross" x1="0" y1="'+T+'" x2="0" y2="'+(T+ih)+'" stroke="var(--accent)" stroke-width="1" stroke-dasharray="3 3" opacity="0"/>';
+  svg.innerHTML=s;
+  plPts=data.map(function(d,i){return {x:x(i),y:y(d.profit),d:d}});
+
+  var ti=0,tc=0,te=0,tp=0;
+  data.forEach(function(d){ti+=d.income;tc+=d.cogs;te+=d.expense;tp+=d.profit});
+  var mg= ti>0? Math.round(tp/ti*100) : null;
+  $('pl-sum').innerHTML= 'กำไรสุทธิ <b style="color:'+(tp<0?'var(--crit)':'var(--good)')+'">'+baht(tp)+'</b>'+
+    (mg!==null?(' · '+mg+'% ของรายรับ'):'');
+  $('pl-legend').innerHTML=
+    '<span class="note"><b class="ui" style="color:var(--good)">▉</b> รายรับ <b class="num">'+baht(ti)+'</b></span>'+
+    '<span class="note"><b class="ui" style="color:var(--crit)">▉</b> รายจ่ายรวม <b class="num">'+baht(tc+te)+'</b> '+
+      '<span style="color:var(--muted)">(ค่าขวดฝา '+baht(tc)+' · ค่าใช้จ่าย '+baht(te)+')</span></span>'+
+    '<span class="note"><b class="ui" style="color:var(--accent)">━</b> กำไรสุทธิ <b class="num">'+baht(tp)+'</b></span>'+
+    '<span class="note" style="color:var(--muted)">ยังไม่รวมค่าแรงและค่าไฟ ถ้าไม่ได้ลงเป็นค่าใช้จ่าย</span>';
+}
+(function bindPLChart(){
+  var box=$('plbox'); if(!box)return;
+  var svg=$('plchart'),tip=$('pltip');
+  function move(ev){
+    if(!plPts.length)return;
+    var r=svg.getBoundingClientRect(),sx=(ev.clientX-r.left)*760/r.width;
+    var best=0,bd=1e9;
+    plPts.forEach(function(p,i){var d=Math.abs(p.x-sx);if(d<bd){bd=d;best=i}});
+    var p=plPts[best],sc=r.width/760,d=p.d;
+    var c=svg.querySelector('#plcross');
+    if(c){c.setAttribute('x1',p.x);c.setAttribute('x2',p.x);c.setAttribute('opacity','1')}
+    tip.innerHTML='<div class="note">'+thDate(d.date)+'</div>'+
+      '<div class="big" style="color:'+(d.profit<0?'var(--crit)':'var(--good)')+'">'+baht(d.profit)+'</div>'+
+      '<div class="note">รับ '+baht(d.income)+' · ขวดฝา '+baht(d.cogs)+' · ค่าใช้จ่าย '+baht(d.expense)+'</div>';
+    tip.classList.add('on');
+    var tw=tip.offsetWidth,left=p.x*sc-tw/2;
+    left=Math.max(2,Math.min(r.width-tw-2,left));
+    tip.style.left=left+'px'; tip.style.top=Math.max(0,p.y*sc-62)+'px';
+  }
+  box.addEventListener('pointermove',move);
+  box.addEventListener('pointerleave',function(){
+    tip.classList.remove('on');
+    var c=svg.querySelector('#plcross'); if(c)c.setAttribute('opacity','0');
+  });
+})();
+
 var effPts=[];
 function drawEffChart(){
   var svg=$('effchart'); if(!svg)return;
@@ -3404,6 +3572,24 @@ function dayStats(iso){
   o.money=o.cash+o.tr;
   o.sold=o.walk+o.wh;
   o.eff=o.theo>0?Math.round(o.prod/o.theo*100):null;
+  /* ---- ตัวเลขกำไร ----
+     รายรับ   = เงินที่รับจริง ถ้ายังไม่ได้ลงเงิน ใช้ยอดตามบิลแทน
+     ต้นทุนของที่ขาย = ค่าขวด + ค่าฝา ของสินค้าที่ขายไปจริง (เท่าที่ใส่ราคาทุนไว้)
+     ค่าใช้จ่าย = ที่บันทึกไว้ในวันนั้น
+     กำไรสุทธิ = รายรับ − ต้นทุนของที่ขาย − ค่าใช้จ่าย
+     หมายเหตุ: ยังไม่รวมค่าแรง ค่าไฟ ค่าเสื่อม ถ้าไม่ได้ลงเป็นค่าใช้จ่าย */
+  o.income = o.money>0 ? o.money : o.billed;
+  o.cogs=0; o.cogsKnown=0; o.cogsMissing=0;
+  ents.forEach(function(e){
+    if(e.type!=='sell')return;
+    var sk=skuById(e.skuId); if(!sk||!isPack(sk))return;
+    var c=skuMatCost(sk);
+    if(c>0){ o.cogs+=c*(+e.qty||0); o.cogsKnown+=(+e.qty||0) }
+    else o.cogsMissing+=(+e.qty||0);
+  });
+  o.expense=expTotalOf(iso);
+  o.profit=o.income-o.cogs-o.expense;
+  o.margin=o.income>0?(o.profit/o.income*100):null;
   return o;
 }
 function repDays(){
@@ -3414,9 +3600,11 @@ function repDays(){
 function repTotals(list){
   var t={prod:0,waste:0,walk:0,wh:0,tank:0,hours:0,theo:0,billCount:0,
          cash:0,tr:0,money:0,walkMoney:0,whMoney:0,sold:0,
+         billed:0,income:0,cogs:0,cogsKnown:0,cogsMissing:0,expense:0,profit:0,
          bySku:{walk:{},wh:{}},force:{},cust:{},days:list.length,workDays:0};
   list.forEach(function(d){
-    ['prod','waste','walk','wh','tank','hours','theo','billCount','cash','tr','money','walkMoney','whMoney','sold']
+    ['prod','waste','walk','wh','tank','hours','theo','billCount','cash','tr','money','walkMoney','whMoney','sold',
+     'billed','income','cogs','cogsKnown','cogsMissing','expense','profit']
       .forEach(function(k){t[k]+=d[k]||0});
     if(d.sold>0||d.prod>0)t.workDays++;
     ['walk','wh'].forEach(function(c){
@@ -3430,6 +3618,8 @@ function repTotals(list){
     }
   });
   t.eff=t.theo>0?Math.round(t.prod/t.theo*100):null;
+  t.margin=t.income>0?(t.profit/t.income*100):null;
+  t.profitPerPack=t.sold>0?(t.profit/t.sold):0;
   t.wasteRate=(t.prod+t.waste)>0?(t.waste/(t.prod+t.waste)*100):0;
   t.perHour=t.hours>0?t.prod/t.hours:0;
   t.avgBill=t.billCount>0?t.sold/t.billCount:0;
@@ -3453,6 +3643,7 @@ function meterCell(pct){
 function effColor(p){return p==null?'var(--muted)':p>=85?'var(--good)':p>=65?'var(--warn)':'var(--crit)'}
 
 function renderReport(){
+  renderMonths();
   renderExpense();
   renderBackfill();
   var r=repDates(), list=repDays(), T=repTotals(list);
@@ -4052,7 +4243,111 @@ async function saveBackfill(){
   $('btn-back-save').disabled=false;
 }
 
+/* ---------------- สรุปรายเดือน ---------------- */
+var THMONTH=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+function thMonth(ym){
+  var p=ym.split('-');
+  return THMONTH[(+p[1]||1)-1]+' '+((+p[0]||0)+543);
+}
+/* รวมทุกเดือนที่มีข้อมูล ใหม่สุดขึ้นก่อน */
+function monthRows(){
+  var by={};
+  sortedDays().forEach(function(iso){
+    var ym=iso.slice(0,7);
+    var m=by[ym]||(by[ym]={ym:ym,days:0,sold:0,walk:0,wh:0,prod:0,waste:0,
+      income:0,cogs:0,cogsMissing:0,expense:0,profit:0,billCount:0,hours:0,theo:0});
+    var d=dayStats(iso);
+    if(d.sold>0||d.prod>0||d.expense>0)m.days++;
+    ['sold','walk','wh','prod','waste','income','cogs','cogsMissing','expense','profit','billCount','hours','theo']
+      .forEach(function(k){m[k]+=d[k]||0});
+  });
+  var out=[];
+  for(var k in by){
+    var m=by[k];
+    m.margin=m.income>0?(m.profit/m.income*100):null;
+    m.eff=m.theo>0?Math.round(m.prod/m.theo*100):null;
+    out.push(m);
+  }
+  out.sort(function(a,b){return a.ym<b.ym?1:-1});
+  return out;
+}
+function renderMonths(){
+  var host=$('month-table'); if(!host)return;
+  var money=canMoney();
+  var rows=monthRows();
+  $('month-note').textContent= rows.length? ('มีข้อมูล '+n(rows.length)+' เดือน') : 'ยังไม่มีข้อมูล';
+  if(!rows.length){host.innerHTML='<tbody><tr><td><div class="empty">ยังไม่มีข้อมูล</div></td></tr></tbody>';return}
+  var h='<thead><tr><th class="l">เดือน</th><th>วันที่ทำงาน</th><th>ขาย (แพ็ค)</th><th>ผลิต (แพ็ค)</th>'+
+    (money?'<th>รายรับ</th><th>ค่าขวด+ฝา</th><th>ค่าใช้จ่าย</th><th>กำไรสุทธิ</th><th>% กำไร</th>':'')+
+    '<th>ประสิทธิภาพ</th></tr></thead><tbody>';
+  var T={days:0,sold:0,prod:0,income:0,cogs:0,expense:0,profit:0};
+  rows.forEach(function(m){
+    ['days','sold','prod','income','cogs','expense','profit'].forEach(function(k){T[k]+=m[k]});
+    h+='<tr><td class="l"><b class="ui">'+esc(thMonth(m.ym))+'</b></td>'+
+      '<td class="num">'+n(m.days)+'</td>'+
+      '<td class="num"><b>'+n(m.sold)+'</b></td>'+
+      '<td class="num">'+n(m.prod)+'</td>'+
+      (money?('<td class="num">'+baht(m.income)+'</td>'+
+        '<td class="num" style="color:var(--muted)">'+(m.cogs>0?baht(m.cogs):'—')+'</td>'+
+        '<td class="num" style="color:var(--muted)">'+(m.expense>0?baht(m.expense):'—')+'</td>'+
+        '<td class="num"><b style="color:'+(m.profit<0?'var(--crit)':'var(--good)')+'">'+baht(m.profit)+'</b></td>'+
+        '<td class="num">'+(m.margin!==null?(Math.round(m.margin)+'%'):'—')+'</td>'):'')+
+      '<td class="num">'+(m.eff!==null?(m.eff+'%'):'—')+'</td></tr>';
+  });
+  h+='</tbody><tfoot><tr><td class="l"><b class="ui">รวมทุกเดือน</b></td>'+
+    '<td class="num"><b>'+n(T.days)+'</b></td><td class="num"><b>'+n(T.sold)+'</b></td>'+
+    '<td class="num"><b>'+n(T.prod)+'</b></td>'+
+    (money?('<td class="num"><b>'+baht(T.income)+'</b></td>'+
+      '<td class="num">'+baht(T.cogs)+'</td><td class="num">'+baht(T.expense)+'</td>'+
+      '<td class="num"><b style="color:'+(T.profit<0?'var(--crit)':'var(--good)')+'">'+baht(T.profit)+'</b></td>'+
+      '<td class="num">'+(T.income>0?(Math.round(T.profit/T.income*100)+'%'):'—')+'</td>'):'')+
+    '<td class="num"></td></tr></tfoot>';
+  host.innerHTML=h;
+  var miss=rows.reduce(function(t,m){return t+m.cogsMissing},0);
+  if(miss>0)$('month-note').innerHTML='มีข้อมูล '+n(rows.length)+' เดือน · '+
+    '<span style="color:var(--serious)">'+n(miss)+' แพ็คยังไม่ได้ใส่ราคาทุนขวด/ฝา กำไรจึงสูงกว่าจริง</span>';
+}
+function monthDocHTML(){
+  var rows=monthRows(), money=canMoney();
+  var h='<p class="sub">พิมพ์เมื่อ '+esc(thDate(todayISO()))+' โดย '+esc(whoNow())+'</p>'+
+    '<table><thead><tr><th class="l">เดือน</th><th>วันทำงาน</th><th>ขาย (แพ็ค)</th><th>ผลิต (แพ็ค)</th>'+
+    (money?'<th>รายรับ</th><th>ค่าขวด+ฝา</th><th>ค่าใช้จ่าย</th><th>กำไรสุทธิ</th><th>%</th>':'')+
+    '</tr></thead><tbody>';
+  var T={days:0,sold:0,prod:0,income:0,cogs:0,expense:0,profit:0};
+  rows.forEach(function(m){
+    ['days','sold','prod','income','cogs','expense','profit'].forEach(function(k){T[k]+=m[k]});
+    h+='<tr><td class="l">'+esc(thMonth(m.ym))+'</td><td>'+n(m.days)+'</td><td>'+n(m.sold)+'</td>'+
+      '<td>'+n(m.prod)+'</td>'+
+      (money?('<td>'+baht(m.income)+'</td><td>'+baht(m.cogs)+'</td><td>'+baht(m.expense)+'</td>'+
+        '<td><b>'+baht(m.profit)+'</b></td><td>'+(m.margin!==null?Math.round(m.margin)+'%':'—')+'</td>'):'')+
+      '</tr>';
+  });
+  h+='</tbody><tfoot><tr><td class="l"><b>รวม</b></td><td><b>'+n(T.days)+'</b></td>'+
+    '<td><b>'+n(T.sold)+'</b></td><td><b>'+n(T.prod)+'</b></td>'+
+    (money?('<td><b>'+baht(T.income)+'</b></td><td><b>'+baht(T.cogs)+'</b></td>'+
+      '<td><b>'+baht(T.expense)+'</b></td><td><b>'+baht(T.profit)+'</b></td>'+
+      '<td><b>'+(T.income>0?Math.round(T.profit/T.income*100)+'%':'—')+'</b></td>'):'')+
+    '</tr></tfoot></table>'+
+    '<div class="note">กำไรสุทธิ = รายรับ − ค่าขวดและฝาของที่ขายไป − ค่าใช้จ่ายที่บันทึกไว้ '+
+    '· ยังไม่รวมค่าแรง ค่าไฟ ค่าเสื่อม ถ้าไม่ได้ลงเป็นค่าใช้จ่าย</div>'+
+    signRow(['ผู้จัดทำ','ฝ่ายบัญชี','ผู้จัดการ']);
+  return formDoc('สรุปผลประกอบการรายเดือน',h,'RPT-MT-01');
+}
+$('btn-month-print').onclick=function(){ printDoc(monthDocHTML(),'กำลังเปิดหน้าต่างพิมพ์ — สรุปรายเดือน') };
+$('btn-month-csv').onclick=async function(){
+  var rows=monthRows(), money=canMoney();
+  var out=[['สรุปผลประกอบการรายเดือน'],[],
+    ['เดือน','วันทำงาน','ขาย (แพ็ค)','ผลิต (แพ็ค)'].concat(
+      money?['รายรับ','ค่าขวดฝา','ค่าใช้จ่าย','กำไรสุทธิ','% กำไร']:[])];
+  rows.forEach(function(m){
+    out.push([thMonth(m.ym),m.days,m.sold,m.prod].concat(
+      money?[m.income,m.cogs,m.expense,m.profit,m.margin!==null?Math.round(m.margin):'']:[]));
+  });
+  await saveRows(out,'finra-monthly.csv');
+};
+
 /* ---------------- สรุปยอดขายรายวัน (พิมพ์) ---------------- */
+function XPLEN(iso){ return expOf(iso).length }
 function dayReportHTML(iso){
   var d=dayStats(iso), money=canMoney();
   var h='<h1>สรุปยอดขายประจำวัน</h1>'+
@@ -4085,6 +4380,19 @@ function dayReportHTML(iso){
       '</tbody></table>';
   }
 
+  if(money){
+    h+='<h2>สรุปกำไรของวันนี้</h2><table><tbody>'+
+      '<tr><td class="l">รายรับ</td><td><b>'+baht(d.income)+'</b></td>'+
+        '<td class="l">'+(d.money>0?'จากเงินที่รับจริง':'จากยอดตามบิล (ยังไม่ได้ลงเงินรับ)')+'</td></tr>'+
+      '<tr><td class="l">หัก ค่าขวดและฝาของที่ขายไป</td><td>'+(d.cogs>0?('−'+baht(d.cogs)):'—')+'</td>'+
+        '<td class="l">'+(d.cogsMissing>0?('อีก '+n(d.cogsMissing)+' แพ็คยังไม่ได้ใส่ราคาทุน'):'')+'</td></tr>'+
+      '<tr><td class="l">หัก ค่าใช้จ่าย</td><td>'+(d.expense>0?('−'+baht(d.expense)):'—')+'</td>'+
+        '<td class="l">'+(XPLEN(iso)?(n(XPLEN(iso))+' รายการ'):'')+'</td></tr>'+
+      '<tr><td class="l"><b>กำไรสุทธิ</b></td><td><b>'+baht(d.profit)+'</b></td>'+
+        '<td class="l">'+(d.margin!==null?(Math.round(d.margin)+'% ของรายรับ'):'')+'</td></tr>'+
+      '</tbody></table>'+
+      '<div class="note">ยังไม่รวมค่าแรง ค่าไฟ ค่าเสื่อม ถ้าไม่ได้ลงเป็นค่าใช้จ่าย</div>';
+  }
   var XP=expOf(iso);
   if(money&&XP.length){
     var xt=0; XP.forEach(function(e){xt+=parseFloat(e.amount)||0});
