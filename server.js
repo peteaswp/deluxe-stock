@@ -66,6 +66,8 @@ function need(u,p){ if(!has(u,p)){const e=new Error('forbidden');e.code='forbidd
 function checkDocWrite(u,p,body){
   if(p==='master/customers'){ need(u,'cust.edit'); return body }
   if(p==='master/drivers')  { need(u,'cust.edit'); return body }
+  if(p==='master/matcosts') { need(u,'mat.cost');  return body }
+  if(p==='master/expcats')  { need(u,'expense.log'); return body }
   if(p==='master/prices')   { need(u,'price.edit'); return body }
   if(p.startsWith('master/')) { need(u,'master.edit'); return body }
   if(p==='stock/baseline'||p==='stock/matbaseline'){
@@ -89,7 +91,11 @@ function checkDocWrite(u,p,body){
 function idx(list){ const m={}; (list||[]).forEach(x=>{ if(x&&x.id)m[x.id]=x }); return m }
 function fail(code,msg){ const e=new Error(msg); e.code='forbidden'; e.reason=code; e.msg=msg; throw e }
 function checkLedger(u,p,body){
-  const cur=store.readDoc(p)||{entries:[],mat:[]};
+  const cur=store.readDoc(p)||{entries:[],mat:[],exp:[]};
+  /* ถ้าคำสั่งที่ส่งมาไม่ได้แนบรายการวัตถุดิบหรือค่าใช้จ่ายมาด้วย
+     ให้ถือว่า "ไม่แตะต้อง" ไม่ใช่ "ลบทิ้ง" — กันข้อมูลหายจากการเขียนไม่ครบ */
+  if(!Array.isArray(body.mat)) body.mat=(cur.mat||[]).slice();
+  if(!Array.isArray(body.exp)) body.exp=(cur.exp||[]).slice();
   const a=idx(cur.entries), b=idx(body.entries);
   const added=[],removed=[];
   for(const k in b) if(!a[k]) added.push(b[k]);
@@ -148,6 +154,21 @@ function checkLedger(u,p,body){
       });
     });
   }
+  /* ---- ค่าใช้จ่าย ---- */
+  const ax=idx(cur.exp), bx=idx(body.exp);
+  const addedX=[],removedX=[];
+  for(const k in bx) if(!ax[k]) addedX.push(bx[k]);
+  for(const k in ax) if(!bx[k]) removedX.push(ax[k]);
+  if(addedX.length||removedX.length) need(u,'expense.log');
+  addedX.forEach(e=>{
+    if(!(parseFloat(e.amount)>0)) fail('need_amount','ค่าใช้จ่ายต้องใส่จำนวนเงิน');
+    if(!String(e.note||'').trim()&&!String(e.cat||'').trim())
+      fail('need_note','ค่าใช้จ่ายต้องใส่รายละเอียดหรือเลือกประเภท');
+    e.uid=u.id; e.uname=u.name; e.by=u.name;      /* ใครเบิก — ปลอมไม่ได้ */
+    e.amount=Math.round((parseFloat(e.amount)||0)*100)/100;
+  });
+  if(addedX.length||removedX.length)
+    audit(u,'expense',{date:p.split('/')[1],add:addedX.length,del:removedX.length});
   const am=idx(cur.mat), bm=idx(body.mat);
   const addedM=[],removedM=[];
   for(const k in bm) if(!am[k]) addedM.push(bm[k]);
@@ -163,12 +184,14 @@ function checkLedger(u,p,body){
   /* ยอดสุทธิคำนวณที่เซิร์ฟเวอร์เสมอ ฝั่งหน้าเว็บแก้ไม่ได้ */
   body.net=netOf(body.entries);
   body.matNet=matNetOf(body.mat);
+  body.expTotal=(body.exp||[]).reduce((t,e)=>t+(parseFloat(e.amount)||0),0);
   if(added.length||removed.length||addedM.length||removedM.length)
     audit(u,'ledger',{date:p.split('/')[1],add:added.length,del:removed.length,mat:addedM.length});
   return body;
 }
 function canRead(u,p){
   if(p==='master/costs') return has(u,'money.view');
+  if(p==='master/matcosts') return has(u,'mat.cost');   /* ต้นทุนวัตถุดิบ เห็นเฉพาะคนที่เกี่ยวข้อง */
   return true;
 }
 

@@ -602,12 +602,13 @@ details.fold .panel-b{padding-top:0}
 
     <section class="panel">
       <div class="panel-h"><h2>วัตถุดิบคงเหลือ</h2><span class="sub" id="mat-asof">—</span>
+        <span class="sub cost-col" id="mat-value">—</span>
         <div class="spacer"></div>
         <span class="seg" id="seg-matgroup"></span>
       </div>
       <div class="panel-b tscroll">
         <table>
-          <thead><tr><th class="l">รายการ</th><th>คงเหลือ</th><th class="l">หน่วยใหญ่</th><th>ใช้เฉลี่ย/วัน</th><th>พอใช้อีก</th><th>ขั้นต่ำ</th><th class="l">สถานะ</th></tr></thead>
+          <thead><tr><th class="l">รายการ</th><th>คงเหลือ</th><th class="l">หน่วยใหญ่</th><th>ใช้เฉลี่ย/วัน</th><th>พอใช้อีก</th><th>ขั้นต่ำ</th><th class="cost-col">ทุน/หน่วย</th><th class="cost-col">มูลค่า</th><th class="l">สถานะ</th></tr></thead>
           <tbody id="mat-body"><tr><td colspan="7"><div class="skel"></div></td></tr></tbody>
         </table>
       </div>
@@ -624,7 +625,7 @@ details.fold .panel-b{padding-top:0}
         <p class="note" id="bom-locked">ต้องมีสิทธิ์แก้ข้อมูลหลัก จึงจะใช้ส่วนนี้ได้</p>
         <div id="bom-ui" class="hidden">
           <div class="tscroll" style="max-height:420px;overflow-y:auto">
-            <table><thead><tr><th class="l">สินค้า</th><th>ขวด/แพ็ค</th><th class="l">ขวด PET ที่ใช้</th><th class="l">ฝาที่ใช้</th></tr></thead><tbody id="bom-body"></tbody></table>
+            <table><thead><tr><th class="l">สินค้า</th><th>ขวด/แพ็ค</th><th class="l">ขวด PET ที่ใช้</th><th class="l">ฝาที่ใช้</th><th class="cost-col">ทุนขวด+ฝา/แพ็ค</th></tr></thead><tbody id="bom-body"></tbody></table>
           </div>
           <div class="row" style="margin-top:12px">
             <button class="btn primary" id="btn-bom-save">บันทึกการผูกวัตถุดิบ</button>
@@ -658,12 +659,16 @@ details.fold .panel-b{padding-top:0}
           <datalist id="matgroups"></datalist>
           <div class="tscroll" style="max-height:420px"><table>
             <thead><tr><th class="l">ชื่อ</th><th class="l">กลุ่ม</th><th class="l">หน่วย</th>
-              <th class="l">หน่วยใหญ่</th><th>ต่อหน่วยใหญ่</th><th>ขั้นต่ำ</th><th>ใช้งาน</th><th class="l"></th></tr></thead>
+              <th class="l">หน่วยใหญ่</th><th>ต่อหน่วยใหญ่</th><th>ขั้นต่ำ</th>
+              <th class="cost-col">ราคาทุน</th><th class="cost-col l">ราคาต่อ</th>
+              <th class="cost-col">ทุน/หน่วยนับ</th><th class="cost-col">มูลค่าคงคลัง</th>
+              <th>ใช้งาน</th><th class="l"></th></tr></thead>
             <tbody id="matedit-body"></tbody>
           </table></div>
           <div class="row" style="margin-top:12px">
             <button class="btn" id="btn-matedit-save">บันทึกการแก้ไข</button>
             <span class="note" id="matedit-count">—</span>
+            <span class="note cost-col" id="matedit-value" style="margin-inline-start:auto"></span>
           </div>
         </div>
       </div>
@@ -733,6 +738,33 @@ details.fold .panel-b{padding-top:0}
           <tbody id="rep-days"></tbody>
           <tfoot id="rep-foot"></tfoot>
         </table>
+      </div>
+    </section>
+
+    <section class="panel" id="exp-panel">
+      <div class="panel-h"><h2>ค่าใช้จ่าย</h2>
+        <span class="sub">ค่าน้ำมัน ค่าซื้อของ เบิกเงินพนักงาน ฯลฯ · พิมพ์รายละเอียดเองได้</span></div>
+      <div class="panel-b">
+        <p class="note hidden" id="exp-locked">ต้องมีสิทธิ์ "บันทึกและแก้ค่าใช้จ่าย" จึงจะใช้ส่วนนี้ได้</p>
+        <div id="exp-ui" class="hidden">
+          <div class="grid2" style="margin-bottom:12px">
+            <div class="field"><label for="ex-date">วันที่</label><input type="date" id="ex-date"></div>
+            <div class="field"><label for="ex-cat">ประเภท</label>
+              <input type="text" id="ex-cat" list="expcats" placeholder="เลือก หรือพิมพ์ใหม่"></div>
+            <div class="field" style="grid-column:span 2"><label for="ex-note">รายละเอียด</label>
+              <input type="text" id="ex-note" placeholder="เช่น เติมน้ำมันรถ 1กก 1234 ให้แบงค์"></div>
+            <div class="field"><label for="ex-amt">จำนวนเงิน (บาท)</label>
+              <input type="number" id="ex-amt" min="0" step="0.01" placeholder="0"></div>
+            <div class="field"><label for="ex-to">จ่ายให้ / ผู้รับเงิน</label>
+              <input type="text" id="ex-to" placeholder="ชื่อคนหรือร้าน"></div>
+            <div class="field"><label for="ex-doc">เลขที่เอกสาร / บิล</label>
+              <input type="text" id="ex-doc" placeholder="ถ้ามี"></div>
+            <div class="field" style="align-self:end"><button class="btn primary" id="btn-exp-add">บันทึกค่าใช้จ่าย</button></div>
+          </div>
+          <datalist id="expcats"></datalist>
+          <div class="row" style="flex-wrap:wrap;gap:16px;margin-bottom:10px" id="exp-sum"></div>
+          <div class="entrylist" id="exp-list"></div>
+        </div>
       </div>
     </section>
 
@@ -906,6 +938,28 @@ details.fold .panel-b{padding-top:0}
         <div class="row" style="margin-top:14px">
           <button class="btn primary" id="btn-rate-save">บันทึกราคา</button>
           <button class="btn" id="btn-rate-close">ปิด</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="expcat-panel">
+      <div class="panel-h"><h2>ประเภทค่าใช้จ่าย</h2>
+        <span class="sub">ตั้งไว้ครั้งเดียว แล้วเลือกตอนบันทึก · เพิ่ม แก้ ลบ ได้เอง</span></div>
+      <div class="panel-b">
+        <p class="note hidden" id="expcat-locked">ต้องมีสิทธิ์ "บันทึกและแก้ค่าใช้จ่าย" จึงจะแก้ได้</p>
+        <div id="expcat-ui" class="hidden">
+          <div class="row" style="flex-wrap:wrap;gap:10px;margin-bottom:12px">
+            <input type="text" id="ec-name" placeholder="ชื่อประเภทใหม่ เช่น ค่าเช่าโกดัง" style="max-width:280px">
+            <button class="btn primary" id="btn-ec-add">เพิ่มประเภท</button>
+            <span class="note" id="ec-count">—</span>
+          </div>
+          <div class="tscroll" style="max-height:300px"><table>
+            <thead><tr><th class="l">ประเภท</th><th>เคยใช้ (รายการ)</th><th class="l"></th></tr></thead>
+            <tbody id="ec-body"></tbody>
+          </table></div>
+          <div class="row" style="margin-top:12px">
+            <button class="btn" id="btn-ec-save">บันทึกการแก้ไข</button>
+          </div>
         </div>
       </div>
     </section>
@@ -1181,6 +1235,8 @@ function thShort(iso){var p=iso.split('-');var d=new Date(+p[0],+p[1]-1,+p[2]);r
 function n(x){return (Math.round(x||0)).toLocaleString('th-TH')}
 function n1(x){return (Math.round((x||0)*10)/10).toLocaleString('th-TH',{minimumFractionDigits:0,maximumFractionDigits:1})}
 function baht(x){return (Math.round(x||0)).toLocaleString('th-TH')+' ฿'}
+/* ต้นทุนต่อหน่วยมักเป็นทศนิยม เช่น ขวดละ 2.35 บาท ฝาชิ้นละ 0.18 บาท */
+function n2(x){return (Math.round((x||0)*100)/100).toLocaleString('th-TH',{minimumFractionDigits:0,maximumFractionDigits:2})}
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
 function sleep(ms){return new Promise(function(r){setTimeout(r,ms)})}
 function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
@@ -1261,7 +1317,8 @@ var S={
   db:null, downloads:null, ready:false, admin:false,
   skus:[], config:JSON.parse(JSON.stringify(DEFAULT_CFG)),
   costs:null, baseline:null, days:{}, lines:{}, materials:[], matBaseline:null,
-  customers:[], drivers:[], prices:{walk:{},tiers:[],skuTiers:{},promos:[]},
+  customers:[], drivers:[], matCosts:null, expCats:[],
+  prices:{walk:{},tiers:[],skuTiers:{},promos:[]},
   win:30, cover:5,
   form:{type:'produce',sku:null},
   tab:'dash', pending:{}, flushT:null, csv:null
@@ -1301,6 +1358,76 @@ function linesForSku(sku){ return linesCfg().filter(function(L){return canMake(L
 function skusForLine(L){ return activeSkus().filter(function(s2){return canMake(L,s2)}) }
 function palletsOf(s,packs){var pp=packsPerPallet(s);if(!pp)return {full:0,rem:0,pp:0};return {full:Math.floor(packs/pp),rem:packs%pp,pp:pp}}
 function palletText(s,packs){var pp=packsPerPallet(s);if(!pp)return '—';var p=palletsOf(s,packs);return p.full+(p.rem?' + '+p.rem:'')}
+
+/* ---------------- ค่าใช้จ่าย ---------------- */
+var EXPCATS_DEFAULT=['ค่าน้ำมัน','ค่าซื้อของ','เบิกเงินพนักงาน','ค่าซ่อมเครื่องจักร',
+                     'ค่าขนส่ง','ค่าน้ำค่าไฟ','ค่าอาหาร','อื่นๆ'];
+function expCats(){
+  var a=(S.expCats||[]).filter(function(c){return String(c||'').trim()});
+  return a.length? a : EXPCATS_DEFAULT;
+}
+function expOf(iso){ return ((S.days[iso]||{}).exp)||[] }
+function expTotalOf(iso){
+  return expOf(iso).reduce(function(t,e){return t+(parseFloat(e.amount)||0)},0);
+}
+/* รวมค่าใช้จ่ายในช่วงวันที่ + แยกตามประเภท */
+function expRange(from,to){
+  var out={total:0,byCat:{},list:[]};
+  sortedDays().forEach(function(d){
+    if(d<from||d>to)return;
+    expOf(d).forEach(function(e){
+      var a=parseFloat(e.amount)||0;
+      out.total+=a;
+      var c=e.cat||'อื่นๆ';
+      out.byCat[c]=(out.byCat[c]||0)+a;
+      out.list.push({date:d,e:e});
+    });
+  });
+  out.list.sort(function(a,b){return a.date<b.date?1:-1});
+  return out;
+}
+
+/* ---------------- ต้นทุนวัตถุดิบ ---------------- */
+/* เก็บเป็น {cost:{matId:ราคา}, per:{matId:'base'|'pack'}}
+   base = ราคาต่อหน่วยนับ (ต่อขวด / ต่อชิ้น / ต่อโล)
+   pack = ราคาต่อหน่วยใหญ่ (ต่อถุง / ต่อกล่อง / ต่อม้วน) */
+function canMatCost(){ return can('mat.cost') }
+function matCostRaw(id){
+  var C=S.matCosts||{};
+  var v=parseFloat((C.cost||{})[id]);
+  return isFinite(v)&&v>0?v:0;
+}
+function matCostMode(id){
+  var C=S.matCosts||{};
+  return ((C.per||{})[id]==='pack')?'pack':'base';
+}
+/* ต้นทุนต่อ 1 หน่วยนับ ไม่ว่าจะกรอกมาแบบไหน */
+function matUnitCost(id){
+  var m=matById(id); if(!m)return 0;
+  var raw=matCostRaw(id); if(raw<=0)return 0;
+  if(matCostMode(id)==='pack'){
+    var per=+m.per||1;
+    return per>0? raw/per : 0;
+  }
+  return raw;
+}
+/* มูลค่าของที่มีอยู่ในคลัง */
+function matStockValue(id){
+  var q=+(matStockMap()[id]||0);
+  return q*matUnitCost(id);
+}
+function matTotalValue(){
+  var t=0; mats().forEach(function(m){ t+=matStockValue(m.id) });
+  return t;
+}
+/* ต้นทุนวัตถุดิบต่อ 1 แพ็คสินค้า (ขวด + ฝา ตามที่ผูกไว้) */
+function skuMatCost(sk){
+  if(!sk||!isPack(sk))return 0;
+  var per=bottlesPerPack(sk), c=0;
+  if(sk.bottleId)c+=matUnitCost(sk.bottleId)*per;
+  if(sk.capId)c+=matUnitCost(sk.capId)*per;
+  return c;
+}
 
 /* ---------------- ตัวช่วยกลาง ---------------- */
 function canMoney(){ return can('money.view') }
@@ -2843,8 +2970,10 @@ function renderMat(){
   $('mat-asof').textContent=(S.matBaseline&&S.matBaseline.asOf)?('ยอดตั้งต้น '+thDate(S.matBaseline.asOf)+' + รายการหลังจากนั้น'):'ยังไม่ได้ตั้งยอดตั้งต้น';
   /* table */
   var tb=$('mat-body');tb.innerHTML='';
+  var showCost=canMatCost();
+  [].forEach.call(document.querySelectorAll('.cost-col'),function(e){e.classList.toggle('hidden',!showCost)});
   var show=rs.filter(function(r){return MAT.group==='ทั้งหมด'||(r.m.group||'อื่น ๆ')===MAT.group});
-  if(!show.length){tb.innerHTML='<tr><td colspan="7"><div class="empty">ยังไม่มีวัตถุดิบในกลุ่มนี้</div></td></tr>'}
+  if(!show.length){tb.innerHTML='<tr><td colspan="9"><div class="empty">ยังไม่มีวัตถุดิบในกลุ่มนี้</div></td></tr>'}
   show.sort(function(a,b){return a.cov-b.cov}).forEach(function(r){
     var tr=el('tr');
     tr.dataset.mat=r.m.id; tr.dataset.qty=r.qty;
@@ -2855,9 +2984,17 @@ function renderMat(){
       '<td class="num">'+(r.use>0?n1(r.use):'—')+'</td>'+
       '<td class="num">'+(r.use>0?n1(r.cov)+' วัน':'—')+'</td>'+
       '<td class="num" style="color:var(--muted)">'+n(+r.m.min||0)+'</td>'+
+      (showCost?
+        ('<td class="num cost-col" style="color:var(--muted)">'+(matUnitCost(r.m.id)>0?n2(matUnitCost(r.m.id)):'—')+'</td>'+
+         '<td class="num cost-col">'+(matUnitCost(r.m.id)>0
+            ?('<b'+(matStockValue(r.m.id)<0?' style="color:var(--crit)"':'')+'>'+baht(Math.round(matStockValue(r.m.id)))+'</b>')
+            :'—')+'</td>')
+        :'')+
       '<td class="l">'+(r.status==='none'?'<span class="note">ยังไม่ได้ตรวจนับ</span>':statChip(r.status))+'</td>';
     tb.appendChild(tr);
   });
+  var mv=$('mat-value');
+  if(mv)mv.innerHTML= showCost? ('มูลค่าคงคลังรวม <b class="num">'+baht(Math.round(matTotalValue()))+'</b>') : '';
   renderMatList();renderBom();renderMatCount();matHint();
 }
 function matUnits(){
@@ -2914,7 +3051,9 @@ function renderBom(){
   $('bom-locked').classList.toggle('hidden',S.admin);
   $('bom-ui').classList.toggle('hidden',!S.admin);
   if(!S.admin)return;
-  var tb=$('bom-body'),sig=skuSig+'|'+(S.materials||[]).length;
+  var showCost=canMatCost();
+  var tb=$('bom-body'),sig=skuSig+'|'+(S.materials||[]).length+'|'+showCost+'|'+
+    JSON.stringify((S.matCosts||{}).cost||{});
   if(tb.dataset.sig===sig)return;
   tb.dataset.sig=sig;tb.innerHTML='';
   var bottles=mats().filter(function(m){return (m.group||'')==='ขวด'});
@@ -2929,7 +3068,8 @@ function renderBom(){
     tr.innerHTML='<td class="name l"><b>'+esc(s.brand)+' '+esc(s.size)+'</b></td>'+
       '<td class="num">'+bottlesPerPack(s)+'</td>'+
       '<td class="l"><select id="bom-b-'+s.id+'" style="max-width:230px">'+opts(bottles,s.bottleId)+'</select></td>'+
-      '<td class="l"><select id="bom-c-'+s.id+'" style="max-width:200px">'+opts(caps,s.capId)+'</select></td>';
+      '<td class="l"><select id="bom-c-'+s.id+'" style="max-width:200px">'+opts(caps,s.capId)+'</select></td>'+
+      (showCost?('<td class="num cost-col">'+(skuMatCost(s)>0?('<b>'+n2(skuMatCost(s))+'</b> <span class="note">฿</span>'):'<span class="note">ยังไม่ได้ใส่ราคาทุน</span>')+'</td>'):'');
     tb.appendChild(tr);
   });
 }
@@ -2971,6 +3111,8 @@ function matUsage(id){
 }
 function renderMatEdit(){
   var ok=can('master.edit');
+  var showCost=canMatCost();
+  [].forEach.call(document.querySelectorAll('.cost-col'),function(e){e.classList.toggle('hidden',!showCost)});
   $('matedit-locked').classList.toggle('hidden',ok);
   $('matedit-ui').classList.toggle('hidden',!ok);
   if(!ok)return;
@@ -2982,10 +3124,11 @@ function renderMatEdit(){
   var list=S.materials||[];
   $('matedit-count').textContent=n(list.length)+' รายการ · ใช้งานอยู่ '+n(mats().length)+' รายการ';
   var tb=$('matedit-body');
-  var sig=list.map(function(m){return [m.id,m.name,m.group,m.unit,m.packUnit,m.per,m.min,m.active].join('~')}).join('|');
-  if(tb.dataset.sig===sig)return;
+  var sig=list.map(function(m){return [m.id,m.name,m.group,m.unit,m.packUnit,m.per,m.min,m.active,
+        matCostRaw(m.id),matCostMode(m.id)].join('~')}).join('|')+'|'+showCost;
+  if(tb.dataset.sig===sig){matCostCells();return}
   tb.dataset.sig=sig; tb.innerHTML='';
-  if(!list.length){tb.innerHTML='<tr><td colspan="8"><div class="empty">ยังไม่มีวัตถุดิบในระบบ</div></td></tr>';return}
+  if(!list.length){tb.innerHTML='<tr><td colspan="12"><div class="empty">ยังไม่มีวัตถุดิบในระบบ</div></td></tr>';return}
   list.forEach(function(m){
     var tr=el('tr');
     tr.innerHTML='<td class="l"><input type="text" id="me-n-'+m.id+'" value="'+esc(m.name||'')+'" style="min-width:180px"></td>'+
@@ -2994,10 +3137,43 @@ function renderMatEdit(){
       '<td class="l"><input type="text" id="me-p-'+m.id+'" value="'+esc(m.packUnit||'')+'" style="max-width:90px"></td>'+
       '<td><input type="number" id="me-r-'+m.id+'" value="'+(+m.per||1)+'" min="1" step="1" style="max-width:100px;text-align:right"></td>'+
       '<td><input type="number" id="me-m-'+m.id+'" value="'+(+m.min||0)+'" min="0" step="1" style="max-width:100px;text-align:right"></td>'+
+      (showCost?
+        ('<td><input type="number" class="matcost" data-mat="'+m.id+'" id="me-c-'+m.id+'" value="'+(matCostRaw(m.id)||'')+
+           '" min="0" step="0.01" placeholder="—" style="max-width:100px;text-align:right"></td>'+
+         '<td class="l"><select class="matcostper" data-mat="'+m.id+'" id="me-cp-'+m.id+'" style="min-width:126px;max-width:150px">'+
+           '<option value="base"'+(matCostMode(m.id)==='base'?' selected':'')+'>ต่อ '+esc(m.unit||'หน่วย')+'</option>'+
+           ((+m.per||1)>1?('<option value="pack"'+(matCostMode(m.id)==='pack'?' selected':'')+'>ต่อ '+esc(m.packUnit||'หน่วยใหญ่')+'</option>'):'')+
+           '</select></td>'+
+         '<td class="num" id="me-uc-'+m.id+'" style="color:var(--muted)"></td>'+
+         '<td class="num" id="me-sv-'+m.id+'"></td>')
+        :'')+
       '<td><input type="checkbox" id="me-a-'+m.id+'"'+(m.active!==false?' checked':'')+'></td>'+
       '<td class="l"><button class="btn sm danger" data-matdel="'+m.id+'">ลบ</button></td>';
     tb.appendChild(tr);
   });
+  matCostCells();
+}
+/* ช่องคำนวณ: ทุนต่อหน่วยนับ และมูลค่าของที่มีอยู่ */
+function matCostCells(){
+  if(!canMatCost())return;
+  var tot=0;
+  (S.materials||[]).forEach(function(m){
+    var uc=$('me-uc-'+m.id), sv=$('me-sv-'+m.id);
+    if(!uc||!sv)return;
+    var box=$('me-c-'+m.id), sel=$('me-cp-'+m.id);
+    var raw=box? (parseFloat(box.value)||0) : matCostRaw(m.id);
+    var mode=sel? sel.value : matCostMode(m.id);
+    var per=+m.per||1;
+    var u= raw<=0? 0 : (mode==='pack'&&per>0 ? raw/per : raw);
+    var q=+(matStockMap()[m.id]||0), val=q*u;
+    if(m.active!==false)tot+=val;
+    uc.textContent= u>0? (n2(u)+' /'+(m.unit||'')) : '—';
+    sv.innerHTML= u<=0 ? '<span style="color:var(--muted)">—</span>'
+      : (val<0 ? '<b style="color:var(--crit)">'+baht(Math.round(val))+'</b>'
+               : '<b>'+baht(Math.round(val))+'</b>');
+  });
+  var v=$('matedit-value');
+  if(v)v.innerHTML='มูลค่าวัตถุดิบคงคลังรวม <b class="num">'+baht(Math.round(tot))+'</b>';
 }
 async function saveMaterials(items){
   try{ await S.db.doc('master/materials').set({items:items,updatedAt:new Date().toISOString()}); return true }
@@ -3034,8 +3210,26 @@ $('btn-matedit-save').onclick=async function(){
     g=$('me-a-'+m.id); if(g)o.active=g.checked;
     return o;
   });
-  if(await saveMaterials(items))toast('บันทึกรายการวัตถุดิบแล้ว');
+  var okM=await saveMaterials(items);
+  if(canMatCost()){
+    var cost={},per={};
+    (S.materials||[]).forEach(function(m){
+      var b=$('me-c-'+m.id), sel=$('me-cp-'+m.id);
+      if(!b)return;
+      var v=parseFloat(b.value);
+      if(isFinite(v)&&v>0){ cost[m.id]=v; per[m.id]=sel?sel.value:'base' }
+    });
+    try{ await S.db.doc('master/matcosts').set({cost:cost,per:per,updatedAt:new Date().toISOString()}) }
+    catch(e){ toast('บันทึกต้นทุนไม่สำเร็จ — ต้องมีสิทธิ์ดูและแก้ต้นทุนวัตถุดิบ'); return }
+  }
+  if(okM)toast('บันทึกรายการวัตถุดิบแล้ว');
 };
+$('matedit-body').addEventListener('input',function(ev){
+  if(ev.target.classList.contains('matcost'))matCostCells();
+});
+$('matedit-body').addEventListener('change',function(ev){
+  if(ev.target.classList.contains('matcostper'))matCostCells();
+});
 $('matedit-body').addEventListener('click',async function(ev){
   var b=ev.target.closest('button[data-matdel]'); if(!b)return;
   if(!requireDb())return;
@@ -3259,6 +3453,7 @@ function meterCell(pct){
 function effColor(p){return p==null?'var(--muted)':p>=85?'var(--good)':p>=65?'var(--warn)':'var(--crit)'}
 
 function renderReport(){
+  renderExpense();
   renderBackfill();
   var r=repDates(), list=repDays(), T=repTotals(list);
   $('rep-range').textContent = (r.from===r.to? thDate(r.from)
@@ -3271,6 +3466,14 @@ function renderReport(){
     kpiCard('ขายรวม',n(T.sold)+' <span class="ks">แพ็ค</span>',
        T.tank?('+ น้ำถัง '+n(T.tank)+' ถัง'):('เฉลี่ย '+n(Math.round(T.avgDay))+' แพ็ค/วันทำการ'),{hi:1})+
     (MV?kpiCard('เงินขายรวม',baht(T.money),'เงินสด '+n(T.cash)+' · โอน '+n(T.tr)):'')+
+    (MV?(function(){
+      var r=repDates(), X=expRange(r.from,r.to);
+      if(!X.total&&!X.list.length)return '';
+      var net=T.money-X.total;
+      return kpiCard('ค่าใช้จ่าย',baht(X.total),n(X.list.length)+' รายการ')+
+             kpiCard('เหลือหลังหักค่าใช้จ่าย',baht(net),
+               net<0?'จ่ายมากกว่ารับ':'จากเงินขาย '+baht(T.money),{hi:1});
+    })():'')+
     kpiCard('ขายหน้าโรงงาน',n(T.walk)+' <span class="ks">แพ็ค</span>',
        (MV?baht(T.walkMoney)+' · ':'')+walkPct+'% ของยอด',{pct:walkPct})+
     kpiCard('ขายส่ง / ขนส่ง',n(T.wh)+' <span class="ks">แพ็ค</span>',
@@ -3455,6 +3658,15 @@ $('btn-rep-csv').onclick=async function(){
   fl.forEach(function(f){
     out.push([f.who,f.ch,f.bills,f.qty,f.bills?(Math.round(f.qty/f.bills*10)/10):'',Object.keys(f.cust).length]);
   });
+  var XR=expRange(r.from,r.to);
+  if(XR.list.length){
+    out.push([]);out.push(['ค่าใช้จ่าย']);
+    out.push(['วันที่','ประเภท','รายละเอียด','จ่ายให้','เลขที่เอกสาร','จำนวนเงิน','ลงโดย']);
+    XR.list.forEach(function(x){
+      out.push([x.date,x.e.cat||'',x.e.note||'',x.e.payTo||'',x.e.docNo||'',x.e.amount||0,x.e.uname||'']);
+    });
+    out.push(['รวมค่าใช้จ่าย','','','','',XR.total,'']);
+  }
   out.push([]);out.push(['สินค้าขายดี']);
   out.push(['สินค้า','หน้าโรงงาน','ขายส่ง','รวม']);
   S.skus.forEach(function(sk){
@@ -3873,6 +4085,22 @@ function dayReportHTML(iso){
       '</tbody></table>';
   }
 
+  var XP=expOf(iso);
+  if(money&&XP.length){
+    var xt=0; XP.forEach(function(e){xt+=parseFloat(e.amount)||0});
+    h+='<h2>ค่าใช้จ่ายวันนี้ ('+n(XP.length)+' รายการ)</h2>'+
+      '<table><thead><tr><th class="l">ประเภท</th><th class="l">รายละเอียด</th>'+
+      '<th class="l">จ่ายให้</th><th class="l">เลขที่เอกสาร</th><th>จำนวนเงิน</th></tr></thead><tbody>';
+    XP.forEach(function(e){
+      h+='<tr><td class="l">'+esc(e.cat||'อื่นๆ')+'</td><td class="l">'+esc(e.note||'—')+'</td>'+
+         '<td class="l">'+esc(e.payTo||'—')+'</td><td class="l">'+esc(e.docNo||'—')+'</td>'+
+         '<td>'+baht(e.amount)+'</td></tr>';
+    });
+    h+='</tbody><tfoot><tr><td class="l" colspan="4"><b>รวมค่าใช้จ่าย</b></td>'+
+       '<td><b>'+baht(xt)+'</b></td></tr>'+
+       '<tr><td class="l" colspan="4"><b>เหลือหลังหักค่าใช้จ่าย</b></td>'+
+       '<td><b>'+baht(d.money-xt)+'</b></td></tr></tfoot></table>';
+  }
   h+='<h2>แยกตามสินค้า</h2><table><thead><tr><th class="l">สินค้า</th>'+
      '<th>หน้าโรงงาน</th><th>ขายส่ง</th><th>รวม (แพ็ค)</th></tr></thead><tbody>';
   var any=false;
@@ -4073,6 +4301,7 @@ function renderMoney(){
 /* ---------------- render: settings ---------------- */
 function renderSet(){
   $('bk-panel').classList.toggle('hidden',!P('user.manage'));
+  renderExpCats();
   renderDrivers();
   renderCust();
   renderPrices();
@@ -4220,6 +4449,136 @@ async function cleanupSkuRefs(id){
       updatedAt:new Date().toISOString()}));
   }catch(e){}
 }
+
+/* ---------------- ค่าใช้จ่าย: หน้าจอ ---------------- */
+function renderExpense(){
+  var ok=can('expense.log');
+  $('exp-locked').classList.toggle('hidden',ok);
+  $('exp-ui').classList.toggle('hidden',!ok);
+  if(!ok)return;
+  if(!$('ex-date').value)$('ex-date').value=todayISO();
+  var dl=$('expcats'), cs=expCats();
+  if(dl.dataset.sig!==cs.join(',')){
+    dl.dataset.sig=cs.join(','); dl.innerHTML='';
+    cs.forEach(function(c){var o=el('option');o.value=c;dl.appendChild(o)});
+  }
+  var r=repDates(), R=expRange(r.from,r.to);
+  var cats=Object.keys(R.byCat).sort(function(a,b){return R.byCat[b]-R.byCat[a]});
+  $('exp-sum').innerHTML=
+    '<span class="note">ช่วงที่เลือก: <b class="num" style="color:var(--crit)">'+baht(R.total)+'</b> จาก '+n(R.list.length)+' รายการ</span>'+
+    cats.slice(0,6).map(function(c){
+      return '<span class="note"><b class="ui" style="color:var(--ink-2)">'+esc(c)+'</b> <span class="num">'+baht(R.byCat[c])+'</span></span>';
+    }).join('');
+  var host=$('exp-list'); host.innerHTML='';
+  if(!R.list.length){
+    host.innerHTML='<div class="entry"><div class="empty" style="flex:1">ยังไม่มีค่าใช้จ่ายในช่วงที่เลือก</div></div>';
+    return;
+  }
+  R.list.slice(0,80).forEach(function(x){
+    var e=x.e, row=el('div','entry');
+    row.innerHTML='<span class="when">'+esc(thShort(x.date))+'</span>'+
+      '<span class="tag" style="background:var(--crit-soft);color:var(--crit)">'+esc(e.cat||'อื่นๆ')+'</span>'+
+      '<span class="nm">'+esc(e.note||'—')+'</span>'+
+      '<span class="meta">'+esc([e.payTo,e.docNo].filter(Boolean).join(' · '))+'</span>'+
+      (e.uname?('<span class="bywho">ลงโดย <b>'+esc(e.uname)+'</b></span>'):'')+
+      '<span class="q minus">−'+baht(e.amount)+'</span>';
+    var del=el('button','btn sm danger','ลบ');
+    del.style.marginInlineStart='8px';
+    del.onclick=function(){removeExpense(x.date,e.id)};
+    row.appendChild(del);
+    host.appendChild(row);
+  });
+  if(R.list.length>80)host.appendChild(el('div','entry','แสดง 80 รายการล่าสุด จากทั้งหมด '+n(R.list.length)+' รายการ'));
+}
+$('btn-exp-add').onclick=async function(){
+  if(!requireDb())return;
+  var iso=$('ex-date').value||todayISO();
+  var amt=parseFloat($('ex-amt').value)||0;
+  var note=$('ex-note').value.trim(), cat=$('ex-cat').value.trim();
+  if(amt<=0){toast('ใส่จำนวนเงินก่อน');$('ex-amt').focus();return}
+  if(!note&&!cat){toast('ใส่รายละเอียด หรือเลือกประเภทก่อน');$('ex-note').focus();return}
+  var e={id:'x'+uid(),ts:iso+'T'+new Date().toTimeString().slice(0,5)+':00+07:00',
+    rts:new Date().toISOString(),cat:cat||'อื่นๆ',note:note,amount:amt,
+    payTo:$('ex-to').value.trim(),docNo:$('ex-doc').value.trim()};
+  $('btn-exp-add').disabled=true;
+  try{
+    await withDay(iso,function(entries,cur){
+      return {entries:entries, exp:(cur.exp||[]).concat([e])};
+    });
+    toast('บันทึกค่าใช้จ่าย '+baht(amt)+' แล้ว');
+    ['ex-note','ex-amt','ex-to','ex-doc'].forEach(function(id){$(id).value=''});
+  }catch(err){toast('บันทึกไม่สำเร็จ — ต้องมีสิทธิ์บันทึกค่าใช้จ่าย')}
+  $('btn-exp-add').disabled=false;
+};
+async function removeExpense(iso,id){
+  if(!requireDb())return;
+  if(!await askConfirm('ลบรายการค่าใช้จ่ายนี้ใช่ไหม?','ลบ'))return;
+  try{
+    await withDay(iso,function(entries,cur){
+      return {entries:entries, exp:(cur.exp||[]).filter(function(x){return x.id!==id})};
+    });
+    toast('ลบแล้ว');
+  }catch(e){toast('ลบไม่สำเร็จ')}
+}
+$('ex-date').addEventListener('change',renderExpense);
+
+/* ---------------- ประเภทค่าใช้จ่าย ---------------- */
+function expCatUse(name){
+  var c=0;
+  sortedDays().forEach(function(d){
+    expOf(d).forEach(function(e){ if((e.cat||'อื่นๆ')===name)c++ });
+  });
+  return c;
+}
+function renderExpCats(){
+  var ok=can('expense.log');
+  $('expcat-locked').classList.toggle('hidden',ok);
+  $('expcat-ui').classList.toggle('hidden',!ok);
+  if(!ok)return;
+  var list=expCats();
+  $('ec-count').textContent=n(list.length)+' ประเภท';
+  var tb=$('ec-body'), sig=list.join('|');
+  if(tb.dataset.sig===sig)return;
+  tb.dataset.sig=sig; tb.innerHTML='';
+  list.forEach(function(c,i){
+    var used=expCatUse(c);
+    var tr=el('tr');
+    tr.innerHTML='<td class="l"><input type="text" id="ec-'+i+'" value="'+esc(c)+'" style="max-width:260px"></td>'+
+      '<td class="num" style="color:var(--muted)">'+(used?n(used):'—')+'</td>'+
+      '<td class="l"><button class="btn sm danger" data-ecdel="'+i+'">ลบ</button></td>';
+    tb.appendChild(tr);
+  });
+}
+async function saveExpCats(list){
+  try{ await S.db.doc('master/expcats').set({items:list,updatedAt:new Date().toISOString()}); return true }
+  catch(e){ toast('บันทึกไม่สำเร็จ — ต้องมีสิทธิ์บันทึกค่าใช้จ่าย'); return false }
+}
+$('btn-ec-add').onclick=async function(){
+  if(!requireDb())return;
+  var nm=$('ec-name').value.trim();
+  if(!nm){toast('ใส่ชื่อประเภทก่อน');return}
+  if(expCats().some(function(c){return c.toLowerCase()===nm.toLowerCase()})){toast('มีประเภทนี้อยู่แล้ว');return}
+  if(await saveExpCats(expCats().concat([nm]))){$('ec-name').value='';toast('เพิ่ม '+nm+' แล้ว')}
+};
+$('btn-ec-save').onclick=async function(){
+  if(!requireDb())return;
+  var out=[];
+  expCats().forEach(function(c,i){
+    var b=$('ec-'+i); var v=b? b.value.trim() : c;
+    if(v&&out.indexOf(v)<0)out.push(v);
+  });
+  if(await saveExpCats(out))toast('บันทึกประเภทค่าใช้จ่ายแล้ว');
+};
+$('ec-body').addEventListener('click',async function(ev){
+  var b=ev.target.closest('button[data-ecdel]'); if(!b)return;
+  var i=+b.dataset.ecdel, list=expCats(), nm=list[i];
+  if(nm===undefined)return;
+  var used=expCatUse(nm);
+  var msg= used? ('ลบประเภท "'+nm+'" ใช่ไหม?\nมีค่าใช้จ่ายเก่าใช้ประเภทนี้อยู่ '+n(used)+' รายการ — รายการเก่าจะยังอยู่ครบ แค่ไม่มีให้เลือกตอนบันทึกใหม่')
+                : ('ลบประเภท "'+nm+'" ใช่ไหม?');
+  if(!await askConfirm(msg,'ลบ'))return;
+  if(await saveExpCats(list.filter(function(_,j){return j!==i})))toast('ลบแล้ว');
+});
 
 /* ---------------- ตารางราคาที่ตกลงกับลูกค้า ---------------- */
 var RATEFOR=null;
@@ -4735,18 +5094,22 @@ async function withDay(iso,mutate){
       var snap=await ref.get();
       var cur=snap.exists?snap.data():{date:iso,entries:[]};
       var entries=(cur.entries||[]).slice();
-      var extra=null,matList=null;
+      var extra=null,matList=null,expList=null;
       var res=mutate(entries,cur);
       if(Array.isArray(res))entries=res;
       else if(res&&typeof res==='object'){
         if(Array.isArray(res.entries))entries=res.entries;
         extra=res.revenue; if(Array.isArray(res.mat))matList=res.mat;
+        if(Array.isArray(res.exp))expList=res.exp;
         if(res.revenueSet){cur=Object.assign({},cur);cur.revenue=null;extra=res.revenueSet}
       }
       if(!Array.isArray(entries))entries=[];
       if(!matList)matList=(cur.mat||[]);
+      if(!expList)expList=(cur.exp||[]);
       var body={date:iso,entries:entries,net:recomputeNet(entries),
-        mat:matList,matNet:recomputeMatNet(matList),updatedAt:new Date().toISOString()};
+        mat:matList,matNet:recomputeMatNet(matList),
+        exp:expList,expTotal:expList.reduce(function(t,e){return t+(parseFloat(e.amount)||0)},0),
+        updatedAt:new Date().toISOString()};
       if(cur.revenue||extra){
         var rv=cur.revenue||{};
         var out={walkCash:+rv.walkCash||0,walkTr:+rv.walkTr||0,whCash:+rv.whCash||0,whTr:+rv.whTr||0};
@@ -5309,6 +5672,19 @@ function startApp(me){
     var tb=$('set-body');if(tb)tb.dataset.sig='';
     renderAll();
   },function(){S.costs=null;renderAll()});
+  db.doc('master/expcats').onSnapshot(function(s){
+    var d=s.exists?s.data():null;
+    S.expCats=(d&&Array.isArray(d.items))?d.items:[];
+    var eb=$('ec-body');if(eb)eb.dataset.sig='';
+    var dl=$('expcats');if(dl)dl.dataset.sig='';
+    renderAll();
+  },function(){});
+  db.doc('master/matcosts').onSnapshot(function(s){
+    S.matCosts=s.exists?s.data():null;
+    var mb=$('matedit-body');if(mb)mb.dataset.sig='';
+    var bb=$('bom-body');if(bb)bb.dataset.sig='';
+    renderAll();
+  },function(){S.matCosts=null;renderAll()});
   db.doc('master/drivers').onSnapshot(function(s){
     var d=s.exists?s.data():null;
     S.drivers=(d&&Array.isArray(d.items))?d.items:[];
@@ -5345,7 +5721,8 @@ function startApp(me){
   db.collection('ledger').onSnapshot(function(q){
     var m={};
     q.docs.forEach(function(d){var v=d.data()||{};
-      m[d.id]={entries:v.entries||[],net:v.net||{},demo:!!v.demo,revenue:v.revenue||null,mat:v.mat||[],matNet:v.matNet||{}}});
+      m[d.id]={entries:v.entries||[],net:v.net||{},demo:!!v.demo,revenue:v.revenue||null,
+        mat:v.mat||[],matNet:v.matNet||{},exp:v.exp||[],expTotal:v.expTotal||0}});
     S.days=m;S.ready=true;
     setConn(true,'เชื่อมต่อแล้ว · อัปเดตสด');
     renderAll();
