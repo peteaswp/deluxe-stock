@@ -1,4 +1,4 @@
-<title>คลังและแผนผลิต ฟินร่า</title>
+<title>Deluxe Water Inventory System (คลังและแผนผลิต ฟินร่า)</title>
 <script src="api.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -6,14 +6,15 @@
 <style>
 :root{
   color-scheme: light;
-  --bg:#eef3f4; --plane:#f7fafa; --surface:#ffffff; --surface-2:#f2f7f8;
-  --ink:#0c1a1e; --ink-2:#48595e; --muted:#76878b;
-  --line:#dae4e6; --line-2:#c3d2d5;
-  --accent:#0b6f85; --accent-2:#0e8aa5; --accent-soft:#e3f1f4; --on-accent:#ffffff;
-  --good:#0ca30c; --warn:#fab219; --serious:#ec835a; --crit:#d03b3b;
-  --good-soft:#e6f6e6; --warn-soft:#fdf3dc; --serious-soft:#fceee7; --crit-soft:#fae9e9;
-  --grid:#e4ecee; --axis:#c3d2d5;
-  --shadow:0 1px 1px rgba(12,26,30,.04), 0 10px 26px -20px rgba(12,26,30,.5);
+  --bg:#eef4ef; --plane:#f7fbf8; --surface:#ffffff; --surface-2:#f2f8f3;
+  --ink:#0d1c12; --ink-2:#4a5d51; --muted:#77897d;
+  --line:#dbe7de; --line-2:#c4d5c9;
+  /* เขียวจากโลโก้ฟินร่า: เข้ม #0B9444 อ่อน #3AB54B */
+  --accent:#0B9444; --accent-2:#3AB54B; --accent-soft:#e6f5ea; --on-accent:#ffffff;
+  --good:#0B9444; --warn:#e0930a; --serious:#ec835a; --crit:#d03b3b;
+  --good-soft:#e6f5ea; --warn-soft:#fdf3dc; --serious-soft:#fceee7; --crit-soft:#fae9e9;
+  --grid:#e4eee7; --axis:#c4d5c9;
+  --shadow:0 1px 1px rgba(13,28,18,.04), 0 10px 26px -20px rgba(13,28,18,.5);
   --r:10px;
   --f-ui:"IBM Plex Sans Thai", system-ui, -apple-system, "Segoe UI", sans-serif;
   --f-body:"Noto Sans Thai Looped","IBM Plex Sans Thai", system-ui, sans-serif;
@@ -25,8 +26,8 @@
     --bg:#080f11; --plane:#0c1517; --surface:#111f22; --surface-2:#17282c;
     --ink:#e9f3f4; --ink-2:#a6bcc0; --muted:#87999d;
     --line:#21363b; --line-2:#2d474d;
-    --accent:#3fb6cf; --accent-2:#5fc9df; --accent-soft:#10323b; --on-accent:#04181d;
-    --good-soft:#0e2a10; --warn-soft:#31280b; --serious-soft:#331d12; --crit-soft:#331313;
+    --accent:#4ec36a; --accent-2:#6fd487; --accent-soft:#11321d; --on-accent:#05190c;
+    --good:#4ec36a; --good-soft:#11321d; --warn-soft:#31280b; --serious-soft:#331d12; --crit-soft:#331313;
     --grid:#1b2d31; --axis:#2d474d;
     --shadow:0 1px 1px rgba(0,0,0,.3), 0 12px 28px -20px rgba(0,0,0,.9);
   }
@@ -36,8 +37,8 @@
   --bg:#080f11; --plane:#0c1517; --surface:#111f22; --surface-2:#17282c;
   --ink:#e9f3f4; --ink-2:#a6bcc0; --muted:#87999d;
   --line:#21363b; --line-2:#2d474d;
-  --accent:#3fb6cf; --accent-2:#5fc9df; --accent-soft:#10323b; --on-accent:#04181d;
-  --good-soft:#0e2a10; --warn-soft:#31280b; --serious-soft:#331d12; --crit-soft:#331313;
+  --accent:#4ec36a; --accent-2:#6fd487; --accent-soft:#11321d; --on-accent:#05190c;
+  --good:#4ec36a; --good-soft:#11321d; --warn-soft:#31280b; --serious-soft:#331d12; --crit-soft:#331313;
   --grid:#1b2d31; --axis:#2d474d;
   --shadow:0 1px 1px rgba(0,0,0,.3), 0 12px 28px -20px rgba(0,0,0,.9);
 }
@@ -47,12 +48,15 @@ h1,h2,h3,th,.ui{font-family:var(--f-ui)}
 .num{font-family:var(--f-num);font-variant-numeric:tabular-nums}
 button,input,select,textarea{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--accent-2);outline-offset:2px;border-radius:6px}
+input[type="checkbox"],input[type="radio"]{accent-color:var(--accent)}
 @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
 .wrap{max-width:1180px;margin:0 auto;padding-inline:16px;padding-block:0 56px}
 header.top{position:sticky;top:0;z-index:30;background:var(--plane);border-bottom:1px solid var(--line)}
 .top-in{max-width:1180px;margin:0 auto;padding:12px 16px 0;display:flex;flex-direction:column;gap:10px}
 .brandrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .mark{width:34px;height:34px;border-radius:9px;background:var(--accent);display:grid;place-items:center;flex:none}
+.brand h1 .th{font-weight:400;color:var(--muted);font-size:.86em;white-space:nowrap}
+@media(max-width:700px){.brand h1 .th{display:block;font-size:.9em}}
 .mark svg{display:block}
 .brand h1{font-size:17px;margin:0;font-weight:600;letter-spacing:-.01em}
 .brand p{margin:0;font-size:12px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;font-family:var(--f-ui)}
@@ -141,9 +145,10 @@ input[type=number]{font-family:var(--f-num);font-variant-numeric:tabular-nums}
 .dayrow:hover td{background:var(--surface-2)}
 .dayrow.on td{background:var(--accent-soft)}
 .login{position:fixed;inset:0;z-index:90;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px}
-.lbox{background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:26px;max-width:380px;width:100%;display:flex;flex-direction:column;gap:14px}
-.lhead{display:flex;align-items:center;gap:12px;margin-bottom:4px}
-.lhead h2{margin:0;font-size:17px;font-weight:600}
+.lbox{background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:26px;max-width:410px;width:100%;display:flex;flex-direction:column;gap:14px}
+.lhead{display:flex;align-items:flex-start;gap:12px;margin-bottom:4px}
+.lhead .mark{margin-top:2px}
+.lhead h2{margin:0;font-size:16.5px;font-weight:600;line-height:1.3}
 .lhead p{margin:0}
 .rolebox{display:flex;flex-wrap:wrap;gap:6px;border:1px solid var(--line);border-radius:9px;padding:9px;background:var(--surface-2)}
 .rolebox label{display:inline-flex;align-items:center;gap:6px;font-family:var(--f-ui);font-size:13px;background:var(--surface);border:1px solid var(--line);border-radius:99px;padding:5px 11px 5px 8px;cursor:pointer;white-space:nowrap}
@@ -253,6 +258,9 @@ footer.foot{margin-top:26px;padding-top:14px;border-top:1px solid var(--line);co
 .formcard p{margin:0;font-size:12.5px;color:var(--muted);line-height:1.45;flex:1}
 .formcard .row{gap:7px}
 .formcard .ic{font-size:19px;line-height:1}
+.bywho{font-size:11.5px;color:var(--muted);font-family:var(--f-ui);white-space:nowrap}
+.bywho b{color:var(--ink-2);font-weight:600}
+.entry .when{font-family:var(--f-num);font-size:12px;color:var(--muted);min-width:38px}
 .sizebox{display:flex;flex-wrap:wrap;gap:7px}
 .sizebox label{display:inline-flex;align-items:center;gap:6px;font-family:var(--f-ui);font-size:13.5px;
   background:var(--surface);border:1px solid var(--line-2);border-radius:99px;padding:6px 13px 6px 9px;cursor:pointer;white-space:nowrap}
@@ -276,11 +284,11 @@ details.fold .panel-b{padding-top:0}
   <div class="top-in">
     <div class="brandrow">
       <div class="mark" aria-hidden="true">
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2.2c3.1 3.5 5.4 6.4 5.4 9A5.4 5.4 0 0 1 10 16.6 5.4 5.4 0 0 1 4.6 11.2c0-2.6 2.3-5.5 5.4-9Z" fill="#fff" fill-opacity=".95"/></svg>
+        <svg width="22" height="22" viewBox="0 0 100 100" fill="none" role="img" aria-label="Deluxe Water"><path d="M69.8 9.6 L71 9.7 L71.7 10.6 L73 28.2 L73.4 29.6 L75.7 29.8 L81.6 29.4 L83.2 30 L83.3 31.3 L70.6 51.8 L69.3 54.4 L70.4 54.7 L72.2 54.3 L75.3 52.9 L84.3 50.5 L85 51.4 L85 59.3 L97.6 65.7 L98 66.9 L97.5 68.1 L88.5 77.5 L88.4 78.6 L91.3 83.9 L91.5 85.6 L90.8 86.2 L79.4 86.9 L66.4 88.6 L63.5 89.2 L62.8 90.3 L61.7 90.4 L51 90.4 L48.3 89.2 L41.9 84.6 L41.2 85.1 L39.9 90.3 L34.5 90.4 L32.6 90.4 L32 89.7 L35.9 83.6 L36.2 82.8 L35.5 82.2 L13.3 79.4 L13 78.4 L13.4 77.8 L19.4 70.7 L12.6 61.2 L2.5 49.4 L2 48.3 L2.1 47.5 L2.7 46.9 L10.3 44.4 L11.1 31.1 L11.4 30.1 L12.3 29.7 L14.5 30.1 L24.7 34.3 L25.5 34.3 L30.8 28.6 L32.3 28.5 L35.5 33.4 L39.5 40.6 L40.4 41.1 L41.2 39.6 L46.3 15.3 L47.4 14.8 L48.6 15.4 L54 21.1 L55.1 21.8 L66 13.1 Z" fill="#fff"/></svg>
       </div>
       <div class="brand">
-        <h1>คลังและแผนผลิต ฟินร่า</h1>
-        <p>Deluxe Water · 3 lines · stock &amp; production</p>
+        <h1>Deluxe Water Inventory System <span class="th">(คลังและแผนผลิต ฟินร่า)</span></h1>
+        <p>บริษัท ดีลักซ์ วอเตอร์ จำกัด · น้ำดื่มฟินร่า · 3 lines</p>
       </div>
       <div class="spacer"></div>
       <span class="chip" id="chip-date">—</span>
@@ -326,6 +334,19 @@ details.fold .panel-b{padding-top:0}
           <div class="tip" id="tip"></div>
         </div>
         <div class="row" style="margin-top:12px;gap:18px" id="chan-split"></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-h"><h2>ประสิทธิภาพการผลิต</h2>
+        <span class="sub">30 วันล่าสุด · ผลิตได้จริง เทียบกับที่ควรได้ตามชั่วโมงเดินเครื่อง
+          <b class="num" id="eff-avg">—</b></span></div>
+      <div class="panel-b">
+        <div class="chartbox" id="effbox">
+          <svg id="effchart" viewBox="0 0 760 210" role="img" aria-label="กราฟประสิทธิภาพการผลิตรายวัน"></svg>
+          <div class="tip" id="efftip"></div>
+        </div>
+        <div class="row" style="margin-top:12px;gap:18px" id="eff-legend"></div>
       </div>
     </section>
 
@@ -384,6 +405,12 @@ details.fold .panel-b{padding-top:0}
             <option value="port">1 ดวงเต็มแผ่น แนวตั้ง (76 × 130 มม.)</option>
           </select></div>
           <div class="field"><label for="lbl-lot">LOT</label><input type="text" id="lbl-lot" placeholder="เว้นว่างไว้ = เขียนเอง"></div>
+          <div class="field"><label for="lbl-line">ไลน์ผลิต</label><select id="lbl-line">
+            <option value="">เว้นว่างไว้ — ติ๊กเอง</option></select></div>
+          <div class="field"><label for="lbl-time">เวลา</label><select id="lbl-time">
+            <option value="now">ใส่เวลาที่พิมพ์ให้เลย</option>
+            <option value="">เว้นว่างไว้ — เขียนเอง</option>
+          </select></div>
           <div class="field"><label for="lbl-seq">เลขพาเลท</label><select id="lbl-seq">
             <option value="0">เว้นช่องไว้เขียนเอง</option>
             <option value="1">พิมพ์เลขรันนิ่ง เริ่มที่ 1</option>
@@ -607,8 +634,44 @@ details.fold .panel-b{padding-top:0}
       </div>
     </section>
 
+    <section class="panel" id="matedit-panel">
+      <div class="panel-h"><h2>เพิ่ม-แก้-ลบ รายการวัตถุดิบ</h2>
+        <span class="sub">เช่น ฝา ขวด ฉลาก กล่อง · ตั้งชื่อ หน่วย และจำนวนต่อหน่วยใหญ่ได้เอง</span></div>
+      <div class="panel-b">
+        <p class="note hidden" id="matedit-locked">ต้องมีสิทธิ์แก้ข้อมูลหลัก จึงจะใช้ส่วนนี้ได้</p>
+        <div id="matedit-ui" class="hidden">
+          <div class="grid2" style="margin-bottom:12px">
+            <div class="field" style="grid-column:span 2"><label for="mn-name">ชื่อวัตถุดิบ</label>
+              <input type="text" id="mn-name" placeholder="เช่น ฝาขวดสีน้ำเงิน"></div>
+            <div class="field"><label for="mn-group">กลุ่ม</label>
+              <input type="text" id="mn-group" list="matgroups" placeholder="เช่น ฝา"></div>
+            <div class="field"><label for="mn-unit">หน่วยนับ</label>
+              <input type="text" id="mn-unit" placeholder="เช่น ชิ้น"></div>
+            <div class="field"><label for="mn-packunit">หน่วยใหญ่</label>
+              <input type="text" id="mn-packunit" placeholder="เช่น ถุง (เว้นว่างได้)"></div>
+            <div class="field"><label for="mn-per">1 หน่วยใหญ่ = กี่หน่วยนับ</label>
+              <input type="number" id="mn-per" min="1" step="1" placeholder="เช่น 10000"></div>
+            <div class="field"><label for="mn-min">ขั้นต่ำที่ควรมี</label>
+              <input type="number" id="mn-min" min="0" step="1" placeholder="0"></div>
+            <div class="field" style="align-self:end"><button class="btn primary" id="btn-mat-add">เพิ่มวัตถุดิบ</button></div>
+          </div>
+          <datalist id="matgroups"></datalist>
+          <div class="tscroll" style="max-height:420px"><table>
+            <thead><tr><th class="l">ชื่อ</th><th class="l">กลุ่ม</th><th class="l">หน่วย</th>
+              <th class="l">หน่วยใหญ่</th><th>ต่อหน่วยใหญ่</th><th>ขั้นต่ำ</th><th>ใช้งาน</th><th class="l"></th></tr></thead>
+            <tbody id="matedit-body"></tbody>
+          </table></div>
+          <div class="row" style="margin-top:12px">
+            <button class="btn" id="btn-matedit-save">บันทึกการแก้ไข</button>
+            <span class="note" id="matedit-count">—</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section class="panel" id="matcount-panel">
-      <div class="panel-h"><h2>ตรวจนับวัตถุดิบ</h2><span class="sub">ตั้งยอดตั้งต้นใหม่</span></div>
+      <div class="panel-h"><h2>ตรวจนับ / แก้ยอดวัตถุดิบ</h2>
+        <span class="sub">ช่องกรอกมียอดปัจจุบันให้แล้ว แก้ตัวเลขเฉพาะรายการที่ต้องการ แล้วกดบันทึก</span></div>
       <div class="panel-b">
         <p class="note" id="matcount-locked">ต้องมีสิทธิ์แก้ข้อมูลหลัก จึงจะใช้ส่วนนี้ได้</p>
         <div id="matcount-ui" class="hidden">
@@ -826,6 +889,50 @@ details.fold .panel-b{padding-top:0}
       </div>
     </section>
 
+    <section class="panel hidden" id="rate-panel">
+      <div class="panel-h"><h2 id="rate-title">ราคาที่ตกลงกับลูกค้า</h2>
+        <span class="sub">ใส่เฉพาะรายการที่ตกลงราคาไว้ · เว้นว่าง = ใช้เรตปกติ</span></div>
+      <div class="panel-b">
+        <div class="row" style="flex-wrap:wrap;gap:10px;margin-bottom:12px">
+          <input type="text" id="rate-find" placeholder="ค้นหาสินค้า" style="max-width:220px">
+          <button class="btn sm" id="btn-rate-fill">เติมราคาหน้าโรงงานให้ทุกช่องที่ว่าง</button>
+          <button class="btn sm" id="btn-rate-clear">ล้างราคาทั้งหมด</button>
+          <span class="note" id="rate-note">—</span>
+        </div>
+        <div class="tscroll" style="max-height:420px"><table>
+          <thead><tr><th class="l">สินค้า</th><th>ราคาที่ตกลง (บาท/แพ็ค)</th><th>เรตปกติ</th><th>ต่างจากเรต</th></tr></thead>
+          <tbody id="rate-body"></tbody>
+        </table></div>
+        <div class="row" style="margin-top:14px">
+          <button class="btn primary" id="btn-rate-save">บันทึกราคา</button>
+          <button class="btn" id="btn-rate-close">ปิด</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="drv-panel">
+      <div class="panel-h"><h2>พนักงานส่งของ</h2><span class="sub">ใส่ชื่อไว้ครั้งเดียว แล้วเลือกตอนออกบิลขายส่ง</span></div>
+      <div class="panel-b">
+        <p class="note hidden" id="drv-locked">ต้องมีสิทธิ์ "เพิ่ม-แก้ทะเบียนลูกค้า" จึงจะแก้รายชื่อได้</p>
+        <div id="drv-ui" class="hidden">
+          <div class="grid2" style="margin-bottom:12px">
+            <div class="field"><label for="dv-name">ชื่อพนักงานส่ง</label><input type="text" id="dv-name" placeholder="เช่น สมชาย"></div>
+            <div class="field"><label for="dv-phone">เบอร์โทร</label><input type="text" id="dv-phone" placeholder="08x-xxx-xxxx"></div>
+            <div class="field"><label for="dv-plate">ทะเบียนรถประจำ</label><input type="text" id="dv-plate" placeholder="เช่น 1กก 1234"></div>
+            <div class="field" style="align-self:end"><button class="btn primary" id="btn-drv-add">เพิ่มพนักงานส่ง</button></div>
+          </div>
+          <div class="tscroll" style="max-height:320px"><table>
+            <thead><tr><th class="l">ชื่อ</th><th class="l">เบอร์โทร</th><th class="l">ทะเบียนรถประจำ</th><th>ใช้งาน</th><th class="l"></th></tr></thead>
+            <tbody id="drv-body"></tbody>
+          </table></div>
+          <div class="row" style="margin-top:12px">
+            <button class="btn" id="btn-drv-save">บันทึกการแก้ไข</button>
+            <span class="note" id="drv-count">—</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section class="panel" id="cust-panel">
       <div class="panel-h"><h2>ทะเบียนลูกค้า</h2><span class="sub">ชื่อ ที่อยู่ เบอร์ และราคาที่ตกลงกันไว้</span></div>
       <div class="panel-b">
@@ -932,8 +1039,10 @@ details.fold .panel-b{padding-top:0}
       <div class="panel-h"><h2>สินค้า จุดสั่งผลิต และบาร์โค้ด</h2><span class="sub">ใส่บาร์โค้ดแล้ว สแกน 1 ครั้ง = เข้าสต๊อก 1 พาเลท</span></div>
       <div class="panel-b">
         <p class="note hidden" id="set-locked">คุณดูได้อย่างเดียว — ต้องมีสิทธิ์แก้ข้อมูลหลัก จึงจะแก้สินค้าได้</p>
+        <p class="note" style="margin-bottom:10px">เอาเครื่องหมาย <b>ใช้งาน</b> ออก = ซ่อนจากหน้าขายและแผนผลิต แต่ยอดเก่ายังอยู่ครบ
+          · ปุ่ม <b>ลบ</b> ใช้ได้เฉพาะสินค้าที่ยังไม่เคยมีการซื้อขายหรือผลิต</p>
         <div class="tscroll" style="max-height:440px;overflow-y:auto">
-          <table><thead><tr><th class="l">สินค้า</th><th>ขวด/แพ็ค</th><th>ขั้นต่ำ (แพ็ค)</th><th class="l">บาร์โค้ดสินค้า</th><th>ต้นทุน/แพ็ค</th><th>ราคาขาย/แพ็ค</th><th>ใช้งาน</th></tr></thead><tbody id="set-body"></tbody></table>
+          <table><thead><tr><th class="l">สินค้า</th><th>ขวด/แพ็ค</th><th>ขั้นต่ำ (แพ็ค)</th><th class="l">บาร์โค้ดสินค้า</th><th>ต้นทุน/แพ็ค</th><th>ราคาขาย/แพ็ค</th><th>ใช้งาน</th><th class="l"></th></tr></thead><tbody id="set-body"></tbody></table>
         </div>
         <div class="row" style="margin-top:12px">
           <button class="btn primary" id="btn-save-master">บันทึกการตั้งค่า</button>
@@ -1035,8 +1144,8 @@ details.fold .panel-b{padding-top:0}
 <div class="toast" id="toast"></div>
 <div class="login" id="login">
   <form class="lbox" id="login-form">
-    <div class="lhead"><div class="mark" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2.2c3.1 3.5 5.4 6.4 5.4 9A5.4 5.4 0 0 1 10 16.6 5.4 5.4 0 0 1 4.6 11.2c0-2.6 2.3-5.5 5.4-9Z" fill="#fff" fill-opacity=".95"/></svg></div>
-      <div><h2>คลังและแผนผลิต ฟินร่า</h2><p class="note">บริษัท ดีลักซ์ วอเตอร์ จำกัด</p></div></div>
+    <div class="lhead"><div class="mark" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 100 100" fill="none" role="img" aria-label="Deluxe Water"><path d="M69.8 9.6 L71 9.7 L71.7 10.6 L73 28.2 L73.4 29.6 L75.7 29.8 L81.6 29.4 L83.2 30 L83.3 31.3 L70.6 51.8 L69.3 54.4 L70.4 54.7 L72.2 54.3 L75.3 52.9 L84.3 50.5 L85 51.4 L85 59.3 L97.6 65.7 L98 66.9 L97.5 68.1 L88.5 77.5 L88.4 78.6 L91.3 83.9 L91.5 85.6 L90.8 86.2 L79.4 86.9 L66.4 88.6 L63.5 89.2 L62.8 90.3 L61.7 90.4 L51 90.4 L48.3 89.2 L41.9 84.6 L41.2 85.1 L39.9 90.3 L34.5 90.4 L32.6 90.4 L32 89.7 L35.9 83.6 L36.2 82.8 L35.5 82.2 L13.3 79.4 L13 78.4 L13.4 77.8 L19.4 70.7 L12.6 61.2 L2.5 49.4 L2 48.3 L2.1 47.5 L2.7 46.9 L10.3 44.4 L11.1 31.1 L11.4 30.1 L12.3 29.7 L14.5 30.1 L24.7 34.3 L25.5 34.3 L30.8 28.6 L32.3 28.5 L35.5 33.4 L39.5 40.6 L40.4 41.1 L41.2 39.6 L46.3 15.3 L47.4 14.8 L48.6 15.4 L54 21.1 L55.1 21.8 L66 13.1 Z" fill="#fff"/></svg></div>
+      <div><h2>Deluxe Water Inventory System</h2><p class="note">คลังและแผนผลิต ฟินร่า · บริษัท ดีลักซ์ วอเตอร์ จำกัด</p></div></div>
     <div class="field"><label for="li-u">ชื่อผู้ใช้</label><input type="text" id="li-u" autocomplete="username" autocapitalize="off" required></div>
     <div class="field"><label for="li-p">รหัสผ่าน</label><input type="password" id="li-p" autocomplete="current-password" required></div>
     <label class="note" style="display:flex;gap:7px;align-items:center"><input type="checkbox" id="li-r" checked> จำเครื่องนี้ไว้ 30 วัน</label>
@@ -1152,7 +1261,7 @@ var S={
   db:null, downloads:null, ready:false, admin:false,
   skus:[], config:JSON.parse(JSON.stringify(DEFAULT_CFG)),
   costs:null, baseline:null, days:{}, lines:{}, materials:[], matBaseline:null,
-  customers:[], prices:{walk:{},tiers:[],skuTiers:{},promos:[]},
+  customers:[], drivers:[], prices:{walk:{},tiers:[],skuTiers:{},promos:[]},
   win:30, cover:5,
   form:{type:'produce',sku:null},
   tab:'dash', pending:{}, flushT:null, csv:null
@@ -1195,6 +1304,24 @@ function palletText(s,packs){var pp=packsPerPallet(s);if(!pp)return '—';var p=
 
 /* ---------------- ตัวช่วยกลาง ---------------- */
 function canMoney(){ return can('money.view') }
+/* ใครเป็นคนกดบันทึกรายการนี้ (ผูกกับบัญชีที่ล็อกอิน ปลอมไม่ได้) */
+function loggedBy(e){
+  var who=(e&&(e.uname||e.by))||'';
+  return who? ('ลงโดย '+who) : '';
+}
+/* เวลาที่กดบันทึกจริง (rts) ถ้าไม่มีก็ใช้เวลาของรายการ */
+function loggedAt(e){
+  var t=(e&&(e.rts||e.ts))||'';
+  var d=new Date(t);
+  if(isNaN(d.getTime()))return '';
+  return ('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2);
+}
+/* ชื่อคนที่รายการพูดถึง (คนขับ / คนคุมเครื่อง) — คนละอย่างกับคนลงบันทึก */
+function subjectOf(e){
+  if(!e)return '';
+  if(e.by&&e.uname&&e.by!==e.uname)return e.by;
+  return '';
+}
 function can(perm){ return (typeof P==='function') ? !!P(perm) : !!S.admin }
 /* บันทึกไฟล์: บนเซิร์ฟเวอร์ใช้การดาวน์โหลดของเบราว์เซอร์ ในหน้าตัวอย่างใช้ของระบบ */
 function saveFile(name,data,mime){
@@ -1231,6 +1358,13 @@ function whoNow(){ return (typeof meName==='function') ? meName() : ((S.me&&S.me
 
 /* ---------------- ลูกค้าและราคา ---------------- */
 function custList(){ return (S.customers||[]).filter(function(c){return c.active!==false}) }
+function drvList(){ return (S.drivers||[]).filter(function(d){return d.active!==false}) }
+function drvByName(nm){
+  nm=String(nm||'').trim().toLowerCase(); if(!nm)return null;
+  var a=S.drivers||[];
+  for(var i=0;i<a.length;i++)if(String(a[i].name||'').trim().toLowerCase()===nm)return a[i];
+  return null;
+}
 function custById(id){ var a=S.customers||[];for(var i=0;i<a.length;i++)if(a[i].id===id)return a[i];return null }
 function custByName(nm){
   nm=String(nm||'').trim().toLowerCase(); if(!nm)return null;
@@ -1330,6 +1464,16 @@ function dailySeries(days){
   }
   return out;
 }
+/* ประสิทธิภาพรายวัน: ผลิตได้จริง / ที่ควรได้ตามชั่วโมงเดินเครื่อง */
+function effSeries(days){
+  var out=[],t=todayISO();
+  for(var i=days-1;i>=0;i--){
+    var iso=addDays(t,-i), d=dayStats(iso);
+    out.push({date:iso,prod:d.prod,theo:d.theo,hours:d.hours,waste:d.waste,
+              eff:(d.theo>0? Math.round(d.prod/d.theo*100) : null)});
+  }
+  return out;
+}
 function avgSales(win){
   var t=todayISO(),map={},total=0,ndays=0;
   S.skus.forEach(function(s){map[s.id]=0});
@@ -1410,6 +1554,7 @@ function lastDayNote(kind){
 /* ---------------- render: dashboard ---------------- */
 function renderDash(){
   renderForms();
+  drawEffChart();
   var st=stockMap(),tot=0,tanks=0;
   activeSkus().forEach(function(s){if(isPack(s))tot+=st[s.id]||0;else tanks+=st[s.id]||0});
   var tt=todayTotals(),av=avgSales(30);
@@ -1522,6 +1667,99 @@ function drawChart(){
   svg.innerHTML=s;
   chartPts=data.map(function(d,i){return {x:x(i),y:y(d.qty),date:d.date,qty:d.qty}});
 }
+var effPts=[];
+function drawEffChart(){
+  var svg=$('effchart'); if(!svg)return;
+  var W=760,H=210,L=52,R=16,T=18,B=30;
+  var data=effSeries(30);
+  var has=data.filter(function(d){return d.eff!==null});
+  var iw=W-L-R, ih=H-T-B;
+  var x=function(i){return L+(data.length<2?iw/2:i*iw/(data.length-1))};
+  var top=120;
+  data.forEach(function(d){ if(d.eff!==null&&d.eff>top-10)top=Math.ceil((d.eff+10)/20)*20 });
+  var y=function(v){return T+ih-(Math.max(0,Math.min(top,v))/top)*ih};
+  var s='';
+  /* เส้นกริดทุก 25% */
+  for(var g=0;g<=top;g+=(top>150?50:25)){
+    var yy=y(g);
+    s+='<line x1="'+L+'" y1="'+yy.toFixed(1)+'" x2="'+(W-R)+'" y2="'+yy.toFixed(1)+
+       '" stroke="var(--grid)" stroke-width="1"/>'+
+       '<text x="'+(L-8)+'" y="'+(yy+4).toFixed(1)+'" text-anchor="end" font-family="var(--f-num)" font-size="11.5" fill="var(--muted)">'+g+'%</text>';
+  }
+  /* เส้น 100% = ได้ตามเป้า */
+  s+='<line x1="'+L+'" y1="'+y(100).toFixed(1)+'" x2="'+(W-R)+'" y2="'+y(100).toFixed(1)+
+     '" stroke="var(--good)" stroke-width="1.5" stroke-dasharray="5 4" opacity=".8"/>';
+  if(!has.length){
+    s+='<text x="'+(W/2)+'" y="'+(T+ih/2)+'" text-anchor="middle" font-family="var(--f-ui)" font-size="13" fill="var(--muted)">'+
+       'ยังไม่มีรอบผลิตที่บันทึกชั่วโมงเดินเครื่อง</text>';
+    svg.innerHTML=s; effPts=[];
+    $('eff-avg').textContent='—';
+    $('eff-legend').innerHTML='<span class="note">เริ่มรอบผลิตที่แท็บไลน์ผลิต ระบบจะจับชั่วโมงเดินเครื่องให้เอง แล้วกราฟนี้จะมีข้อมูล</span>';
+    return;
+  }
+  /* แท่งของแต่ละวัน */
+  var bw=Math.max(6,Math.min(18,iw/data.length*0.62));
+  data.forEach(function(d,i){
+    if(d.eff===null)return;
+    var col= d.eff>=95?'var(--good)' : (d.eff>=80?'var(--warn)':'var(--crit)');
+    var yy=y(d.eff), h0=y(0)-yy;
+    s+='<rect x="'+(x(i)-bw/2).toFixed(1)+'" y="'+yy.toFixed(1)+'" width="'+bw.toFixed(1)+
+       '" height="'+Math.max(1,h0).toFixed(1)+'" rx="2" fill="'+col+'" fill-opacity=".85"/>';
+  });
+  s+='<line x1="'+L+'" y1="'+y(0).toFixed(1)+'" x2="'+(W-R)+'" y2="'+y(0).toFixed(1)+'" stroke="var(--axis)" stroke-width="1"/>';
+  data.forEach(function(d,i){
+    var last=(i===data.length-1);
+    if(i%6!==1&&!last)return;
+    s+='<text x="'+x(i).toFixed(1)+'" y="'+(H-9)+'" text-anchor="'+(last?'end':'middle')+
+       '" font-family="var(--f-num)" font-size="11.5" fill="var(--muted)">'+thShort(d.date)+'</text>';
+  });
+  s+='<line id="effcross" x1="0" y1="'+T+'" x2="0" y2="'+(T+ih)+'" stroke="var(--accent)" stroke-width="1" stroke-dasharray="3 3" opacity="0"/>';
+  svg.innerHTML=s;
+  effPts=data.map(function(d,i){return {x:x(i),y:(d.eff===null?y(0):y(d.eff)),d:d}});
+
+  var sumP=0,sumT=0,wd=0;
+  has.forEach(function(d){sumP+=d.prod;sumT+=d.theo;wd++});
+  var avg= sumT>0? Math.round(sumP/sumT*100) : null;
+  $('eff-avg').textContent= avg!==null? (avg+'% จาก '+n(wd)+' วันที่เดินเครื่อง') : '—';
+  var good=has.filter(function(d){return d.eff>=95}).length;
+  var mid=has.filter(function(d){return d.eff>=80&&d.eff<95}).length;
+  var bad=has.filter(function(d){return d.eff<80}).length;
+  var hrs=0,pr=0,ws=0;
+  has.forEach(function(d){hrs+=d.hours;pr+=d.prod;ws+=d.waste});
+  $('eff-legend').innerHTML=
+    '<span class="note"><b class="ui" style="color:var(--good)">▉</b> ได้ตามเป้า (95%+) <b class="num">'+n(good)+'</b> วัน</span>'+
+    '<span class="note"><b class="ui" style="color:var(--warn)">▉</b> ต่ำกว่าเป้า (80-94%) <b class="num">'+n(mid)+'</b> วัน</span>'+
+    '<span class="note"><b class="ui" style="color:var(--crit)">▉</b> ต่ำมาก (ต่ำกว่า 80%) <b class="num">'+n(bad)+'</b> วัน</span>'+
+    '<span class="note">เดินเครื่องรวม <b class="num">'+n1(hrs)+'</b> ชม. · ผลิตได้ <b class="num">'+n(pr)+'</b> แพ็ค'+
+    (ws>0?(' · ของเสีย <b class="num">'+n(ws)+'</b> แพ็ค'):'')+'</span>';
+}
+(function bindEffChart(){
+  var box=$('effbox'); if(!box)return;
+  var svg=$('effchart'),tip=$('efftip');
+  function move(ev){
+    if(!effPts.length)return;
+    var r=svg.getBoundingClientRect(),sx=(ev.clientX-r.left)*760/r.width;
+    var best=0,bd=1e9;
+    effPts.forEach(function(p,i){var d=Math.abs(p.x-sx);if(d<bd){bd=d;best=i}});
+    var p=effPts[best],sc=r.width/760,d=p.d;
+    var c=svg.querySelector('#effcross');
+    if(c){c.setAttribute('x1',p.x);c.setAttribute('x2',p.x);c.setAttribute('opacity','1')}
+    tip.innerHTML='<div class="note">'+thDate(d.date)+'</div>'+
+      (d.eff===null? '<div class="big">ไม่ได้เดินเครื่อง</div>'
+        : '<div class="big">'+d.eff+'%</div><div class="note">ผลิตได้ '+n(d.prod)+
+          ' จากที่ควรได้ '+n(Math.round(d.theo))+' แพ็ค · '+n1(d.hours)+' ชม.'+
+          (d.waste>0?(' · ของเสีย '+n(d.waste)):'')+'</div>');
+    tip.classList.add('on');
+    var tw=tip.offsetWidth,left=p.x*sc-tw/2;
+    left=Math.max(2,Math.min(r.width-tw-2,left));
+    tip.style.left=left+'px'; tip.style.top=Math.max(0,p.y*sc-56)+'px';
+  }
+  box.addEventListener('pointermove',move);
+  box.addEventListener('pointerleave',function(){
+    tip.classList.remove('on');
+    var c=svg.querySelector('#effcross'); if(c)c.setAttribute('opacity','0');
+  });
+})();
 (function bindChart(){
   var box=$('chartbox'),svg=$('chart'),tip=$('tip');
   function move(ev){
@@ -1559,6 +1797,7 @@ function lineMakesText(L){
 
 /* ---------------- LINE STATION ---------------- */
 function renderLines(){
+  fillLabelLines();
   var host=$('lines'),cfg=linesCfg();
   var sig=cfg.map(function(L){return L.id+L.sizes.join('')}).join('|')+'|'+S.skus.length;
   if(host.dataset.sig!==sig){host.dataset.sig=sig;host.innerHTML='';
@@ -1633,7 +1872,8 @@ function renderRunList(){
   runs.slice().reverse().forEach(function(e){
     var s=skuById(e.skuId), pal=s?palletsOf(s,e.qty):null;
     var row=el('div','entry');
-    row.innerHTML='<span class="tag" style="background:var(--accent-soft);color:var(--accent)">'+esc(e.line)+'</span>'+
+    row.innerHTML='<span class="when">'+esc(loggedAt(e))+'</span>'+
+      '<span class="tag" style="background:var(--accent-soft);color:var(--accent)">'+esc(e.line)+'</span>'+
       '<span class="nm"><b>'+(s?esc(s.brand)+' '+esc(s.size):esc(e.skuId))+'</b></span>'+
       '<span class="meta">'+esc(e.by||'')+(e.hours?' · '+n1(e.hours)+' ชม.':'')+
         (pal&&pal.pp?(' · '+pal.full+' พาเลท'+(pal.rem?'+'+pal.rem:'')):'')+'</span>'+
@@ -1834,15 +2074,31 @@ function labelOpts(){
     lot:($('lbl-lot').value||'').trim(),
     auto:auto,
     start:Math.max(1,parseInt($('lbl-start').value,10)||1),
-    count:Math.max(1,Math.min(200,parseInt($('lbl-n').value,10)||10))
+    count:Math.max(1,Math.min(200,parseInt($('lbl-n').value,10)||10)),
+    stamp:printStamp(),
+    line:($('lbl-line')&&$('lbl-line').value)||'',
+    time:($('lbl-time')&&$('lbl-time').value==='now')?nowHHMM():''
   };
 }
 function labelCode(sku,packs,lot){ return 'DWP-'+sku.id+'-'+packs+(lot?('-'+lot):''); }
+/* วันเวลาที่กดพิมพ์ ใช้ตอนตามย้อนหลังว่าป้ายชุดนี้ออกเมื่อไหร่ */
+function nowHHMM(){
+  var d=new Date();
+  return ('0'+d.getHours()).slice(-2)+'.'+('0'+d.getMinutes()).slice(-2)+' น.';
+}
+function printStamp(){
+  var d=new Date();
+  return thDate(d.toISOString().slice(0,10))+' '+
+         ('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2)+' น.';
+}
 function oneLabel(o,i){
   var s=o.sku, L=o.L, pp=packsPerPallet(s), bottles=pp*bottlesPerPack(s);
   var no = o.auto? String(o.start+i) : '';
   var code=labelCode(s,pp,o.lot);
-  var boxes=linesCfg().map(function(x){return '<span class="box"></span>'+x.id.replace('L','')}).join('');
+  var boxes=linesCfg().map(function(x){
+    var on=(o.line===x.id);
+    return '<span class="box'+(on?' on':'')+'">'+(on?'&#10003;':'')+'</span>'+x.id.replace('L','');
+  }).join('');
   var head='<div class="hd"><div class="ttl"><span class="bg">'+esc((s.brand||'').toUpperCase())+'</span>'+
     '<span class="sz">'+esc(String(s.size).replace(/\s*ml/i,''))+' มล.</span></div>'+
     '<img class="logo" src="'+DW_LOGO+'" alt="Deluxe Water"></div>';
@@ -1850,15 +2106,17 @@ function oneLabel(o,i){
   if(o.mode==='duo'){
     return '<div class="lab">'+head+
       '<div class="r"><span><b>LOT:</b> '+(o.lot?'<span class="v">'+esc(o.lot)+'</span>':'<span class="rule"></span>')+'</span>'+
+        (o.time?('<span><b>เวลา:</b> <span class="v">'+esc(o.time)+'</span></span>'):'')+
         '<span class="palwrap"><b>พาเลทที่</b> '+palletBox+'</span></div>'+
       '<div class="r"><span><b>จำนวน:</b> <span class="v">'+n(pp)+'</span> แพ็ค <span class="sm">('+n(bottles)+' ขวด)</span></span>'+
         '<span><b>ไลน์</b> '+boxes+'</span></div>'+
       '<div class="bc">'+labelSvg(code,{h:L.bch*3,mw:2,fs:L.bfs*3})+'</div>'+
       '<div class="r ft"><span><b>ผู้ทำ</b> <span class="rule"></span></span>'+
-        '<span><b>ผู้ตรวจสอบ</b> <span class="rule"></span></span></div></div>';
+        '<span><b>ผู้ตรวจสอบ</b> <span class="rule"></span></span></div>'+
+      '<div class="stamp">พิมพ์ '+esc(o.stamp)+'</div></div>';
   }
   var lot='<span><b>LOT:</b> '+(o.lot?'<span class="v">'+esc(o.lot)+'</span>':'<span class="rule"></span>')+'</span>';
-  var tm='<span><b>เวลา:</b> <span class="rule"></span></span>';
+  var tm='<span><b>เวลา:</b> '+(o.time?('<span class="v">'+esc(o.time)+'</span>'):'<span class="rule"></span>')+'</span>';
   var qty='<span><b>จำนวน:</b> <span class="v">'+n(pp)+'</span> แพ็ค <span class="sm">('+n(bottles)+' ขวด)</span></span>';
   var ln='<span><b>ไลน์ผลิต</b> '+boxes+'</span>';
   var pal='<span class="palwrap"><b>พาเลทที่</b> '+palletBox+'</span>';
@@ -1871,7 +2129,7 @@ function oneLabel(o,i){
     : '<div class="r">'+lot+tm+'</div><div class="r">'+qty+ln+'</div>'+
       '<div class="bc">'+labelSvg(code,{h:L.bch*3,mw:2,fs:L.bfs*3})+'</div>'+
       '<div class="r">'+pal+mk+'</div><div class="r ft">'+ck+'</div>';
-  return '<div class="lab">'+head+body+'</div>';
+  return '<div class="lab">'+head+body+'<div class="stamp">พิมพ์ '+esc(o.stamp)+'</div></div>';
 }
 function labelCss(o){
   var L=o.L, duo=(o.mode==='duo');
@@ -1895,12 +2153,15 @@ function labelCss(o){
   '.v{font-size:'+(L.big*0.82).toFixed(2)+'mm;font-weight:700}'+
   '.sm{font-size:'+(L.base*0.88).toFixed(2)+'mm}'+
   '.box{display:inline-block;width:'+(duo?'3mm':'3.6mm')+';height:'+(duo?'3mm':'3.6mm')+';'+
-    'border:0.35mm solid #000;vertical-align:-0.5mm;margin:0 0.5mm 0 1mm}'+
+    'border:0.35mm solid #000;vertical-align:-0.5mm;margin:0 0.5mm 0 1mm;'+
+    'text-align:center;line-height:'+(duo?'2.8mm':'3.4mm')+';font-size:'+(duo?'2.6mm':'3.2mm')+'}'+
+  '.box.on{background:#000;color:#fff;font-weight:700}'+
   '.palwrap{display:flex;align-items:center;gap:1mm}'+
   '.pal{display:inline-block;min-width:'+L.pal+'mm;height:'+(duo?'5.4mm':'7mm')+';'+
     'border:0.4mm solid #000;border-radius:0.6mm;text-align:center;'+
     'font-size:'+(L.big*0.8).toFixed(2)+'mm;font-weight:700;line-height:'+(duo?'5.4mm':'7mm')+'}'+
   '.rule{display:inline-block;border-bottom:0.3mm solid #000;min-width:'+L.rule+'mm;vertical-align:-0.7mm}'+
+  '.stamp{font-size:'+(L.base*0.72).toFixed(2)+'mm;color:#444;text-align:end;margin-top:0.6mm;white-space:nowrap}'+
   '.bc{text-align:center}'+
   '.bc svg{width:100%;max-width:'+L.bcw+'mm;height:auto}'+
   '@media screen{body{background:#e9edee;padding:6mm 0}'+
@@ -1954,7 +2215,19 @@ $('btn-lbl-dl').onclick=async function(){
     toast('ดาวน์โหลดแล้ว '+o.count+' ดวง — เปิดไฟล์แล้วกด Ctrl+P เพื่อพิมพ์');
   }catch(e){toast(e&&e.code==='user_declined'?'ยกเลิกการบันทึก':'ดาวน์โหลดไม่สำเร็จ')}
 };
-['lbl-sku','lbl-mode','lbl-lot','lbl-seq','lbl-start','lbl-n'].forEach(function(id){
+function fillLabelLines(){
+  var sel=$('lbl-line'); if(!sel)return;
+  var cfg=linesCfg(), sig=cfg.map(function(L){return L.id+L.name}).join(',');
+  if(sel.dataset.sig===sig)return;
+  var cur=sel.value;
+  sel.dataset.sig=sig;
+  sel.innerHTML='<option value="">เว้นว่างไว้ — ติ๊กเอง</option>';
+  cfg.forEach(function(L){
+    var o=el('option',null,L.name||L.id); o.value=L.id; sel.appendChild(o);
+  });
+  if(cur)sel.value=cur;
+}
+['lbl-sku','lbl-mode','lbl-lot','lbl-seq','lbl-start','lbl-n','lbl-line','lbl-time'].forEach(function(id){
   var e=$(id);if(e)e.addEventListener('change',function(){var o=labelOpts();if(o.sku)lblNote(o)});
 });
 (function(){var dd=todayISO();$('lbl-lot').value=dd.slice(8,10)+dd.slice(5,7)})();
@@ -2014,12 +2287,19 @@ function renderSale(){
           '<input type="text" id="s-bill" placeholder="ต้องใส่ทุกครั้ง"></div>'+
         '<div class="field"><label for="s-plate">ทะเบียนรถ <b style="color:var(--crit)">*</b></label>'+
           '<input type="text" id="s-plate" placeholder="เช่น 1กก 1234"></div>'+
-        '<div class="field"><label for="s-drv">ชื่อคนส่ง</label><input type="text" id="s-drv" placeholder="ชื่อพนักงานขนส่ง"></div>'+
+        '<div class="field"><label for="s-drv">ชื่อคนส่ง</label><input type="text" id="s-drv" list="drv-opts" placeholder="เลือกจากรายชื่อ หรือพิมพ์เอง"></div>'+
         '<div class="field" style="grid-column:span 2"><label for="s-cust">ชื่อลูกค้า</label>'+
           '<input type="text" id="s-cust" list="cust-opts" placeholder="พิมพ์ชื่อ หรือเลือกจากทะเบียน"></div>';
-    head.insertAdjacentHTML('beforeend','<datalist id="cust-opts"></datalist>');
+    head.insertAdjacentHTML('beforeend','<datalist id="cust-opts"></datalist><datalist id="drv-opts"></datalist>');
     ['s-bill','s-plate','s-cust'].forEach(function(id){
       var e=$(id); if(e)e.addEventListener('input',function(){e.classList.remove('reqd');billTotals()});
+    });
+    var dv=$('s-drv');
+    if(dv)dv.addEventListener('input',function(){
+      var d=drvByName(dv.value);
+      var pl=$('s-plate');
+      if(d&&d.plate&&pl&&!pl.value.trim()){pl.value=d.plate;pl.classList.remove('reqd')}
+      billTotals();
     });
     $('s-bill').value=nextBillNo(walk);
   }
@@ -2047,6 +2327,14 @@ function renderSale(){
     g.innerHTML=h;
     [].forEach.call(g.querySelectorAll('.bill-q'),function(i){i.addEventListener('input',billTotals)});
     [].forEach.call(g.querySelectorAll('.bill-p'),function(i){i.addEventListener('input',billTotals)});
+  }
+  var dd=$('drv-opts');
+  if(dd){
+    var ds=drvList(), dsig=ds.map(function(d){return d.id}).join(',');
+    if(dd.dataset.sig!==dsig){
+      dd.dataset.sig=dsig; dd.innerHTML='';
+      ds.forEach(function(d){var o=el('option');o.value=d.name;dd.appendChild(o)});
+    }
   }
   var dl=$('cust-opts');
   if(dl){
@@ -2238,7 +2526,7 @@ function renderBills(){
   ((rec&&rec.entries)||[]).forEach(function(e){
     if(e.type!=='sell'||!e.bill)return;
     if(!bills[e.bill]){bills[e.bill]={id:e.bill,no:e.billNo||'',cust:e.cust||'',by:e.by||'',
-      plate:e.plate||'',ch:chanKey(e.channel),qty:0,money:0,ts:e.ts};order.push(e.bill)}
+      uname:e.uname||'',plate:e.plate||'',ch:chanKey(e.channel),qty:0,money:0,ts:e.ts};order.push(e.bill)}
     bills[e.bill].qty+=e.qty; bills[e.bill].money+=(+e.amount||0);
   });
   /* นับแยกช่องทางไว้โชว์บนปุ่ม */
@@ -2270,6 +2558,7 @@ function renderBills(){
     row.innerHTML='<span class="tag" style="background:'+(wh?'var(--accent-soft);color:var(--accent)':'var(--surface-2);color:var(--ink-2)')+'">'+(wh?'ขายส่ง':'หน้าโรงงาน')+'</span>'+
       '<span class="nm"><b>'+esc(b.cust||'ทั่วไป')+'</b>'+(b.no?(' <span class="note num">'+esc(b.no)+'</span>'):'')+'</span>'+
       '<span class="meta">'+esc([wh?b.by:'',b.plate,(b.ts||'').slice(11,16)].filter(Boolean).join(' · '))+'</span>'+
+      (b.uname?('<span class="bywho">ออกบิลโดย <b>'+esc(b.uname)+'</b></span>'):'')+
       '<span class="q minus">−'+n(b.qty)+(b.money?(' <span class="note">'+baht(b.money)+'</span>'):'')+'</span>';
     if(P('sell.delete')){
       var del=el('button','btn sm danger','ลบบิล');
@@ -2375,11 +2664,15 @@ function renderToday(){
   rec.entries.slice().reverse().forEach(function(e){
     var t=TYPES[e.type]||{label:e.type,sign:1,color:'var(--muted)'};
     var s=skuById(e.skuId);
-    var meta=[e.by,e.line,e.channel?CHANNELS[e.channel]||e.channel:'',e.note].filter(Boolean).join(' · ');
+    var subj=subjectOf(e);
+    var meta=[subj,e.line,e.channel?CHANNELS[e.channel]||e.channel:'',e.note].filter(Boolean).join(' · ');
+    var who=loggedBy(e), tm=loggedAt(e);
     var row=el('div','entry');
-    row.innerHTML='<span class="tag" style="background:var(--surface-2);color:'+t.color+'">'+t.label+'</span>'+
+    row.innerHTML='<span class="when">'+esc(tm)+'</span>'+
+      '<span class="tag" style="background:var(--surface-2);color:'+t.color+'">'+t.label+'</span>'+
       '<span class="nm">'+(s?esc(s.brand)+' '+esc(s.size):esc(e.skuId))+'</span>'+
       '<span class="meta">'+esc(meta)+'</span>'+
+      (who?('<span class="bywho">'+esc(who)+'</span>'):'')+
       '<span class="q '+(t.sign>0?'plus':'minus')+'">'+(t.sign>0?'+':'−')+n(e.qty)+'</span>';
     if(P('sell.delete')){
       var del=el('button','btn sm danger','ลบ');
@@ -2606,7 +2899,8 @@ function renderMatList(){
     var row=el('div','entry');
     row.innerHTML='<span class="tag" style="background:var(--surface-2);color:'+t.color+'">'+t.label+'</span>'+
       '<span class="nm">'+esc(m?m.name:e.matId)+'</span>'+
-      '<span class="meta">'+esc([e.docNo,e.by,e.dept,e.note].filter(Boolean).join(' · '))+'</span>'+
+      '<span class="meta">'+esc([e.docNo,subjectOf(e),e.dept,e.note].filter(Boolean).join(' · '))+'</span>'+
+      (loggedBy(e)?('<span class="bywho">'+esc(loggedBy(e))+'</span>'):'')+
       '<span class="q '+(t.sign>0?'plus':'minus')+'">'+(t.sign>0?'+':'−')+n1(e.qty)+' '+esc(m?m.unit:'')+'</span>';
     if(P('mat.move')&&e.type!=='auto'){
       var del=el('button','btn sm danger','ลบ');del.style.marginInlineStart='8px';
@@ -2640,6 +2934,7 @@ function renderBom(){
   });
 }
 function renderMatCount(){
+  renderMatEdit();
   $('matcount-locked').classList.toggle('hidden',P('stock.count'));
   $('matcount-ui').classList.toggle('hidden',!P('stock.count'));
   if(!P('stock.count'))return;
@@ -2650,11 +2945,118 @@ function renderMatCount(){
     var tr=el('tr');
     tr.innerHTML='<td class="name l">'+esc(m.name)+'</td>'+
       '<td class="num" style="color:var(--muted)">'+n1(st[m.id]||0)+' '+esc(m.unit)+'</td>'+
-      '<td class="l"><input type="number" min="0" step="any" id="mc-'+m.id+'" style="max-width:120px;text-align:right"> '+
+      '<td class="l"><input type="number" min="0" step="any" id="mc-'+m.id+'" value="'+n1(st[m.id]||0).replace(/,/g,'')+'" style="max-width:120px;text-align:right"> '+
         ((+m.per||1)>1?'<select id="mcu-'+m.id+'" style="max-width:120px;display:inline-block;width:auto"><option value="base">'+esc(m.unit)+'</option><option value="pack">'+esc(m.packUnit||'')+'</option></select>':'<span class="note">'+esc(m.unit)+'</span>')+'</td>';
     tb.appendChild(tr);
   });
 }
+/* ---------------- เพิ่ม-แก้-ลบ วัตถุดิบ ---------------- */
+function matGroups(){
+  var seen={},out=[];
+  (S.materials||[]).forEach(function(m){
+    var g=(m.group||'').trim();
+    if(g&&!seen[g]){seen[g]=1;out.push(g)}
+  });
+  return out;
+}
+/* วัตถุดิบตัวนี้ถูกใช้ไปแล้วแค่ไหน */
+function matUsage(id){
+  var u={moves:0,stock:0,bom:0};
+  sortedDays().forEach(function(d){
+    ((S.days[d]||{}).mat||[]).forEach(function(e){ if(e.matId===id)u.moves++ });
+  });
+  u.stock=+(matStockMap()[id]||0);
+  (S.skus||[]).forEach(function(sk){ if(sk.bottleId===id||sk.capId===id)u.bom++ });
+  return u;
+}
+function renderMatEdit(){
+  var ok=can('master.edit');
+  $('matedit-locked').classList.toggle('hidden',ok);
+  $('matedit-ui').classList.toggle('hidden',!ok);
+  if(!ok)return;
+  var dl=$('matgroups'), gs=matGroups();
+  if(dl.dataset.sig!==gs.join(',')){
+    dl.dataset.sig=gs.join(','); dl.innerHTML='';
+    gs.forEach(function(g){var o=el('option');o.value=g;dl.appendChild(o)});
+  }
+  var list=S.materials||[];
+  $('matedit-count').textContent=n(list.length)+' รายการ · ใช้งานอยู่ '+n(mats().length)+' รายการ';
+  var tb=$('matedit-body');
+  var sig=list.map(function(m){return [m.id,m.name,m.group,m.unit,m.packUnit,m.per,m.min,m.active].join('~')}).join('|');
+  if(tb.dataset.sig===sig)return;
+  tb.dataset.sig=sig; tb.innerHTML='';
+  if(!list.length){tb.innerHTML='<tr><td colspan="8"><div class="empty">ยังไม่มีวัตถุดิบในระบบ</div></td></tr>';return}
+  list.forEach(function(m){
+    var tr=el('tr');
+    tr.innerHTML='<td class="l"><input type="text" id="me-n-'+m.id+'" value="'+esc(m.name||'')+'" style="min-width:180px"></td>'+
+      '<td class="l"><input type="text" id="me-g-'+m.id+'" value="'+esc(m.group||'')+'" list="matgroups" style="max-width:110px"></td>'+
+      '<td class="l"><input type="text" id="me-u-'+m.id+'" value="'+esc(m.unit||'')+'" style="max-width:90px"></td>'+
+      '<td class="l"><input type="text" id="me-p-'+m.id+'" value="'+esc(m.packUnit||'')+'" style="max-width:90px"></td>'+
+      '<td><input type="number" id="me-r-'+m.id+'" value="'+(+m.per||1)+'" min="1" step="1" style="max-width:100px;text-align:right"></td>'+
+      '<td><input type="number" id="me-m-'+m.id+'" value="'+(+m.min||0)+'" min="0" step="1" style="max-width:100px;text-align:right"></td>'+
+      '<td><input type="checkbox" id="me-a-'+m.id+'"'+(m.active!==false?' checked':'')+'></td>'+
+      '<td class="l"><button class="btn sm danger" data-matdel="'+m.id+'">ลบ</button></td>';
+    tb.appendChild(tr);
+  });
+}
+async function saveMaterials(items){
+  try{ await S.db.doc('master/materials').set({items:items,updatedAt:new Date().toISOString()}); return true }
+  catch(e){ toast('บันทึกไม่สำเร็จ — ต้องมีสิทธิ์แก้ข้อมูลหลัก'); return false }
+}
+$('btn-mat-add').onclick=async function(){
+  if(!requireDb())return;
+  var nm=$('mn-name').value.trim();
+  if(!nm){toast('ใส่ชื่อวัตถุดิบก่อน');return}
+  if((S.materials||[]).some(function(m){return (m.name||'').trim().toLowerCase()===nm.toLowerCase()})){
+    toast('มีวัตถุดิบชื่อนี้อยู่แล้ว');return;
+  }
+  var unit=$('mn-unit').value.trim()||'ชิ้น';
+  var m={id:'m'+uid(),name:nm,group:$('mn-group').value.trim()||'อื่นๆ',
+    unit:unit,packUnit:$('mn-packunit').value.trim(),
+    per:Math.max(1,+$('mn-per').value||1),min:+$('mn-min').value||0,active:true};
+  $('btn-mat-add').disabled=true;
+  if(await saveMaterials((S.materials||[]).concat([m]))){
+    toast('เพิ่ม '+nm+' แล้ว — ไปใส่ยอดคงเหลือได้ที่ "ตรวจนับ / แก้ยอดวัตถุดิบ"');
+    ['mn-name','mn-group','mn-unit','mn-packunit','mn-per','mn-min'].forEach(function(id){$(id).value=''});
+  }
+  $('btn-mat-add').disabled=false;
+};
+$('btn-matedit-save').onclick=async function(){
+  if(!requireDb())return;
+  var items=(S.materials||[]).map(function(m){
+    var o={};for(var k in m)o[k]=m[k];
+    var g=$('me-n-'+m.id); if(g)o.name=g.value.trim()||m.name;
+    g=$('me-g-'+m.id); if(g)o.group=g.value.trim()||'อื่นๆ';
+    g=$('me-u-'+m.id); if(g)o.unit=g.value.trim()||m.unit;
+    g=$('me-p-'+m.id); if(g)o.packUnit=g.value.trim();
+    g=$('me-r-'+m.id); if(g)o.per=Math.max(1,+g.value||1);
+    g=$('me-m-'+m.id); if(g)o.min=+g.value||0;
+    g=$('me-a-'+m.id); if(g)o.active=g.checked;
+    return o;
+  });
+  if(await saveMaterials(items))toast('บันทึกรายการวัตถุดิบแล้ว');
+};
+$('matedit-body').addEventListener('click',async function(ev){
+  var b=ev.target.closest('button[data-matdel]'); if(!b)return;
+  if(!requireDb())return;
+  var id=b.dataset.matdel, m=matById(id); if(!m)return;
+  var u=matUsage(id);
+  if(u.moves>0||u.stock!==0||u.bom>0){
+    var why=[];
+    if(u.moves>0)why.push('มีรายการรับเข้า-เบิกใช้ '+n(u.moves)+' รายการ');
+    if(u.stock!==0)why.push('ยังมีของค้างอยู่ '+n1(u.stock)+' '+m.unit);
+    if(u.bom>0)why.push('ผูกอยู่กับสินค้า '+n(u.bom)+' รายการ');
+    if(!await askConfirm('ลบ '+m.name+' ไม่ได้ เพราะ '+why.join(' · ')+
+      '\nถ้าเลิกใช้แล้ว ให้ซ่อนแทน — ประวัติเดิมจะยังอยู่ครบ จะซ่อนเลยไหม?','ซ่อนรายการนี้'))return;
+    var a=$('me-a-'+id); if(a)a.checked=false;
+    $('btn-matedit-save').click();
+    return;
+  }
+  if(!await askConfirm('ลบ '+m.name+' ออกจากระบบถาวรใช่ไหม?\nรายการนี้ยังไม่เคยถูกใช้งาน จึงลบได้','ลบถาวร'))return;
+  if(await saveMaterials((S.materials||[]).filter(function(x){return x.id!==id})))
+    toast('ลบ '+m.name+' แล้ว');
+});
+
 /* ---- material writes ---- */
 function matEntry(type,matId,qty,by,dept,note,docNo){
   return {id:uid(),ts:new Date().toISOString(),rts:new Date().toISOString(),type:type,matId:matId,qty:Math.abs(qty),
@@ -3671,6 +4073,7 @@ function renderMoney(){
 /* ---------------- render: settings ---------------- */
 function renderSet(){
   $('bk-panel').classList.toggle('hidden',!P('user.manage'));
+  renderDrivers();
   renderCust();
   renderPrices();
   renderOem();
@@ -3724,10 +4127,262 @@ function renderSet(){
       (S.costs?'<td><input type="number" id="sc-'+s.id+'" value="'+cost+'" min="0" step="0.25" style="max-width:92px;text-align:right"></td>'+
                '<td><input type="number" id="sr-'+s.id+'" value="'+price+'" min="0" step="0.25" style="max-width:92px;text-align:right"></td>'
               :'<td class="num" style="color:var(--muted)">—</td><td class="num" style="color:var(--muted)">—</td>')+
-      '<td><input type="checkbox" id="sa-'+s.id+'" '+(s.active!==false?'checked':'')+' '+(S.admin?'':'disabled')+'></td>';
+      '<td><input type="checkbox" id="sa-'+s.id+'" '+(s.active!==false?'checked':'')+' '+(S.admin?'':'disabled')+'></td>'+
+      '<td class="l">'+(S.admin?('<button class="btn sm danger" data-delsku="'+s.id+'">ลบ</button>'):'')+'</td>';
     tb.appendChild(tr);
   });
 }
+
+/* สินค้าตัวนี้เคยถูกใช้งานไปแล้วแค่ไหน — ถ้าเคยใช้ ห้ามลบ */
+function skuUsage(id){
+  var u={entries:0,mat:0,stock:0,days:{},lines:[],price:false};
+  sortedDays().forEach(function(d){
+    var rec=S.days[d]||{};
+    (rec.entries||[]).forEach(function(e){
+      if(e.skuId===id){u.entries++;u.days[d]=1}
+    });
+  });
+  var st=stockMap(); u.stock=+st[id]||0;
+  if(S.baseline&&S.baseline.qty&&S.baseline.qty[id])u.baseline=+S.baseline.qty[id]||0;
+  linesCfg().forEach(function(L){
+    var ls=S.lines[L.id]||{};
+    if(ls.status==='run'&&ls.skuId===id)u.lines.push(L.id);
+  });
+  var P2=S.prices||{};
+  if((P2.walk||{})[id]||(P2.skuTiers||{})[id])u.price=true;
+  (S.customers||[]).forEach(function(c){ if(c.rates&&c.rates[id])u.price=true });
+  u.dayCount=Object.keys(u.days).length;
+  return u;
+}
+async function deleteSku(id){
+  if(!requireDb())return;
+  var s2=skuById(id); if(!s2)return;
+  var nm=s2.brand+' '+s2.size;
+  var u=skuUsage(id);
+  if(u.lines.length){
+    toast('ตอนนี้ '+u.lines.join(', ')+' กำลังเดินเครื่องผลิต '+nm+' อยู่ — ปิดรอบผลิตก่อนถึงจะลบได้');
+    return;
+  }
+  if(u.entries>0||u.stock!==0||u.baseline){
+    var why=[];
+    if(u.entries>0)why.push('มีรายการซื้อขาย/ผลิต '+n(u.entries)+' รายการ ใน '+n(u.dayCount)+' วัน');
+    if(u.stock!==0)why.push('ยังมีสต๊อกค้างอยู่ '+n1(u.stock)+' '+unitOf(s2));
+    if(u.baseline)why.push('มีอยู่ในยอดตรวจนับล่าสุด');
+    var ok=await askConfirm('ลบ '+nm+' ไม่ได้ เพราะ '+why.join(' · ')+
+      '\n\nถ้าเลิกขายแล้ว ให้ซ่อนแทน — ยอดเก่าในรายงานจะยังอยู่ครบ จะซ่อนเลยไหม?','ซ่อนสินค้านี้');
+    if(!ok)return;
+    var a=$('sa-'+id); if(a)a.checked=false;
+    await saveMaster();
+    toast('ซ่อน '+nm+' แล้ว — ยอดเก่ายังอยู่ในรายงาน');
+    return;
+  }
+  if(!await askConfirm('ลบ '+nm+' ออกจากระบบถาวรใช่ไหม?\nสินค้านี้ยังไม่เคยมีการซื้อขายหรือผลิต จึงลบได้','ลบถาวร'))return;
+  var items=S.skus.filter(function(x){return x.id!==id});
+  try{
+    await S.db.doc('master/skus').set({items:items,updatedAt:new Date().toISOString()});
+    /* เก็บกวาดค่าที่ผูกกับสินค้านี้ ไม่ให้เหลือขยะ */
+    await cleanupSkuRefs(id);
+    toast('ลบ '+nm+' แล้ว');
+  }catch(e){toast('ลบไม่สำเร็จ — ต้องมีสิทธิ์แก้ข้อมูลหลัก')}
+}
+/* ลบร่องรอยของสินค้าที่ถูกลบ ออกจากราคา ต้นทุน และกติกาไลน์ */
+async function cleanupSkuRefs(id){
+  try{
+    var P2=S.prices||{}, changed=false;
+    var walk={},tiers={};
+    for(var k in (P2.walk||{})) if(k!==id)walk[k]=P2.walk[k]; else changed=true;
+    for(var k2 in (P2.skuTiers||{})) if(k2!==id)tiers[k2]=P2.skuTiers[k2]; else changed=true;
+    var promos=(P2.promos||[]).map(function(p){
+      if(!p.skus||p.skus.indexOf(id)<0)return p;
+      changed=true; var c={};for(var q in p)c[q]=p[q];
+      c.skus=p.skus.filter(function(x){return x!==id});return c;
+    });
+    if(changed)await savePrices({walk:walk,tiers:P2.tiers||[],skuTiers:tiers,promos:promos});
+  }catch(e){}
+  try{
+    var cs=(S.customers||[]),touched=false;
+    var out=cs.map(function(c){
+      if(!c.rates||!c.rates[id])return c;
+      touched=true; var o={};for(var q in c)o[q]=c[q];
+      o.rates={};for(var r in c.rates)if(r!==id)o.rates[r]=c.rates[r];
+      return o;
+    });
+    if(touched)await saveCustomers(out);
+  }catch(e){}
+  try{
+    var ls=lineSkuMap(),hit=false,clean={};
+    for(var L in ls){
+      clean[L]={};
+      for(var sid in ls[L]) if(sid!==id)clean[L][sid]=ls[L][sid]; else hit=true;
+      if(!Object.keys(clean[L]).length)delete clean[L];
+    }
+    if(hit)await S.db.doc('master/config').set(Object.assign({},S.config,{lineSkus:clean,
+      updatedAt:new Date().toISOString()}));
+  }catch(e){}
+}
+
+/* ---------------- ตารางราคาที่ตกลงกับลูกค้า ---------------- */
+var RATEFOR=null;
+function openRateTable(id){
+  var c=custById(id); if(!c)return;
+  RATEFOR=id;
+  $('rate-panel').classList.remove('hidden');
+  $('rate-title').textContent='ราคาที่ตกลงกับ '+c.name;
+  $('rate-find').value='';
+  $('rate-body').dataset.sig='';
+  renderRateTable();
+  $('rate-panel').scrollIntoView({block:'start',behavior:'smooth'});
+}
+function closeRateTable(){ RATEFOR=null; $('rate-panel').classList.add('hidden') }
+function renderRateTable(){
+  if(!RATEFOR)return;
+  var c=custById(RATEFOR); if(!c){closeRateTable();return}
+  var cur=c.rates||{};
+  var find=($('rate-find').value||'').trim().toLowerCase();
+  var list=activeSkus().filter(isPack).filter(function(sk){
+    return !find||(sk.brand+' '+sk.size+' '+(sk.name||'')).toLowerCase().indexOf(find)>=0;
+  });
+  var set=0; for(var k in cur) if(pnum(cur[k])>0)set++;
+  $('rate-note').textContent= set? ('ตั้งราคาไว้แล้ว '+n(set)+' รายการ') : 'ยังไม่ได้ตั้งราคาให้ลูกค้ารายนี้';
+  var tb=$('rate-body');
+  var sig=RATEFOR+'|'+find+'|'+skuSig+'|'+JSON.stringify(cur);
+  if(tb.dataset.sig===sig)return;
+  tb.dataset.sig=sig; tb.innerHTML='';
+  if(!list.length){tb.innerHTML='<tr><td colspan="4"><div class="empty">ไม่พบสินค้าที่ค้นหา</div></td></tr>';return}
+  list.forEach(function(sk){
+    var v=pnum(cur[sk.id]);
+    /* เรตปกติ = ราคาที่ระบบจะคิดให้ถ้าไม่มีราคาตกลง */
+    var base=priceFor(sk.id,'ขายส่ง',0,null,todayISO());
+    var tr=el('tr');
+    tr.innerHTML='<td class="name l"><b>'+esc(sk.brand)+'</b> '+esc(sk.size)+'</td>'+
+      '<td><input type="number" class="ratebox" data-sku="'+sk.id+'" id="rb-'+sk.id+
+        '" value="'+(v>0?v:'')+'" min="0" step="0.25" placeholder="—" style="max-width:110px;text-align:right"></td>'+
+      '<td class="num" style="color:var(--muted)">'+(base.price>0?n1(base.price):'—')+'</td>'+
+      '<td class="num" id="rd-'+sk.id+'"></td>';
+    tb.appendChild(tr);
+  });
+  rateDiffs();
+}
+function rateDiffs(){
+  [].forEach.call(document.querySelectorAll('.ratebox'),function(i){
+    var sk=skuById(i.dataset.sku); if(!sk)return;
+    var base=priceFor(sk.id,'ขายส่ง',0,null,todayISO()).price;
+    var v=pnum(i.value), cell=$('rd-'+sk.id);
+    if(!cell)return;
+    if(v<=0||base<=0){cell.textContent='';return}
+    var d=v-base;
+    cell.innerHTML= d===0 ? '<span class="note">เท่ากัน</span>'
+      : '<span style="color:'+(d<0?'var(--good)':'var(--serious)')+'">'+(d>0?'+':'')+n1(d)+'</span>';
+  });
+}
+$('rate-find').addEventListener('input',function(){$('rate-body').dataset.sig='';renderRateTable()});
+$('rate-body').addEventListener('input',function(ev){
+  if(ev.target.classList.contains('ratebox'))rateDiffs();
+});
+$('btn-rate-close').onclick=closeRateTable;
+$('btn-rate-clear').onclick=function(){
+  [].forEach.call(document.querySelectorAll('.ratebox'),function(i){i.value=''});
+  rateDiffs();
+  $('rate-note').textContent='ล้างแล้ว — กดบันทึกเพื่อยืนยัน';
+};
+$('btn-rate-fill').onclick=function(){
+  var nfill=0;
+  [].forEach.call(document.querySelectorAll('.ratebox'),function(i){
+    if(String(i.value).trim())return;
+    var w=pnum(((S.prices||{}).walk||{})[i.dataset.sku]);
+    if(w>0){i.value=w;nfill++}
+  });
+  rateDiffs();
+  $('rate-note').textContent= nfill? ('เติมให้ '+n(nfill)+' รายการ — กดบันทึกเพื่อยืนยัน')
+                                   : 'ยังไม่ได้ตั้งราคาหน้าโรงงานไว้ จึงไม่มีอะไรให้เติม';
+};
+$('btn-rate-save').onclick=async function(){
+  if(!RATEFOR||!requireDb())return;
+  var rates={};
+  [].forEach.call(document.querySelectorAll('.ratebox'),function(i){
+    var v=pnum(i.value); if(v>0)rates[i.dataset.sku]=v;
+  });
+  /* รายการที่ถูกกรองออกด้วยช่องค้นหา ต้องไม่หายไป */
+  var c=custById(RATEFOR), old=c&&c.rates?c.rates:{};
+  for(var k in old){
+    if(!document.querySelector('.ratebox[data-sku="'+k+'"]')&&pnum(old[k])>0)rates[k]=pnum(old[k]);
+  }
+  var items=(S.customers||[]).map(function(x){
+    if(x.id!==RATEFOR)return x;
+    var o={};for(var q in x)o[q]=x[q];o.rates=rates;return o;
+  });
+  $('btn-rate-save').disabled=true;
+  if(await saveCustomers(items)){
+    toast('บันทึกราคาของ '+(c?c.name:'')+' แล้ว ('+n(Object.keys(rates).length)+' รายการ)');
+    $('cust-body').dataset.sig=''; $('rate-body').dataset.sig='';
+  }
+  $('btn-rate-save').disabled=false;
+};
+
+/* ---------------- ทะเบียนพนักงานส่งของ ---------------- */
+function renderDrivers(){
+  var ok=can('cust.edit');
+  $('drv-locked').classList.toggle('hidden',ok);
+  $('drv-ui').classList.toggle('hidden',!ok);
+  if(!ok)return;
+  var list=S.drivers||[];
+  $('drv-count').textContent= list.length? (n(list.length)+' คน · ใช้งานอยู่ '+n(drvList().length)+' คน')
+                                         : 'ยังไม่มีรายชื่อ — เพิ่มด้านบนได้เลย';
+  var tb=$('drv-body');
+  var sig=list.map(function(d){return d.id+d.name+d.phone+d.plate+d.active}).join('|');
+  if(tb.dataset.sig===sig)return;
+  tb.dataset.sig=sig; tb.innerHTML='';
+  if(!list.length){
+    tb.innerHTML='<tr><td colspan="5"><div class="empty">ยังไม่มีพนักงานส่งในระบบ</div></td></tr>';return;
+  }
+  list.forEach(function(d){
+    var tr=el('tr');
+    tr.innerHTML='<td class="l"><input type="text" id="dn-'+d.id+'" value="'+esc(d.name||'')+'" style="max-width:170px"></td>'+
+      '<td class="l"><input type="text" id="dp-'+d.id+'" value="'+esc(d.phone||'')+'" style="max-width:140px"></td>'+
+      '<td class="l"><input type="text" id="dl-'+d.id+'" value="'+esc(d.plate||'')+'" style="max-width:140px"></td>'+
+      '<td><input type="checkbox" id="dx-'+d.id+'"'+(d.active!==false?' checked':'')+'></td>'+
+      '<td class="l"><button class="btn sm danger" data-drvdel="'+d.id+'">ลบ</button></td>';
+    tb.appendChild(tr);
+  });
+}
+async function saveDrivers(items){
+  try{ await S.db.doc('master/drivers').set({items:items,updatedAt:new Date().toISOString()}); return true }
+  catch(e){ toast('บันทึกไม่สำเร็จ — ต้องมีสิทธิ์เพิ่ม-แก้ทะเบียนลูกค้า'); return false }
+}
+$('btn-drv-add').onclick=async function(){
+  if(!requireDb())return;
+  var nm=$('dv-name').value.trim();
+  if(!nm){toast('ใส่ชื่อพนักงานส่งก่อน');return}
+  if(drvByName(nm)){toast('มีชื่อนี้อยู่แล้ว');return}
+  var d={id:'d'+uid(),name:nm,phone:$('dv-phone').value.trim(),
+         plate:$('dv-plate').value.trim(),active:true};
+  if(await saveDrivers((S.drivers||[]).concat([d]))){
+    $('dv-name').value='';$('dv-phone').value='';$('dv-plate').value='';
+    toast('เพิ่ม '+nm+' แล้ว');
+  }
+};
+$('btn-drv-save').onclick=async function(){
+  if(!requireDb())return;
+  var items=(S.drivers||[]).map(function(d){
+    var nm=$('dn-'+d.id),ph=$('dp-'+d.id),pl=$('dl-'+d.id),ac=$('dx-'+d.id);
+    var o={};for(var k in d)o[k]=d[k];
+    if(nm)o.name=nm.value.trim()||d.name;
+    if(ph)o.phone=ph.value.trim();
+    if(pl)o.plate=pl.value.trim();
+    if(ac)o.active=ac.checked;
+    return o;
+  });
+  if(await saveDrivers(items))toast('บันทึกรายชื่อแล้ว');
+};
+$('drv-body').addEventListener('click',async function(ev){
+  var b=ev.target.closest('button[data-drvdel]'); if(!b)return;
+  var id=b.dataset.drvdel, d=(S.drivers||[]).filter(function(x){return x.id===id})[0];
+  if(!d)return;
+  /* ชื่อที่เคยออกบิลไปแล้ว ยังอยู่ในบิลเก่าเสมอ ลบออกจากทะเบียนได้ ไม่กระทบยอด */
+  if(!await askConfirm('ลบ '+d.name+' ออกจากรายชื่อใช่ไหม?\nบิลเก่าที่มีชื่อนี้จะยังอยู่ครบเหมือนเดิม','ลบ'))return;
+  if(await saveDrivers((S.drivers||[]).filter(function(x){return x.id!==id})))
+    toast('ลบ '+d.name+' แล้ว');
+});
 
 /* ---------------- ทะเบียนลูกค้า ---------------- */
 var CUSTTYPE={wh:'ขายส่ง',walk:'หน้าโรงงาน',oem:'OEM'};
@@ -3800,33 +4455,8 @@ $('cust-body').addEventListener('click',async function(ev){
     b.disabled=false;
     return;
   }
-  /* ตั้งราคาที่ตกลงกับลูกค้ารายนี้ */
-  var c=custById(id); if(!c)return;
-  var packs=activeSkus().filter(isPack);
-  var cur=c.rates||{};
-  var lines=packs.map(function(sk){
-    return sk.brand+' '+sk.size+' = '+(pnum(cur[sk.id])||'');
-  }).join('\n');
-  var v=await askPrompt('ราคาที่ตกลงกับ "'+c.name+'" (บาท/แพ็ค)\n'+
-    'ใส่แบบ  ชื่อสินค้า = ราคา  บรรทัดละ 1 อย่าง\nเว้นว่างหรือใส่ 0 = ไม่มีราคาตกลง ใช้เรตปกติ',lines);
-  if(v===null)return;
-  var rates={};
-  String(v).split('\n').forEach(function(ln){
-    var i=ln.lastIndexOf('=');if(i<0)return;
-    var nm=ln.slice(0,i).trim().toLowerCase(),p=pnum(ln.slice(i+1));
-    if(p<=0)return;
-    packs.forEach(function(sk){
-      if((sk.brand+' '+sk.size).toLowerCase()===nm)rates[sk.id]=p;
-    });
-  });
-  var items2=(S.customers||[]).map(function(x){
-    if(x.id!==id)return x;
-    var o={};for(var k in x)o[k]=x[k];o.rates=rates;return o;
-  });
-  if(await saveCustomers(items2)){
-    toast('ตั้งราคาให้ '+c.name+' แล้ว '+Object.keys(rates).length+' รายการ');
-    $('cust-body').dataset.sig='';
-  }
+  /* ตั้งราคาที่ตกลงกับลูกค้ารายนี้ — เปิดเป็นตาราง กรอกง่ายกว่าพิมพ์ทีละบรรทัด */
+  openRateTable(id);
 });
 
 /* ---------------- ราคาขาย: เรต / โปรโมชั่น / ราคาหน้าร้าน ---------------- */
@@ -4178,10 +4808,15 @@ async function saveMaster(){
   if(!requireDb())return;
   var items=S.skus.map(function(s){
     var nm=$('sn-'+s.id),ps=$('sp-'+s.id),mn=$('sm-'+s.id),bc=$('sb-'+s.id),ac=$('sa-'+s.id);
-    return {id:s.id,brand:s.brand,size:s.size,
-      name:nm?nm.value:s.name,packSize:ps?+ps.value||12:12,
-      min:mn?+mn.value||0:0,barcode:bc?bc.value.trim():(s.barcode||''),
-      active:ac?ac.checked:true};
+    /* คัดลอกของเดิมมาทั้งหมดก่อน แล้วค่อยทับเฉพาะช่องที่แก้ได้ในตาราง
+       ไม่งั้นหน่วย (น้ำถัง) การผูกขวด-ฝา และธง OEM จะหายไปทุกครั้งที่กดบันทึก */
+    var o={}; for(var k in s)o[k]=s[k];
+    if(nm)o.name=nm.value;
+    if(ps)o.packSize=+ps.value||12;
+    if(mn)o.min=+mn.value||0;
+    if(bc)o.barcode=bc.value.trim();
+    if(ac)o.active=ac.checked;
+    return o;
   });
   try{
     await S.db.doc('master/skus').set({items:items,updatedAt:new Date().toISOString()});
@@ -4469,6 +5104,10 @@ $('btn-save').onclick=saveEntry;
 $('btn-count').onclick=saveCount;
 $('btn-save-master').onclick=saveMaster;
 $('btn-save-config').onclick=saveConfig;
+$('set-body').addEventListener('click',function(ev){
+  var b=ev.target.closest('button[data-delsku]'); if(!b)return;
+  deleteSku(b.dataset.delsku);
+});
 $('mk-find').addEventListener('input',function(){$('mk-body').dataset.sig='';renderMakeGrid()});
 $('mk-body').addEventListener('change',function(ev){
   if(!ev.target.classList.contains('mkbox'))return;
@@ -4670,6 +5309,13 @@ function startApp(me){
     var tb=$('set-body');if(tb)tb.dataset.sig='';
     renderAll();
   },function(){S.costs=null;renderAll()});
+  db.doc('master/drivers').onSnapshot(function(s){
+    var d=s.exists?s.data():null;
+    S.drivers=(d&&Array.isArray(d.items))?d.items:[];
+    var db2=$('drv-body');if(db2)db2.dataset.sig='';
+    var dd=$('drv-opts');if(dd)dd.dataset.sig='';
+    renderAll();
+  },function(){});
   db.doc('master/customers').onSnapshot(function(s){
     var d=s.exists?s.data():null;
     S.customers=(d&&Array.isArray(d.items))?d.items:[];

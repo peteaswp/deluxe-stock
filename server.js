@@ -65,6 +65,7 @@ function need(u,p){ if(!has(u,p)){const e=new Error('forbidden');e.code='forbidd
 
 function checkDocWrite(u,p,body){
   if(p==='master/customers'){ need(u,'cust.edit'); return body }
+  if(p==='master/drivers')  { need(u,'cust.edit'); return body }
   if(p==='master/prices')   { need(u,'price.edit'); return body }
   if(p.startsWith('master/')) { need(u,'master.edit'); return body }
   if(p==='stock/baseline'||p==='stock/matbaseline'){
