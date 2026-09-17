@@ -804,9 +804,24 @@ details.fold .panel-b{padding-top:0}
           <div class="field"><label for="f-staff">รายชื่อผู้บันทึก</label><input type="text" id="f-staff" readonly tabindex="-1" placeholder="มาจากบัญชีผู้ใช้" style="background:var(--surface-2);color:var(--muted);cursor:default"><span class="note">ชื่อผู้บันทึกมาจากบัญชีที่ล็อกอิน ตั้งที่ "ผู้ใช้และสิทธิ์"</span></div>
         </div>
         <div class="tscroll" style="margin-top:14px"><table>
-          <thead><tr><th class="l">ไลน์</th><th class="l">ผลิตขนาดไหนได้บ้าง</th></tr></thead>
+          <thead><tr><th class="l">ไลน์</th><th class="l">ขนาดที่เครื่องรองรับ</th><th class="l">เฉพาะที่ติ๊กเท่านั้น</th></tr></thead>
           <tbody id="line-body"></tbody>
         </table></div>
+
+        <h3 class="ui" style="font-size:14px;margin:20px 0 6px">ไลน์ไหนผลิตอะไรได้</h3>
+        <p class="note" style="margin:0 0 10px">
+          ติ๊กไว้ = ไลน์นั้นผลิตสินค้าตัวนั้นได้ · แผนการผลิตและหน้าจอไลน์จะยึดตามตารางนี้
+          · สินค้าที่ไม่มีไลน์ไหนติ๊กเลย จะขึ้นเตือนในแผนผลิต
+        </p>
+        <div class="row" style="margin-bottom:10px;flex-wrap:wrap;gap:8px">
+          <input type="text" id="mk-find" placeholder="ค้นหาสินค้า" style="max-width:220px">
+          <span class="note" id="mk-count">—</span>
+        </div>
+        <div class="tscroll" style="max-height:460px"><table>
+          <thead><tr><th class="l">สินค้า</th><th class="l" id="mk-head"></th></tr></thead>
+          <tbody id="mk-body"></tbody>
+        </table></div>
+
         <div class="row" style="margin-top:12px"><button class="btn primary" id="btn-save-config">บันทึกกำลังผลิต</button></div>
       </div>
     </section>
@@ -1116,7 +1131,17 @@ var STATUS={
 function statChip(k){var s=STATUS[k];return '<span class="stat '+s.cls+'">'+ICON[s.cls]+s.label+'</span>'}
 
 var DEFAULT_CFG={
-  lines:[{id:'L1',name:'ไลน์ 1',sizes:['600']},{id:'L2',name:'ไลน์ 2',sizes:['350','600','1500']},{id:'L3',name:'ไลน์ 3',sizes:['350','600','1500']}],
+  /* strict = ผลิตได้เฉพาะที่ติ๊กไว้เท่านั้น สินค้าใหม่จะไม่ขึ้นเองอัตโนมัติ */
+  lines:[{id:'L1',name:'ไลน์ 1',sizes:['600']},
+         {id:'L2',name:'ไลน์ 2',sizes:['350','600','1500']},
+         {id:'L3',name:'ไลน์ 3',sizes:['600','1500'],strict:true}],
+  /* ข้อยกเว้นรายสินค้า: true = ผลิตได้, false = ผลิตไม่ได้
+     ไม่มีชื่ออยู่ในนี้ = ยึดตามขนาดที่ไลน์นั้นผลิตได้ (และ strict) */
+  lineSkus:{
+    L1:{flw350:false,flw600:false,flw1500:false},
+    L2:{flw350:true,flw600:true,flw1500:true},
+    L3:{fin600:true,fin1500:true,flw600:true,flw1500:true,ppz1500:true}
+  },
   rates:{'350':1125,'600':1125,'1500':900},
   palletPacks:{'350':225,'600':150,'1500':112},
   hoursPerDay:8, otHours:4, staff:[], coverTarget:5
@@ -1153,6 +1178,18 @@ function skuByBarcode(code){
 }
 function linesCfg(){return (S.config.lines&&S.config.lines.length)?S.config.lines:DEFAULT_CFG.lines}
 function lineById(id){var L=linesCfg();for(var i=0;i<L.length;i++)if(L[i].id===id)return L[i];return null}
+/* ไลน์นี้ผลิตสินค้าตัวนี้ได้ไหม */
+function lineSkuMap(){ return S.config.lineSkus||{} }
+function canMake(L,sku){
+  if(!L||!sku)return false;
+  if(!isPack(sku))return false;                       /* น้ำถังไม่ได้ผลิตที่ไลน์ */
+  var m=(lineSkuMap()[L.id]||{});
+  if(Object.prototype.hasOwnProperty.call(m,sku.id))return m[sku.id]===true;
+  if(L.strict)return false;                            /* ไลน์ที่ล็อกไว้ ต้องติ๊กเองเท่านั้น */
+  return (L.sizes||[]).indexOf(sizeKey(sku))>=0;
+}
+function linesForSku(sku){ return linesCfg().filter(function(L){return canMake(L,sku)}) }
+function skusForLine(L){ return activeSkus().filter(function(s2){return canMake(L,s2)}) }
 function palletsOf(s,packs){var pp=packsPerPallet(s);if(!pp)return {full:0,rem:0,pp:0};return {full:Math.floor(packs/pp),rem:packs%pp,pp:pp}}
 function palletText(s,packs){var pp=packsPerPallet(s);if(!pp)return '—';var p=palletsOf(s,packs);return p.full+(p.rem?' + '+p.rem:'')}
 
@@ -1510,6 +1547,16 @@ function drawChart(){
   });
 })();
 
+/* สรุปสั้นๆ ว่าไลน์นี้ผลิตอะไรได้ ไว้โชว์บนหัวการ์ด */
+function lineMakesText(L){
+  var mk=skusForLine(L);
+  if(!mk.length)return 'ยังไม่ได้ตั้ง';
+  var br={},order=[];
+  mk.forEach(function(s2){ if(!br[s2.brand]){br[s2.brand]=[];order.push(s2.brand)} br[s2.brand].push(sizeKey(s2)) });
+  if(order.length>3)return order.length+' ยี่ห้อ · '+mk.length+' รายการ';
+  return order.map(function(b){return b+' '+br[b].join('/')}).join(' · ');
+}
+
 /* ---------------- LINE STATION ---------------- */
 function renderLines(){
   var host=$('lines'),cfg=linesCfg();
@@ -1529,7 +1576,7 @@ function renderLines(){
     var theo=s?rateOf(s):0;
     var pal=s?palletsOf(s,packs):{full:0,rem:0,pp:0};
     c.classList.toggle('running',running);
-    var h='<div class="lh"><h3>'+esc(L.name)+'</h3><span class="sizes">'+L.sizes.join(' / ')+' ml</span>'+
+    var h='<div class="lh"><h3>'+esc(L.name)+'</h3><span class="sizes">'+esc(lineMakesText(L))+'</span>'+
       '<span class="pill '+(running?'on':'')+'">'+(running?'<i></i>กำลังผลิต':'หยุด')+'</span></div>';
     if(running&&s){
       var pct=theo>0?Math.min(100,Math.round(rate/theo*100)):0;
@@ -1557,10 +1604,17 @@ function renderLines(){
     c.innerHTML=h;
     if(!running){
       var sel=c.querySelector('[data-sel="sku"]');
-      activeSkus().filter(function(s2){return L.sizes.indexOf(sizeKey(s2))>=0}).forEach(function(s2){
-        var o=el('option',null,s2.brand+' '+s2.size);o.value=s2.id;sel.appendChild(o);
-      });
-      if(st.skuId)sel.value=st.skuId;
+      var mk=skusForLine(L);
+      if(!mk.length){
+        var o0=el('option',null,'— ยังไม่ได้ตั้งว่าไลน์นี้ผลิตอะไรได้ —');o0.value='';sel.appendChild(o0);
+        sel.disabled=true;
+        var sb=c.querySelector('[data-act="start"]'); if(sb)sb.disabled=true;
+      }else{
+        mk.forEach(function(s2){
+          var o=el('option',null,s2.brand+' '+s2.size);o.value=s2.id;sel.appendChild(o);
+        });
+        if(st.skuId&&mk.some(function(x){return x.id===st.skuId}))sel.value=st.skuId;
+      }
       var op=c.querySelector('[data-sel="op"]');
       if(op)op.value=meName();
     }
@@ -2827,7 +2881,8 @@ function renderReport(){
   /* ----- KPI ผลิต ----- */
   var cfg=linesCfg(), H=(+S.config.hoursPerDay||8);
   var capDay=0; cfg.forEach(function(L){
-    var best=0;(L.sizes||[]).forEach(function(z){var rr=+(S.config.rates||{})[z]||0;if(rr>best)best=rr});
+    var best=0;skusForLine(L).forEach(function(s2){var rr=rateOf(s2);if(rr>best)best=rr});
+    if(!best)(L.sizes||[]).forEach(function(z){var rr=+(S.config.rates||{})[z]||0;if(rr>best)best=rr});
     capDay+=best*H;
   });
   var capPeriod=capDay*Math.max(1,T.workDays);
@@ -3079,7 +3134,8 @@ function formPlan(){
     '<table><thead><tr><th style="width:70px">เวลา</th><th>ไลน์</th><th class="l">อาการ / สาเหตุ</th>'+
     '<th style="width:70px">หยุดกี่นาที</th><th class="l">แก้ไขอย่างไร</th></tr></thead><tbody>'+
     blankRows(5,5)+'</tbody></table>'+
-    '<div class="note">ไลน์ที่ใช้งาน: '+lines.map(function(l){return esc(l.name||l.id)}).join(' · ')+'</div>'+
+    '<div class="note">ไลน์ที่ใช้งาน · '+
+      lines.map(function(l){return '<b>'+esc(l.name||l.id)+'</b> = '+esc(lineMakesText(l))}).join(' &nbsp;|&nbsp; ')+'</div>'+
     signRow(['ผู้บันทึก','หัวหน้าฝ่ายผลิต','ผู้จัดการ']);
   return formDoc('แผนการผลิตประจำวัน',body,'FM-PR-01');
 }
@@ -3527,6 +3583,16 @@ function renderSched(rs){
   var host=$('sched');host.innerHTML='';
   var queue=rs.filter(function(r){return r.need>0}).map(function(r){return {sku:r.sku,left:r.need,size:sizeKey(r.sku)}});
   if(!queue.length){host.innerHTML='<div class="empty">ไม่มีรายการที่ต้องผลิตในรอบนี้ — สต๊อกพอตามเป้าหมาย</div>';return}
+  /* รายการที่ไม่มีไลน์ไหนผลิตได้เลย ต้องบอกให้รู้ ไม่ใช่เงียบหายไป */
+  var orphan=queue.filter(function(q){return !linesForSku(q.sku).length});
+  if(orphan.length){
+    var ow=el('div','banner demo');
+    ow.innerHTML='<span>'+ICON.warn+'</span><div class="grow"><b>ยังไม่มีไลน์ไหนผลิตได้ '+n(orphan.length)+' รายการ</b> — '+
+      esc(orphan.slice(0,4).map(function(q){return q.sku.brand+' '+q.sku.size}).join(', '))+
+      (orphan.length>4?(' และอีก '+n(orphan.length-4)+' รายการ'):'')+
+      ' · ไปติ๊กให้ที่ <b>ตั้งค่า → ไลน์ไหนผลิตอะไรได้</b></div>';
+    host.appendChild(ow);
+  }
   var tbl=el('table');
   tbl.innerHTML='<thead><tr><th class="l">วัน</th><th class="l">ไลน์</th><th class="l">สินค้า</th><th>แพ็ค</th><th>พาเลท</th><th>ชั่วโมง</th><th class="l">หมายเหตุ</th></tr></thead>';
   var body=el('tbody'),qi=0,rowsOut=0;
@@ -3537,7 +3603,7 @@ function renderSched(rs){
       while(room>0.01&&qi<queue.length){
         var item=null,idx=-1;
         for(var q=qi;q<queue.length;q++){
-          if(queue[q].left>0&&L.sizes.indexOf(queue[q].size)>=0){item=queue[q];idx=q;break}
+          if(queue[q].left>0&&canMake(L,queue[q].sku)){item=queue[q];idx=q;break}
         }
         if(!item)break;
         var rate=rateOf(item.sku);
@@ -3632,9 +3698,14 @@ function renderSet(){
     ['350','600','1500'].forEach(function(k){
       boxes+='<label style="margin-inline-end:14px;font-family:var(--f-ui);font-size:13.5px"><input type="checkbox" id="ls-'+L.id+'-'+k+'" '+(L.sizes.indexOf(k)>=0?'checked':'')+' '+(S.admin?'':'disabled')+'> '+k+' ml</label>';
     });
-    tr.innerHTML='<td class="l"><b class="ui">'+esc(L.name)+'</b> <span class="note">'+L.id+'</span></td><td class="l">'+boxes+'</td>';
+    tr.innerHTML='<td class="l"><b class="ui">'+esc(L.name)+'</b> <span class="note">'+L.id+'</span></td>'+
+      '<td class="l">'+boxes+'</td>'+
+      '<td class="l"><label style="font-family:var(--f-ui);font-size:13.5px">'+
+        '<input type="checkbox" id="lstrict-'+L.id+'" '+(L.strict?'checked':'')+' '+(S.admin?'':'disabled')+'> '+
+        'ล็อกไลน์นี้</label> <span class="note">สินค้าใหม่จะไม่ขึ้นเอง</span></td>';
     lb.appendChild(tr);
   });
+  renderMakeGrid();
   $('f-hours').value=S.config.hoursPerDay||8;
   $('f-ot').value=S.config.otHours||0;
   $('f-staff').value=(S.config.staff||[]).join(', ');
@@ -4126,6 +4197,39 @@ async function saveMaster(){
     toast('บันทึกการตั้งค่าแล้ว');
   }catch(e){toast('บันทึกไม่สำเร็จ — ต้องมีสิทธิ์แก้ข้อมูลหลัก')}
 }
+/* ตารางติ๊ก สินค้า x ไลน์ */
+function renderMakeGrid(){
+  var cfg=linesCfg(), list=activeSkus().filter(isPack);
+  var find=(($('mk-find')||{}).value||'').trim().toLowerCase();
+  if(find)list=list.filter(function(s2){
+    return (s2.brand+' '+s2.size+' '+(s2.name||'')).toLowerCase().indexOf(find)>=0});
+  $('mk-head').innerHTML=cfg.map(function(L){
+    return '<span style="display:inline-block;min-width:96px">'+esc(L.name)+'</span>'}).join('');
+  var none=activeSkus().filter(isPack).filter(function(s2){return !linesForSku(s2).length}).length;
+  $('mk-count').innerHTML= none
+    ? ('<span style="color:var(--crit)">'+n(none)+' รายการยังไม่มีไลน์ไหนผลิตได้</span>')
+    : ('ทุกรายการมีไลน์ผลิตแล้ว ('+n(list.length)+' รายการ)');
+  var tb=$('mk-body');
+  var sig=find+'|'+skuSig+'|'+JSON.stringify(lineSkuMap())+'|'+
+          cfg.map(function(L){return L.id+L.sizes.join('')+(L.strict?'S':'')}).join(',')+'|'+S.admin;
+  if(tb.dataset.sig===sig)return;
+  tb.dataset.sig=sig; tb.innerHTML='';
+  if(!list.length){tb.innerHTML='<tr><td colspan="2"><div class="empty">ไม่พบสินค้าที่ค้นหา</div></td></tr>';return}
+  list.forEach(function(s2){
+    var tr=el('tr'), boxes='', any=false;
+    cfg.forEach(function(L){
+      var on=canMake(L,s2); if(on)any=true;
+      boxes+='<label style="display:inline-block;min-width:96px;font-family:var(--f-ui);font-size:13px">'+
+        '<input type="checkbox" class="mkbox" data-line="'+L.id+'" data-sku="'+s2.id+'" '+
+        (on?'checked':'')+' '+(S.admin?'':'disabled')+'> '+esc(L.id)+'</label>';
+    });
+    tr.innerHTML='<td class="name l"><b>'+esc(s2.brand)+'</b> '+esc(s2.size)+
+        (any?'':' <span class="stat crit">'+ICON.warn+'ไม่มีไลน์</span>')+'</td>'+
+      '<td class="l">'+boxes+'</td>';
+    tb.appendChild(tr);
+  });
+}
+
 async function saveConfig(){
   if(!requireDb())return;
   var rates={},pp={};
@@ -4135,14 +4239,30 @@ async function saveConfig(){
   });
   var lines=linesCfg().map(function(L){
     var sizes=['350','600','1500'].filter(function(k){var c=$('ls-'+L.id+'-'+k);return c&&c.checked});
-    return {id:L.id,name:L.name,sizes:sizes.length?sizes:['600']};
+    var st=$('lstrict-'+L.id);
+    var o={id:L.id,name:L.name,sizes:sizes.length?sizes:['600']};
+    if(st&&st.checked)o.strict=true;
+    return o;
+  });
+  /* เก็บเฉพาะข้อยกเว้น: ช่องที่ติ๊กไม่ตรงกับกติกาขนาด/ล็อกไลน์ */
+  var lineSkus={};
+  lines.forEach(function(L){
+    var m={};
+    activeSkus().filter(isPack).forEach(function(s2){
+      var b=document.querySelector('.mkbox[data-line="'+L.id+'"][data-sku="'+s2.id+'"]');
+      if(!b)return;
+      var want=b.checked;
+      var base= L.strict ? false : ((L.sizes||[]).indexOf(sizeKey(s2))>=0);
+      if(want!==base)m[s2.id]=want;
+    });
+    if(Object.keys(m).length)lineSkus[L.id]=m;
   });
   var staff=$('f-staff').value.split(',').map(function(s){return s.trim()}).filter(Boolean);
   try{
-    await S.db.doc('master/config').set({lines:lines,rates:rates,palletPacks:pp,
+    await S.db.doc('master/config').set({lines:lines,rates:rates,palletPacks:pp,lineSkus:lineSkus,
       hoursPerDay:+$('f-hours').value||8,otHours:+$('f-ot').value||0,
       staff:staff,coverTarget:S.cover,updatedAt:new Date().toISOString()});
-    toast('บันทึกกำลังผลิตแล้ว');
+    toast('บันทึกแล้ว — แผนผลิตและหน้าจอไลน์จะใช้กติกาใหม่ทันที');
   }catch(e){toast('บันทึกไม่สำเร็จ — ต้องมีสิทธิ์แก้ข้อมูลหลัก')}
 }
 async function addSku(){
@@ -4349,6 +4469,16 @@ $('btn-save').onclick=saveEntry;
 $('btn-count').onclick=saveCount;
 $('btn-save-master').onclick=saveMaster;
 $('btn-save-config').onclick=saveConfig;
+$('mk-find').addEventListener('input',function(){$('mk-body').dataset.sig='';renderMakeGrid()});
+$('mk-body').addEventListener('change',function(ev){
+  if(!ev.target.classList.contains('mkbox'))return;
+  $('mk-count').textContent='ยังไม่ได้บันทึก — กดปุ่ม "บันทึกกำลังผลิต" ด้านล่าง';
+});
+['L1','L2','L3'].forEach(function(id){
+  ['350','600','1500'].forEach(function(k){
+    var c=$('ls-'+id+'-'+k); if(c)c.addEventListener('change',function(){$('mk-body').dataset.sig='';renderMakeGrid()});
+  });
+});
 $('btn-add-sku').onclick=addSku;
 $('btn-csv-ledger').onclick=function(){exportCsv('ledger')};
 /* ---- สำรองข้อมูล / กู้คืนข้อมูล ---- */
@@ -4525,6 +4655,7 @@ function startApp(me){
     var d=s.exists?s.data():{};
     var c=JSON.parse(JSON.stringify(DEFAULT_CFG));
     if(d.lines&&d.lines.length)c.lines=d.lines;
+    if(d.lineSkus)c.lineSkus=d.lineSkus;
     if(d.rates)c.rates=Object.assign(c.rates,d.rates);
     if(d.palletPacks)c.palletPacks=Object.assign(c.palletPacks,d.palletPacks);
     if(d.hoursPerDay)c.hoursPerDay=+d.hoursPerDay;

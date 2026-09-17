@@ -7,13 +7,14 @@ const http=require('http'), fs=require('fs'), path=require('path'), url=require(
 const store=require('./store'), auth=require('./auth'), backup=require('./backup'), {ROLES,PERMS,tabsFor,rolesOf,roleNames,deptOf}=require('./roles');
 const {netOf,matNetOf}=require('./signs');
 const pricing=require('./pricing');
+const linerules=require('./lines');
 
 /* รหัสรุ่น: คิดจากไฟล์หลักที่กำลังรันอยู่จริง
    ใช้บอกว่าอัปเดตไฟล์แล้วแต่ยังไม่ได้ปิด-เปิดเซิร์ฟเวอร์ใหม่ */
 const BUILD=(()=>{
   try{
     const h=require('crypto').createHash('sha1');
-    ['server.js','roles.js','pricing.js','store.js','public/index.html'].forEach(f=>{
+    ['server.js','roles.js','pricing.js','lines.js','store.js','public/index.html'].forEach(f=>{
       try{ h.update(fs.readFileSync(path.join(__dirname,f))) }catch(e){}
     });
     return h.digest('hex').slice(0,8);
@@ -73,7 +74,12 @@ function checkDocWrite(u,p,body){
   }
   if(p.startsWith('lines/')) {
     need(u,'produce.station');
-    if(body.status==='run'){ body.operator=u.name; body.uid=u.id }   /* คนคุมเครื่อง = บัญชีที่ล็อกอิน */
+    if(body.status==='run'){
+      body.operator=u.name; body.uid=u.id;   /* คนคุมเครื่อง = บัญชีที่ล็อกอิน */
+      const lid=p.split('/')[1];
+      if(body.skuId&&!lineCanMake(lid,body.skuId))
+        fail('line_cannot_make',lid+' ผลิตสินค้านี้ไม่ได้ — แก้ได้ที่ ตั้งค่า → ไลน์ไหนผลิตอะไรได้');
+    }
     return body;
   }
   if(p.startsWith('ledger/')) return checkLedger(u,p,body);
@@ -102,7 +108,11 @@ function checkLedger(u,p,body){
         if(e.channel==='ขายส่ง'&&!String(e.plate||'').trim())
           fail('need_plate','บิลขายส่งต้องใส่ทะเบียนรถ');
       }
-    } else if(e.line) need(u,'produce.station');
+    } else if(e.line){
+      need(u,'produce.station');
+      if(e.type==='produce'&&e.skuId&&!lineCanMake(e.line,e.skuId))
+        fail('line_cannot_make',e.line+' ผลิตสินค้านี้ไม่ได้ — แก้ได้ที่ ตั้งค่า → ไลน์ไหนผลิตอะไรได้');
+    }
     else need(u,'produce.log');
     e.uid=u.id; e.uname=u.name;              /* ใครบันทึก — ปลอมไม่ได้ */
     /* ช่อง by ที่ใช้แสดงในรายงาน ก็ผูกกับบัญชีเช่นกัน
@@ -161,12 +171,25 @@ function canRead(u,p){
   return true;
 }
 
+/* ไลน์นี้ผลิตสินค้านี้ได้ไหม — อ่านจาก master/config ทุกครั้ง ผู้จัดการแก้ได้เอง */
+function lineCanMake(lineId,skuId){
+  const cfg=store.readDoc('master/config')||{};
+  const lines=Array.isArray(cfg.lines)&&cfg.lines.length?cfg.lines:null;
+  if(!lines) return true;                       /* ยังไม่ได้ตั้งค่า อย่าไปขวางงาน */
+  const L=lines.find(x=>x&&x.id===lineId);
+  if(!L) return true;                           /* ไลน์ที่ไม่รู้จัก ปล่อยผ่าน */
+  const SK=(store.readDoc('master/skus')||{}).items||[];
+  const sku=SK.find(x=>x&&x.id===skuId);
+  if(!sku) return true;                         /* สินค้าที่ไม่รู้จัก ปล่อยผ่าน */
+  return linerules.canMake(L,sku,cfg.lineSkus||{});
+}
+
 /* ไฟล์บนดิสก์ถูกแก้หลังเซิร์ฟเวอร์เริ่มทำงานหรือไม่
    ถ้าใช่ แปลว่าอัปเดตแล้วแต่ยังไม่ได้ปิด-เปิดใหม่ ต้องเตือนผู้ใช้ */
 function staleBuild(){
   try{
     const t0=new Date(STARTED).getTime();
-    return ['server.js','roles.js','pricing.js','store.js','auth.js','public/index.html']
+    return ['server.js','roles.js','pricing.js','lines.js','store.js','auth.js','public/index.html']
       .some(f=>{ try{ return fs.statSync(path.join(__dirname,f)).mtimeMs>t0+1000 }catch(e){ return false } });
   }catch(e){ return false }
 }
