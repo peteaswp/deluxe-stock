@@ -184,6 +184,12 @@ input[type=number]{font-family:var(--f-num);font-variant-numeric:tabular-nums}
 @keyframes pulse{0%,100%{opacity:.55}50%{opacity:.95}}
 .hidden{display:none!important}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.setnav{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 6px}
+.setnav button{background:var(--surface);border:1px solid var(--line-2);border-radius:9px;
+  padding:9px 15px;cursor:pointer;font-family:var(--f-ui);font-size:14px;font-weight:600;color:var(--muted)}
+.setnav button:hover{border-color:var(--accent)}
+.setnav button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}
+.setnav-hint{margin:0 0 14px}
 .seg{display:inline-flex;border:1px solid var(--line-2);border-radius:8px;overflow:hidden}
 .seg button{background:var(--surface);border:0;border-inline-start:1px solid var(--line-2);padding:6px 11px;cursor:pointer;font-family:var(--f-ui);font-size:13px}
 .seg button:first-child{border-inline-start:0}
@@ -352,7 +358,7 @@ details.fold .panel-b{padding-top:0}
       </div>
     </section>
 
-    <section class="panel hidden" id="money-panel">
+    <section class="panel hidden" id="pl-panel">
       <div class="panel-h"><h2>รายรับ · รายจ่าย · กำไรสุทธิ</h2>
         <span class="sub">30 วันล่าสุด <b class="num" id="pl-sum">—</b></span></div>
       <div class="panel-b">
@@ -708,6 +714,16 @@ details.fold .panel-b{padding-top:0}
 
   <!-- ================= REPORT & KPI ================= -->
   <div id="tab-rep" class="hidden">
+    <div class="setnav" id="rep-nav" role="tablist" aria-label="หมวดรายงาน">
+      <button data-rg="sale"  aria-pressed="true">ยอดขาย</button>
+      <button data-rg="prod"  aria-pressed="false">ไลน์ผลิต</button>
+      <button data-rg="money" aria-pressed="false">ค่าใช้จ่าย</button>
+      <button data-rg="month" aria-pressed="false">สรุปรายเดือน</button>
+      <button data-rg="back"  aria-pressed="false">กรอกยอดย้อนหลัง</button>
+    </div>
+    <p class="note setnav-hint" id="rep-hint">—</p>
+
+    <div id="rep-rangewrap">
     <section class="panel">
       <div class="panel-h"><h2>ช่วงเวลาที่ดู</h2><span class="sub" id="rep-range">—</span></div>
       <div class="panel-b">
@@ -730,7 +746,9 @@ details.fold .panel-b{padding-top:0}
         </div>
       </div>
     </section>
+    </div>
 
+    <div class="repgrp hidden" data-rg="sale">
     <section class="panel">
       <div class="panel-h"><h2>KPI ยอดขาย</h2><span class="sub">แยกขายหน้าโรงงาน กับ ขายส่ง / ขนส่ง</span></div>
       <div class="panel-b"><div class="kpis" id="kpi-sale"></div></div>
@@ -755,6 +773,92 @@ details.fold .panel-b{padding-top:0}
       </div>
     </section>
 
+    <section class="panel hidden" id="rep-detail-panel">
+      <div class="panel-h"><h2 id="rep-detail-h">รายละเอียดรายวัน</h2><span class="sub">แยกตามสินค้าและช่องทาง</span></div>
+      <div class="panel-b tscroll"><table id="rep-detail"></table></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-h"><h2>ทีมขาย (Sales force)</h2><span class="sub">ขายส่งแยกตามคนส่ง · หน้าโรงงานแยกตามคนออกบิล</span></div>
+      <div class="panel-b tscroll">
+        <table>
+          <thead><tr><th class="l">คน</th><th class="l">ช่องทาง</th><th>บิล</th><th>แพ็ค</th><th>เฉลี่ย/บิล</th><th>ลูกค้า</th><th class="l">สัดส่วน</th></tr></thead>
+          <tbody id="rep-force"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-h"><h2>สินค้าขายดี</h2><span class="sub">ในช่วงที่เลือก</span></div>
+      <div class="panel-b tscroll">
+        <table>
+          <thead><tr><th class="l">สินค้า</th><th>หน้าโรงงาน</th><th>ขายส่ง</th><th>รวม</th><th class="l">สัดส่วน</th></tr></thead>
+          <tbody id="rep-top"></tbody>
+        </table>
+      </div>
+    </section>
+    </div>
+
+    <div class="repgrp hidden" data-rg="prod">
+    <section class="panel" id="prod-panel">
+      <div class="panel-h"><h2>รายงานไลน์ผลิต</h2><span class="sub" id="pr-range">—</span></div>
+      <div class="panel-b">
+        <p class="note" style="margin:0 0 10px">ดูย้อนหลังได้ทุกวัน · เลือกไลน์และสินค้าที่ต้องการ แล้วกดพิมพ์หรือส่งออกได้เลย</p>
+        <div class="row" style="flex-wrap:wrap;gap:10px;margin-bottom:10px">
+          <span class="seg" id="seg-pr">
+            <button data-p="today" aria-pressed="false">วันนี้</button>
+            <button data-p="yday" aria-pressed="false">เมื่อวาน</button>
+            <button data-p="7" aria-pressed="true">7 วัน</button>
+            <button data-p="30" aria-pressed="false">30 วัน</button>
+            <button data-p="mtd" aria-pressed="false">เดือนนี้</button>
+            <button data-p="custom" aria-pressed="false">เลือกวันเอง</button>
+          </span>
+          <span class="row hidden" id="pr-custom" style="gap:6px">
+            <input type="date" id="pr-from" style="max-width:160px">
+            <span class="note">ถึง</span>
+            <input type="date" id="pr-to" style="max-width:160px">
+          </span>
+        </div>
+        <div class="row" style="flex-wrap:wrap;gap:10px;margin-bottom:14px">
+          <span class="seg" id="seg-prline"></span>
+          <select id="pr-sku" style="max-width:240px"><option value="">ทุกสินค้า</option></select>
+          <select id="pr-shift" style="max-width:150px">
+            <option value="">ทุกกะ</option>
+            <option value="เช้า">กะเช้า</option>
+            <option value="กลางวัน">กะกลางวัน</option>
+            <option value="เย็น">กะเย็น</option>
+          </select>
+          <button class="btn sm primary" id="btn-pr-print">พิมพ์รายงาน</button>
+          <button class="btn sm" id="btn-pr-csv">ส่งออก CSV</button>
+        </div>
+        <div class="kpis" id="pr-kpis"></div>
+        <h3 class="ui" style="font-size:14px;margin:20px 0 6px">สรุปรายไลน์</h3>
+        <div class="tscroll"><table>
+          <thead><tr><th class="l">ไลน์</th><th>ชั่วโมงเดินเครื่อง</th><th>ผลิตได้ (แพ็ค)</th><th>ควรได้</th>
+            <th>ประสิทธิภาพ</th><th>จำนวนรอบ</th><th>เฉลี่ย/ชม.</th><th class="l">สินค้าที่ทำ</th></tr></thead>
+          <tbody id="pr-line-body"></tbody><tfoot id="pr-line-foot"></tfoot>
+        </table></div>
+        <h3 class="ui" style="font-size:14px;margin:22px 0 6px">แยกตามสินค้า</h3>
+        <div class="tscroll" style="max-height:320px;overflow-y:auto"><table>
+          <thead><tr><th class="l">สินค้า</th><th>ผลิตได้ (แพ็ค)</th><th>พาเลท</th><th>ชั่วโมง</th><th>เฉลี่ย/ชม.</th><th class="l">ไลน์ที่ทำ</th></tr></thead>
+          <tbody id="pr-sku-body"></tbody>
+        </table></div>
+        <h3 class="ui" style="font-size:14px;margin:22px 0 6px">รายวัน</h3>
+        <div class="tscroll" style="max-height:360px;overflow-y:auto"><table>
+          <thead><tr><th class="l">วันที่</th><th class="l">ไลน์</th><th>ผลิตได้</th><th>ชั่วโมง</th><th>ควรได้</th><th>ประสิทธิภาพ</th><th>รอบ</th></tr></thead>
+          <tbody id="pr-day-body"></tbody>
+        </table></div>
+        <h3 class="ui" style="font-size:14px;margin:22px 0 6px">ทุกรอบผลิต <span class="note" id="pr-run-count"></span></h3>
+        <div class="tscroll" style="max-height:420px;overflow-y:auto"><table>
+          <thead><tr><th class="l">วันที่</th><th>เวลา</th><th class="l">ไลน์</th><th class="l">สินค้า</th><th>แพ็ค</th>
+            <th>ชม.</th><th>ประสิทธิภาพ</th><th class="l">กะ</th><th class="l">ผู้บันทึก</th><th class="l">Lot</th></tr></thead>
+          <tbody id="pr-run-body"></tbody>
+        </table></div>
+      </div>
+    </section>
+    </div>
+
+    <div class="repgrp hidden" data-rg="money">
     <section class="panel" id="exp-panel">
       <div class="panel-h"><h2>ค่าใช้จ่าย</h2>
         <span class="sub">ค่าน้ำมัน ค่าซื้อของ เบิกเงินพนักงาน ฯลฯ · พิมพ์รายละเอียดเองได้</span></div>
@@ -781,7 +885,24 @@ details.fold .panel-b{padding-top:0}
         </div>
       </div>
     </section>
+    </div>
 
+    <div class="repgrp hidden" data-rg="month">
+    <section class="panel" id="month-panel">
+      <div class="panel-h"><h2>สรุปรายเดือน</h2>
+        <span class="sub">รายรับ ต้นทุน ค่าใช้จ่าย และกำไรสุทธิ ของแต่ละเดือน · กดปุ่มพิมพ์เพื่อเอาไปเสนอ</span></div>
+      <div class="panel-b">
+        <div class="row" style="margin-bottom:12px;flex-wrap:wrap;gap:10px">
+          <button class="btn sm primary" id="btn-month-print">สรุปรายเดือน (พิมพ์)</button>
+          <button class="btn sm" id="btn-month-csv">ส่งออก CSV</button>
+          <span class="note" id="month-note">—</span>
+        </div>
+        <div class="tscroll"><table id="month-table"></table></div>
+      </div>
+    </section>
+    </div>
+
+    <div class="repgrp hidden" data-rg="back">
     <section class="panel" id="back-panel">
       <div class="panel-h"><h2>กรอกยอดขายย้อนหลัง</h2><span class="sub">สำหรับผู้จัดการ · ใส่ยอดของวันที่ผ่านมาเองได้</span></div>
       <div class="panel-b">
@@ -819,44 +940,8 @@ details.fold .panel-b{padding-top:0}
         </div>
       </div>
     </section>
+    </div>
 
-    <section class="panel" id="month-panel">
-      <div class="panel-h"><h2>สรุปรายเดือน</h2>
-        <span class="sub">รายรับ ต้นทุน ค่าใช้จ่าย และกำไรสุทธิ ของแต่ละเดือน · กดปุ่มพิมพ์เพื่อเอาไปเสนอ</span></div>
-      <div class="panel-b">
-        <div class="row" style="margin-bottom:12px;flex-wrap:wrap;gap:10px">
-          <button class="btn sm primary" id="btn-month-print">สรุปรายเดือน (พิมพ์)</button>
-          <button class="btn sm" id="btn-month-csv">ส่งออก CSV</button>
-          <span class="note" id="month-note">—</span>
-        </div>
-        <div class="tscroll"><table id="month-table"></table></div>
-      </div>
-    </section>
-
-    <section class="panel hidden" id="rep-detail-panel">
-      <div class="panel-h"><h2 id="rep-detail-h">รายละเอียดรายวัน</h2><span class="sub">แยกตามสินค้าและช่องทาง</span></div>
-      <div class="panel-b tscroll"><table id="rep-detail"></table></div>
-    </section>
-
-    <section class="panel">
-      <div class="panel-h"><h2>ทีมขาย (Sales force)</h2><span class="sub">ขายส่งแยกตามคนส่ง · หน้าโรงงานแยกตามคนออกบิล</span></div>
-      <div class="panel-b tscroll">
-        <table>
-          <thead><tr><th class="l">คน</th><th class="l">ช่องทาง</th><th>บิล</th><th>แพ็ค</th><th>เฉลี่ย/บิล</th><th>ลูกค้า</th><th class="l">สัดส่วน</th></tr></thead>
-          <tbody id="rep-force"></tbody>
-        </table>
-      </div>
-    </section>
-
-    <section class="panel">
-      <div class="panel-h"><h2>สินค้าขายดี</h2><span class="sub">ในช่วงที่เลือก</span></div>
-      <div class="panel-b tscroll">
-        <table>
-          <thead><tr><th class="l">สินค้า</th><th>หน้าโรงงาน</th><th>ขายส่ง</th><th>รวม</th><th class="l">สัดส่วน</th></tr></thead>
-          <tbody id="rep-top"></tbody>
-        </table>
-      </div>
-    </section>
   </div>
 
   <!-- ================= PLAN ================= -->
@@ -913,107 +998,17 @@ details.fold .panel-b{padding-top:0}
 
   <!-- ================= SETTINGS ================= -->
   <div id="tab-set" class="hidden">
-    <section class="panel">
-      <div class="panel-h"><h2>ไลน์ผลิตและกำลังผลิต</h2><span class="sub">กำลังผลิตต่อชั่วโมง และจำนวนแพ็คต่อพาเลท</span></div>
-      <div class="panel-b">
-        <div class="tscroll"><table>
-          <thead><tr><th class="l">ขนาด</th><th>ขวด/แพ็ค</th><th>แพ็ค/ชั่วโมง</th><th>แพ็ค/พาเลท</th><th>ได้/วัน ต่อ 1 ไลน์</th></tr></thead>
-          <tbody id="rate-body"></tbody>
-        </table></div>
-        <div class="grid2" style="margin-top:14px">
-          <div class="field"><label for="f-hours">ชั่วโมงทำงานปกติต่อวัน</label><input type="number" id="f-hours" min="1" max="24" step="0.5"></div>
-          <div class="field"><label for="f-ot">ชั่วโมง OT ต่อวัน</label><input type="number" id="f-ot" min="0" max="12" step="0.5"></div>
-          <div class="field"><label for="f-staff">รายชื่อผู้บันทึก</label><input type="text" id="f-staff" readonly tabindex="-1" placeholder="มาจากบัญชีผู้ใช้" style="background:var(--surface-2);color:var(--muted);cursor:default"><span class="note">ชื่อผู้บันทึกมาจากบัญชีที่ล็อกอิน ตั้งที่ "ผู้ใช้และสิทธิ์"</span></div>
-        </div>
-        <div class="tscroll" style="margin-top:14px"><table>
-          <thead><tr><th class="l">ไลน์</th><th class="l">ขนาดที่เครื่องรองรับ</th><th class="l">เฉพาะที่ติ๊กเท่านั้น</th></tr></thead>
-          <tbody id="line-body"></tbody>
-        </table></div>
+    <div class="setnav" id="set-nav" role="tablist" aria-label="หมวดการตั้งค่า">
+      <button data-sg="cust"  aria-pressed="true">ลูกค้าและราคา</button>
+      <button data-sg="prod"  aria-pressed="false">ไลน์ผลิตและแบรนด์</button>
+      <button data-sg="sku"   aria-pressed="false">สินค้าและบาร์โค้ด</button>
+      <button data-sg="money" aria-pressed="false">ค่าใช้จ่าย</button>
+      <button data-sg="data"  aria-pressed="false">นำเข้า-ส่งออกข้อมูล</button>
+      <button data-sg="sys"   aria-pressed="false" id="sgb-sys">ผู้ใช้และสำรองข้อมูล</button>
+    </div>
+    <p class="note setnav-hint" id="set-hint">—</p>
 
-        <h3 class="ui" style="font-size:14px;margin:20px 0 6px">ไลน์ไหนผลิตอะไรได้</h3>
-        <p class="note" style="margin:0 0 10px">
-          ติ๊กไว้ = ไลน์นั้นผลิตสินค้าตัวนั้นได้ · แผนการผลิตและหน้าจอไลน์จะยึดตามตารางนี้
-          · สินค้าที่ไม่มีไลน์ไหนติ๊กเลย จะขึ้นเตือนในแผนผลิต
-        </p>
-        <div class="row" style="margin-bottom:10px;flex-wrap:wrap;gap:8px">
-          <input type="text" id="mk-find" placeholder="ค้นหาสินค้า" style="max-width:220px">
-          <span class="note" id="mk-count">—</span>
-        </div>
-        <div class="tscroll" style="max-height:460px"><table>
-          <thead><tr><th class="l">สินค้า</th><th class="l" id="mk-head"></th></tr></thead>
-          <tbody id="mk-body"></tbody>
-        </table></div>
-
-        <div class="row" style="margin-top:12px"><button class="btn primary" id="btn-save-config">บันทึกกำลังผลิต</button></div>
-      </div>
-    </section>
-
-    <section class="panel hidden" id="rate-panel">
-      <div class="panel-h"><h2 id="rate-title">ราคาที่ตกลงกับลูกค้า</h2>
-        <span class="sub">ใส่เฉพาะรายการที่ตกลงราคาไว้ · เว้นว่าง = ใช้เรตปกติ</span></div>
-      <div class="panel-b">
-        <div class="row" style="flex-wrap:wrap;gap:10px;margin-bottom:12px">
-          <input type="text" id="rate-find" placeholder="ค้นหาสินค้า" style="max-width:220px">
-          <button class="btn sm" id="btn-rate-fill">เติมราคาหน้าโรงงานให้ทุกช่องที่ว่าง</button>
-          <button class="btn sm" id="btn-rate-clear">ล้างราคาทั้งหมด</button>
-          <span class="note" id="rate-note">—</span>
-        </div>
-        <div class="tscroll" style="max-height:420px"><table>
-          <thead><tr><th class="l">สินค้า</th><th>ราคาที่ตกลง (บาท/แพ็ค)</th><th>เรตปกติ</th><th>ต่างจากเรต</th></tr></thead>
-          <tbody id="rate-body"></tbody>
-        </table></div>
-        <div class="row" style="margin-top:14px">
-          <button class="btn primary" id="btn-rate-save">บันทึกราคา</button>
-          <button class="btn" id="btn-rate-close">ปิด</button>
-        </div>
-      </div>
-    </section>
-
-    <section class="panel" id="expcat-panel">
-      <div class="panel-h"><h2>ประเภทค่าใช้จ่าย</h2>
-        <span class="sub">ตั้งไว้ครั้งเดียว แล้วเลือกตอนบันทึก · เพิ่ม แก้ ลบ ได้เอง</span></div>
-      <div class="panel-b">
-        <p class="note hidden" id="expcat-locked">ต้องมีสิทธิ์ "บันทึกและแก้ค่าใช้จ่าย" จึงจะแก้ได้</p>
-        <div id="expcat-ui" class="hidden">
-          <div class="row" style="flex-wrap:wrap;gap:10px;margin-bottom:12px">
-            <input type="text" id="ec-name" placeholder="ชื่อประเภทใหม่ เช่น ค่าเช่าโกดัง" style="max-width:280px">
-            <button class="btn primary" id="btn-ec-add">เพิ่มประเภท</button>
-            <span class="note" id="ec-count">—</span>
-          </div>
-          <div class="tscroll" style="max-height:300px"><table>
-            <thead><tr><th class="l">ประเภท</th><th>เคยใช้ (รายการ)</th><th class="l"></th></tr></thead>
-            <tbody id="ec-body"></tbody>
-          </table></div>
-          <div class="row" style="margin-top:12px">
-            <button class="btn" id="btn-ec-save">บันทึกการแก้ไข</button>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="panel" id="drv-panel">
-      <div class="panel-h"><h2>พนักงานส่งของ</h2><span class="sub">ใส่ชื่อไว้ครั้งเดียว แล้วเลือกตอนออกบิลขายส่ง</span></div>
-      <div class="panel-b">
-        <p class="note hidden" id="drv-locked">ต้องมีสิทธิ์ "เพิ่ม-แก้ทะเบียนลูกค้า" จึงจะแก้รายชื่อได้</p>
-        <div id="drv-ui" class="hidden">
-          <div class="grid2" style="margin-bottom:12px">
-            <div class="field"><label for="dv-name">ชื่อพนักงานส่ง</label><input type="text" id="dv-name" placeholder="เช่น สมชาย"></div>
-            <div class="field"><label for="dv-phone">เบอร์โทร</label><input type="text" id="dv-phone" placeholder="08x-xxx-xxxx"></div>
-            <div class="field"><label for="dv-plate">ทะเบียนรถประจำ</label><input type="text" id="dv-plate" placeholder="เช่น 1กก 1234"></div>
-            <div class="field" style="align-self:end"><button class="btn primary" id="btn-drv-add">เพิ่มพนักงานส่ง</button></div>
-          </div>
-          <div class="tscroll" style="max-height:320px"><table>
-            <thead><tr><th class="l">ชื่อ</th><th class="l">เบอร์โทร</th><th class="l">ทะเบียนรถประจำ</th><th>ใช้งาน</th><th class="l"></th></tr></thead>
-            <tbody id="drv-body"></tbody>
-          </table></div>
-          <div class="row" style="margin-top:12px">
-            <button class="btn" id="btn-drv-save">บันทึกการแก้ไข</button>
-            <span class="note" id="drv-count">—</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
+    <div class="setgrp hidden" data-sg="cust">
     <section class="panel" id="cust-panel">
       <div class="panel-h"><h2>ทะเบียนลูกค้า</h2><span class="sub">ชื่อ ที่อยู่ เบอร์ และราคาที่ตกลงกันไว้</span></div>
       <div class="panel-b">
@@ -1076,6 +1071,88 @@ details.fold .panel-b{padding-top:0}
       </div>
     </section>
 
+    <section class="panel hidden" id="rate-panel">
+      <div class="panel-h"><h2 id="rate-title">ราคาที่ตกลงกับลูกค้า</h2>
+        <span class="sub">ใส่เฉพาะรายการที่ตกลงราคาไว้ · เว้นว่าง = ใช้เรตปกติ</span></div>
+      <div class="panel-b">
+        <div class="row" style="flex-wrap:wrap;gap:10px;margin-bottom:12px">
+          <input type="text" id="rate-find" placeholder="ค้นหาสินค้า" style="max-width:220px">
+          <button class="btn sm" id="btn-rate-fill">เติมราคาหน้าโรงงานให้ทุกช่องที่ว่าง</button>
+          <button class="btn sm" id="btn-rate-clear">ล้างราคาทั้งหมด</button>
+          <span class="note" id="rate-note">—</span>
+        </div>
+        <div class="tscroll" style="max-height:420px"><table>
+          <thead><tr><th class="l">สินค้า</th><th>ราคาที่ตกลง (บาท/แพ็ค)</th><th>เรตปกติ</th><th>ต่างจากเรต</th></tr></thead>
+          <tbody id="rate-body"></tbody>
+        </table></div>
+        <div class="row" style="margin-top:14px">
+          <button class="btn primary" id="btn-rate-save">บันทึกราคา</button>
+          <button class="btn" id="btn-rate-close">ปิด</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="drv-panel">
+      <div class="panel-h"><h2>พนักงานส่งของ</h2><span class="sub">ใส่ชื่อไว้ครั้งเดียว แล้วเลือกตอนออกบิลขายส่ง</span></div>
+      <div class="panel-b">
+        <p class="note hidden" id="drv-locked">ต้องมีสิทธิ์ "เพิ่ม-แก้ทะเบียนลูกค้า" จึงจะแก้รายชื่อได้</p>
+        <div id="drv-ui" class="hidden">
+          <div class="grid2" style="margin-bottom:12px">
+            <div class="field"><label for="dv-name">ชื่อพนักงานส่ง</label><input type="text" id="dv-name" placeholder="เช่น สมชาย"></div>
+            <div class="field"><label for="dv-phone">เบอร์โทร</label><input type="text" id="dv-phone" placeholder="08x-xxx-xxxx"></div>
+            <div class="field"><label for="dv-plate">ทะเบียนรถประจำ</label><input type="text" id="dv-plate" placeholder="เช่น 1กก 1234"></div>
+            <div class="field" style="align-self:end"><button class="btn primary" id="btn-drv-add">เพิ่มพนักงานส่ง</button></div>
+          </div>
+          <div class="tscroll" style="max-height:320px"><table>
+            <thead><tr><th class="l">ชื่อ</th><th class="l">เบอร์โทร</th><th class="l">ทะเบียนรถประจำ</th><th>ใช้งาน</th><th class="l"></th></tr></thead>
+            <tbody id="drv-body"></tbody>
+          </table></div>
+          <div class="row" style="margin-top:12px">
+            <button class="btn" id="btn-drv-save">บันทึกการแก้ไข</button>
+            <span class="note" id="drv-count">—</span>
+          </div>
+        </div>
+      </div>
+    </section>
+    </div>
+
+    <div class="setgrp hidden" data-sg="prod">
+    <section class="panel" id="line-panel">
+      <div class="panel-h"><h2>ไลน์ผลิตและกำลังผลิต</h2><span class="sub">กำลังผลิตต่อชั่วโมง และจำนวนแพ็คต่อพาเลท</span></div>
+      <div class="panel-b">
+        <div class="tscroll"><table>
+          <thead><tr><th class="l">ขนาด</th><th>ขวด/แพ็ค</th><th>แพ็ค/ชั่วโมง</th><th>แพ็ค/พาเลท</th><th>ได้/วัน ต่อ 1 ไลน์</th></tr></thead>
+          <tbody id="rate-body"></tbody>
+        </table></div>
+        <div class="grid2" style="margin-top:14px">
+          <div class="field"><label for="f-hours">ชั่วโมงทำงานปกติต่อวัน</label><input type="number" id="f-hours" min="1" max="24" step="0.5"></div>
+          <div class="field"><label for="f-ot">ชั่วโมง OT ต่อวัน</label><input type="number" id="f-ot" min="0" max="12" step="0.5"></div>
+          <div class="field"><label for="f-change">เปลี่ยนขนาดขวด เสียเวลา (นาที)</label><input type="number" id="f-change" min="0" max="480" step="5" placeholder="30"></div>
+          <div class="field"><label for="f-staff">รายชื่อผู้บันทึก</label><input type="text" id="f-staff" readonly tabindex="-1" placeholder="มาจากบัญชีผู้ใช้" style="background:var(--surface-2);color:var(--muted);cursor:default"><span class="note">ชื่อผู้บันทึกมาจากบัญชีที่ล็อกอิน ตั้งที่ "ผู้ใช้และสิทธิ์"</span></div>
+        </div>
+        <div class="tscroll" style="margin-top:14px"><table>
+          <thead><tr><th class="l">ไลน์</th><th class="l">ขนาดที่เครื่องรองรับ</th><th class="l">เฉพาะที่ติ๊กเท่านั้น</th></tr></thead>
+          <tbody id="line-body"></tbody>
+        </table></div>
+
+        <h3 class="ui" style="font-size:14px;margin:20px 0 6px">ไลน์ไหนผลิตอะไรได้</h3>
+        <p class="note" style="margin:0 0 10px">
+          ติ๊กไว้ = ไลน์นั้นผลิตสินค้าตัวนั้นได้ · แผนการผลิตและหน้าจอไลน์จะยึดตามตารางนี้
+          · สินค้าที่ไม่มีไลน์ไหนติ๊กเลย จะขึ้นเตือนในแผนผลิต
+        </p>
+        <div class="row" style="margin-bottom:10px;flex-wrap:wrap;gap:8px">
+          <input type="text" id="mk-find" placeholder="ค้นหาสินค้า" style="max-width:220px">
+          <span class="note" id="mk-count">—</span>
+        </div>
+        <div class="tscroll" style="max-height:460px"><table>
+          <thead><tr><th class="l">สินค้า</th><th class="l" id="mk-head"></th></tr></thead>
+          <tbody id="mk-body"></tbody>
+        </table></div>
+
+        <div class="row" style="margin-top:12px"><button class="btn primary" id="btn-save-config">บันทึกกำลังผลิต</button></div>
+      </div>
+    </section>
+
     <section class="panel" id="oem-panel">
       <div class="panel-h"><h2>แบรนด์ที่ผลิต</h2><span class="sub">แบรนด์ของเราเอง และแบรนด์ OEM ที่รับจ้างผลิต</span></div>
       <div class="panel-b">
@@ -1115,8 +1192,10 @@ details.fold .panel-b{padding-top:0}
         </div>
       </div>
     </section>
+    </div>
 
-    <section class="panel">
+    <div class="setgrp hidden" data-sg="sku">
+    <section class="panel" id="sku-panel">
       <div class="panel-h"><h2>สินค้า จุดสั่งผลิต และบาร์โค้ด</h2><span class="sub">ใส่บาร์โค้ดแล้ว สแกน 1 ครั้ง = เข้าสต๊อก 1 พาเลท</span></div>
       <div class="panel-b">
         <p class="note hidden" id="set-locked">คุณดูได้อย่างเดียว — ต้องมีสิทธิ์แก้ข้อมูลหลัก จึงจะแก้สินค้าได้</p>
@@ -1131,8 +1210,34 @@ details.fold .panel-b{padding-top:0}
         </div>
       </div>
     </section>
+    </div>
 
-    <section class="panel">
+    <div class="setgrp hidden" data-sg="money">
+    <section class="panel" id="expcat-panel">
+      <div class="panel-h"><h2>ประเภทค่าใช้จ่าย</h2>
+        <span class="sub">ตั้งไว้ครั้งเดียว แล้วเลือกตอนบันทึก · เพิ่ม แก้ ลบ ได้เอง</span></div>
+      <div class="panel-b">
+        <p class="note hidden" id="expcat-locked">ต้องมีสิทธิ์ "บันทึกและแก้ค่าใช้จ่าย" จึงจะแก้ได้</p>
+        <div id="expcat-ui" class="hidden">
+          <div class="row" style="flex-wrap:wrap;gap:10px;margin-bottom:12px">
+            <input type="text" id="ec-name" placeholder="ชื่อประเภทใหม่ เช่น ค่าเช่าโกดัง" style="max-width:280px">
+            <button class="btn primary" id="btn-ec-add">เพิ่มประเภท</button>
+            <span class="note" id="ec-count">—</span>
+          </div>
+          <div class="tscroll" style="max-height:300px"><table>
+            <thead><tr><th class="l">ประเภท</th><th>เคยใช้ (รายการ)</th><th class="l"></th></tr></thead>
+            <tbody id="ec-body"></tbody>
+          </table></div>
+          <div class="row" style="margin-top:12px">
+            <button class="btn" id="btn-ec-save">บันทึกการแก้ไข</button>
+          </div>
+        </div>
+      </div>
+    </section>
+    </div>
+
+    <div class="setgrp hidden" data-sg="data">
+    <section class="panel" id="imp-panel">
       <div class="panel-h"><h2>นำเข้ายอดขายจากไฟล์ CSV</h2><span class="sub">บอกระบบว่าคอลัมน์ไหนคืออะไร แล้วกดนำเข้า</span></div>
       <div class="panel-b">
         <div class="grid2">
@@ -1155,6 +1260,16 @@ details.fold .panel-b{padding-top:0}
       </div>
     </section>
 
+    <section class="panel" id="expcsv-panel">
+      <div class="panel-h"><h2>ส่งออกข้อมูล</h2><span class="sub">ไฟล์ CSV เปิดด้วย Excel ได้</span></div>
+      <div class="panel-b row">
+        <button class="btn" id="btn-csv-ledger">ส่งออกรายการทั้งหมด (CSV)</button>
+        <button class="btn" id="btn-csv-stock">ส่งออกสต๊อกปัจจุบัน (CSV)</button>
+      </div>
+    </section>
+    </div>
+
+    <div class="setgrp hidden" data-sg="sys">
     <section class="panel hidden" id="users-panel">
       <div class="panel-h"><h2>ผู้ใช้และสิทธิ์</h2><span class="sub">แต่ละคนมีชื่อผู้ใช้และรหัสผ่านของตัวเอง · 1 คนถือได้หลายตำแหน่ง สิทธิ์จะรวมกัน</span></div>
       <div class="panel-b">
@@ -1182,14 +1297,6 @@ details.fold .panel-b{padding-top:0}
       </div>
     </section>
 
-    <section class="panel">
-      <div class="panel-h"><h2>ส่งออกข้อมูล</h2><span class="sub">ไฟล์ CSV เปิดด้วย Excel ได้</span></div>
-      <div class="panel-b row">
-        <button class="btn" id="btn-csv-ledger">ส่งออกรายการทั้งหมด (CSV)</button>
-        <button class="btn" id="btn-csv-stock">ส่งออกสต๊อกปัจจุบัน (CSV)</button>
-      </div>
-    </section>
-
     <section class="panel hidden" id="bk-panel">
       <div class="panel-h"><h2>สำรองข้อมูล และ ย้ายระบบ</h2><span class="sub">ไฟล์เดียวจบ มีทุกอย่างรวมทั้งบัญชีผู้ใช้</span></div>
       <div class="panel-b">
@@ -1214,6 +1321,8 @@ details.fold .panel-b{padding-top:0}
         </div>
       </div>
     </section>
+    </div>
+
   </div>
 
   <footer class="foot">
@@ -1343,7 +1452,9 @@ var DEFAULT_CFG={
   },
   rates:{'350':1125,'600':1125,'1500':900},
   palletPacks:{'350':225,'600':150,'1500':112},
-  hoursPerDay:8, otHours:4, staff:[], coverTarget:5
+  hoursPerDay:8, otHours:4, staff:[], coverTarget:5,
+  /* เปลี่ยนขนาดขวดบนไลน์เดียวกัน เสียเวลาประมาณ 30 นาที */
+  changeMin:30
 };
 
 /* ---------------- state ---------------- */
@@ -1377,6 +1488,9 @@ function skuByBarcode(code){
   return null;
 }
 function linesCfg(){return (S.config.lines&&S.config.lines.length)?S.config.lines:DEFAULT_CFG.lines}
+/* เวลาที่เสียไปตอนเปลี่ยนขนาดขวดบนไลน์เดียวกัน (นาที) */
+function changeMin(){var v=+S.config.changeMin;return (isFinite(v)&&v>=0)?v:30}
+function changeHours(){return changeMin()/60}
 function lineById(id){var L=linesCfg();for(var i=0;i<L.length;i++)if(L[i].id===id)return L[i];return null}
 /* ไลน์นี้ผลิตสินค้าตัวนี้ได้ไหม */
 function lineSkuMap(){ return S.config.lineSkus||{} }
@@ -1866,7 +1980,7 @@ function drawChart(){
 var plPts=[];
 function drawPLChart(){
   var svg=$('plchart'); if(!svg)return;
-  var panel=$('money-panel');
+  var panel=$('pl-panel');
   if(!canMoney()){ panel.classList.add('hidden'); return }
   var W=760,H=230,L=76,R=16,T=18,B=30;
   var data=plSeries(30);
@@ -3592,6 +3706,269 @@ function dayStats(iso){
   o.margin=o.income>0?(o.profit/o.income*100):null;
   return o;
 }
+/* ================= รายงานไลน์ผลิต ================= */
+var PR={period:'7',line:'',sku:'',shift:''};
+var PR_NOLINE='(ไม่ได้ระบุไลน์)';
+function prDates(){
+  var t=todayISO(),from,to;
+  if(PR.period==='today'){from=to=t}
+  else if(PR.period==='yday'){from=to=addDays(t,-1)}
+  else if(PR.period==='7'){from=addDays(t,-6);to=t}
+  else if(PR.period==='30'){from=addDays(t,-29);to=t}
+  else if(PR.period==='mtd'){from=t.slice(0,8)+'01';to=t}
+  else{from=$('pr-from').value||addDays(t,-6);to=$('pr-to').value||t}
+  if(from>to){var x=from;from=to;to=x}
+  return {from:from,to:to};
+}
+/* ทุกรอบผลิตในช่วงที่เลือก หลังกรองไลน์/สินค้า/กะแล้ว */
+function prRuns(){
+  var r=prDates(),out=[];
+  sortedDays().forEach(function(d){
+    if(d<r.from||d>r.to)return;
+    var rec=S.days[d];if(!rec||!rec.entries)return;
+    rec.entries.forEach(function(e){
+      if(e.type!=='produce')return;
+      var ln=e.line||PR_NOLINE;
+      if(PR.line&&ln!==PR.line)return;
+      if(PR.sku&&e.skuId!==PR.sku)return;
+      if(PR.shift&&(e.shift||'')!==PR.shift)return;
+      var sk=skuById(e.skuId);
+      var hrs=+e.hours||0, rate=sk?rateOf(sk):1125;
+      out.push({iso:d,line:ln,sku:sk,skuId:e.skuId,qty:+e.qty||0,hours:hrs,
+        theo:hrs*rate,shift:e.shift||'',by:(e.uname||e.by||'ไม่ระบุ'),
+        lot:e.lot||'',ts:e.ts||'',note:e.note||''});
+    });
+  });
+  return out.sort(function(a,b){return (a.iso+a.ts)<(b.iso+b.ts)?1:-1});
+}
+function prLineName(id){
+  if(id===PR_NOLINE)return id;
+  var L=linesCfg().filter(function(x){return x.id===id})[0];
+  return L?L.name:id;
+}
+function prSkuName(id){var sk=skuById(id);return sk?(sk.brand+' '+sk.size):id}
+function prEffColor(p){return p>=85?'var(--good)':p>=65?'var(--warn)':'var(--crit)'}
+function prGroup(runs,keyOf){
+  var m={},order=[];
+  runs.forEach(function(r){
+    var k=keyOf(r);
+    if(!m[k]){m[k]={key:k,qty:0,hours:0,theo:0,runs:0,skus:{},lines:{}};order.push(k)}
+    var g=m[k];g.qty+=r.qty;g.hours+=r.hours;g.theo+=r.theo;g.runs++;
+    if(r.skuId)g.skus[r.skuId]=(g.skus[r.skuId]||0)+r.qty;
+    g.lines[r.line]=1;
+  });
+  return order.map(function(k){return m[k]});
+}
+function prPct(g){return g.theo>0?Math.round(g.qty/g.theo*100):null}
+function prTimeOf(r){
+  if(!r.ts)return '—';
+  var d=new Date(r.ts); if(isNaN(d.getTime()))return '—';
+  return ('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2);
+}
+function renderProdRep(){
+  if(!$('prod-panel'))return;
+  var r=prDates(),runs=prRuns();
+  $('pr-range').textContent=thDate(r.from)+' ถึง '+thDate(r.to)+
+    (PR.line?(' · '+prLineName(PR.line)):' · ทุกไลน์')+
+    (PR.sku?(' · '+prSkuName(PR.sku)):'')+
+    (PR.shift?(' · กะ'+PR.shift):'');
+
+  /* ปุ่มเลือกไลน์ สร้างจากไลน์ที่ตั้งไว้จริง */
+  var seg=$('seg-prline');
+  var ids=linesCfg().map(function(L){return L.id});
+  var hasNone=false;
+  sortedDays().forEach(function(d){
+    if(d<r.from||d>r.to)return;
+    var rec=S.days[d];if(!rec||!rec.entries)return;
+    rec.entries.forEach(function(e){if(e.type==='produce'&&!e.line)hasNone=true});
+  });
+  var sig=ids.join(',')+'|'+(hasNone?'n':'')+'|'+PR.line;
+  if(seg.dataset.sig!==sig){
+    seg.dataset.sig=sig; seg.innerHTML='';
+    var opts=[{v:'',t:'ทุกไลน์'}].concat(linesCfg().map(function(L){return {v:L.id,t:L.name}}));
+    if(hasNone)opts.push({v:PR_NOLINE,t:'ไม่ระบุไลน์'});
+    opts.forEach(function(o){
+      var b=el('button',null,o.t);
+      b.dataset.l=o.v; b.setAttribute('aria-pressed',String(PR.line===o.v));
+      b.onclick=function(){PR.line=o.v;renderProdRep()};
+      seg.appendChild(b);
+    });
+  }
+
+  /* รายชื่อสินค้าในกล่องเลือก */
+  var sel=$('pr-sku'), ssig=skuSig+'|'+S.skus.length;
+  if(sel.dataset.sig!==ssig){
+    sel.dataset.sig=ssig;
+    var keep=PR.sku;
+    sel.innerHTML='<option value="">ทุกสินค้า</option>';
+    activeSkus().filter(isPack).forEach(function(sk){
+      var o=el('option',null,sk.brand+' '+sk.size); o.value=sk.id; sel.appendChild(o);
+    });
+    sel.value=keep;
+  }
+
+  var all={qty:0,hours:0,theo:0,runs:runs.length,skus:{},lines:{}};
+  runs.forEach(function(x){all.qty+=x.qty;all.hours+=x.hours;all.theo+=x.theo;
+    if(x.skuId)all.skus[x.skuId]=1; all.lines[x.line]=1});
+  var pct=prPct(all), dayCount={};
+  runs.forEach(function(x){dayCount[x.iso]=1});
+  var nDays=Object.keys(dayCount).length;
+
+  $('pr-kpis').innerHTML=
+    '<div class="kpi"><span class="k">ผลิตได้รวม</span><span class="v num">'+n(all.qty)+
+      '</span><span class="u">แพ็ค · '+n(runs.length)+' รอบ · '+n(nDays)+' วันที่มีการผลิต</span></div>'+
+    '<div class="kpi"><span class="k">ชั่วโมงเดินเครื่อง</span><span class="v num">'+n1(all.hours)+
+      '</span><span class="u">ชั่วโมง'+(all.hours>0?(' · เฉลี่ย '+n(all.qty/all.hours)+' แพ็ค/ชม.'):'')+'</span></div>'+
+    '<div class="kpi"><span class="k">ควรได้ตามกำลังผลิต</span><span class="v num">'+(all.theo>0?n(all.theo):'—')+
+      '</span><span class="u">แพ็ค'+(all.theo>0?(' · ขาดไป '+n(Math.max(0,all.theo-all.qty))+' แพ็ค'):' — ยังไม่มีชั่วโมงเดินเครื่อง')+'</span></div>'+
+    '<div class="kpi"><span class="k">ประสิทธิภาพ</span><span class="v num" style="color:'+
+      (pct!=null?prEffColor(pct):'var(--muted)')+'">'+(pct!=null?pct+'%':'—')+
+      '</span><span class="u">'+(pct!=null?'ผลิตจริง ÷ ที่ควรได้':'ต้องเริ่ม-ปิดรอบที่แท็บไลน์ผลิต')+'</span></div>';
+
+  /* สรุปรายไลน์ */
+  var lb=$('pr-line-body'); lb.innerHTML='';
+  var byLine=prGroup(runs,function(x){return x.line});
+  byLine.sort(function(a,b){return a.key<b.key?-1:1});
+  if(!byLine.length){
+    lb.innerHTML='<tr><td colspan="8"><div class="empty">ไม่มียอดผลิตในช่วงที่เลือก — ลองเปลี่ยนวันหรือเลือกทุกไลน์</div></td></tr>';
+    $('pr-line-foot').innerHTML='';
+  }else{
+    byLine.forEach(function(g){
+      var p=prPct(g), sk=Object.keys(g.skus).sort(function(a,b){return g.skus[b]-g.skus[a]});
+      var tr=el('tr');
+      tr.innerHTML='<td class="l"><b class="ui">'+esc(prLineName(g.key))+'</b></td>'+
+        '<td class="num">'+(g.hours>0?n1(g.hours):'—')+'</td>'+
+        '<td class="num"><b>'+n(g.qty)+'</b></td>'+
+        '<td class="num" style="color:var(--muted)">'+(g.theo>0?n(g.theo):'—')+'</td>'+
+        '<td class="num">'+(p!=null?('<b style="color:'+prEffColor(p)+'">'+p+'%</b>'):'<span class="note">—</span>')+'</td>'+
+        '<td class="num">'+n(g.runs)+'</td>'+
+        '<td class="num">'+(g.hours>0?n(g.qty/g.hours):'—')+'</td>'+
+        '<td class="l"><span class="note">'+esc(sk.slice(0,3).map(prSkuName).join(', ')+
+          (sk.length>3?(' และอีก '+(sk.length-3)):''))+'</span></td>';
+      lb.appendChild(tr);
+    });
+    $('pr-line-foot').innerHTML='<tr><th class="l">รวมทุกไลน์</th>'+
+      '<th class="num">'+(all.hours>0?n1(all.hours):'—')+'</th>'+
+      '<th class="num">'+n(all.qty)+'</th>'+
+      '<th class="num">'+(all.theo>0?n(all.theo):'—')+'</th>'+
+      '<th class="num">'+(pct!=null?pct+'%':'—')+'</th>'+
+      '<th class="num">'+n(all.runs)+'</th>'+
+      '<th class="num">'+(all.hours>0?n(all.qty/all.hours):'—')+'</th><th></th></tr>';
+  }
+
+  /* แยกตามสินค้า */
+  var sb=$('pr-sku-body'); sb.innerHTML='';
+  var bySku=prGroup(runs,function(x){return x.skuId||'-'});
+  bySku.sort(function(a,b){return b.qty-a.qty});
+  if(!bySku.length)sb.innerHTML='<tr><td colspan="6"><div class="empty">ไม่มีข้อมูล</div></td></tr>';
+  bySku.forEach(function(g){
+    var sk=skuById(g.key), lines=Object.keys(g.lines).sort();
+    var tr=el('tr');
+    tr.innerHTML='<td class="name l"><b>'+esc(sk?sk.brand:g.key)+'</b> '+esc(sk?sk.size:'')+'</td>'+
+      '<td class="num"><b>'+n(g.qty)+'</b></td>'+
+      '<td class="num" style="color:var(--muted)">'+(sk?n1(g.qty/packsPerPallet(sk)):'—')+'</td>'+
+      '<td class="num">'+(g.hours>0?n1(g.hours):'—')+'</td>'+
+      '<td class="num">'+(g.hours>0?n(g.qty/g.hours):'—')+'</td>'+
+      '<td class="l"><span class="note">'+esc(lines.map(prLineName).join(', '))+'</span></td>';
+    sb.appendChild(tr);
+  });
+
+  /* รายวัน แยกไลน์ */
+  var db=$('pr-day-body'); db.innerHTML='';
+  var byDay=prGroup(runs,function(x){return x.iso+'|'+x.line});
+  byDay.sort(function(a,b){return a.key<b.key?1:-1});
+  if(!byDay.length)db.innerHTML='<tr><td colspan="7"><div class="empty">ไม่มีข้อมูล</div></td></tr>';
+  var lastDay='';
+  byDay.forEach(function(g){
+    var pp=g.key.split('|'), iso=pp[0], ln=pp[1], p=prPct(g);
+    var tr=el('tr');
+    tr.innerHTML='<td class="l">'+(iso===lastDay?'':('<b>'+thShort(iso)+'</b> <span class="note">'+thDate(iso)+'</span>'))+'</td>'+
+      '<td class="l">'+esc(prLineName(ln))+'</td>'+
+      '<td class="num"><b>'+n(g.qty)+'</b></td>'+
+      '<td class="num">'+(g.hours>0?n1(g.hours):'—')+'</td>'+
+      '<td class="num" style="color:var(--muted)">'+(g.theo>0?n(g.theo):'—')+'</td>'+
+      '<td class="num">'+(p!=null?('<b style="color:'+prEffColor(p)+'">'+p+'%</b>'):'—')+'</td>'+
+      '<td class="num">'+n(g.runs)+'</td>';
+    db.appendChild(tr); lastDay=iso;
+  });
+
+  /* ทุกรอบผลิต */
+  var rb=$('pr-run-body'); rb.innerHTML='';
+  $('pr-run-count').textContent=runs.length?('('+n(runs.length)+' รอบ)'):'';
+  if(!runs.length)rb.innerHTML='<tr><td colspan="10"><div class="empty">ไม่มีรอบผลิตในช่วงที่เลือก</div></td></tr>';
+  runs.slice(0,400).forEach(function(x){
+    var p=x.theo>0?Math.round(x.qty/x.theo*100):null;
+    var tr=el('tr');
+    tr.innerHTML='<td class="l"><b>'+thShort(x.iso)+'</b></td>'+
+      '<td class="num" style="color:var(--muted)">'+prTimeOf(x)+'</td>'+
+      '<td class="l">'+esc(prLineName(x.line))+'</td>'+
+      '<td class="name l">'+esc(x.sku?(x.sku.brand+' '+x.sku.size):x.skuId)+'</td>'+
+      '<td class="num"><b>'+n(x.qty)+'</b></td>'+
+      '<td class="num">'+(x.hours>0?n1(x.hours):'—')+'</td>'+
+      '<td class="num">'+(p!=null?('<span style="color:'+prEffColor(p)+'">'+p+'%</span>'):'—')+'</td>'+
+      '<td class="l"><span class="note">'+esc(x.shift||'—')+'</span></td>'+
+      '<td class="l"><span class="note">'+esc(x.by)+'</span></td>'+
+      '<td class="l"><span class="note">'+esc(x.lot||'—')+'</span></td>';
+    rb.appendChild(tr);
+  });
+  if(runs.length>400)rb.appendChild(el('tr')).innerHTML=
+    '<td colspan="10"><span class="note">แสดง 400 รอบล่าสุด — ถ้าต้องการทั้งหมดให้กดส่งออก CSV</span></td>';
+}
+function prCsv(){
+  var runs=prRuns(),r=prDates();
+  var rows=[['วันที่','เวลา','ไลน์','สินค้า','ขนาด','แพ็ค','ชั่วโมง','ควรได้','ประสิทธิภาพ %','กะ','ผู้บันทึก','Lot','หมายเหตุ']];
+  runs.forEach(function(x){
+    rows.push([x.iso,prTimeOf(x),prLineName(x.line),x.sku?x.sku.brand:x.skuId,x.sku?x.sku.size:'',
+      x.qty,x.hours||'',x.theo?Math.round(x.theo):'',x.theo>0?Math.round(x.qty/x.theo*100):'',
+      x.shift,x.by,x.lot,x.note]);
+  });
+  var csv='\ufeff'+rows.map(function(a){return a.map(function(v){
+    var t=String(v==null?'':v); return /[",\n]/.test(t)?('"'+t.replace(/"/g,'""')+'"'):t}).join(',')}).join('\n');
+  saveFile('รายงานไลน์ผลิต-'+r.from+'-ถึง-'+r.to+'.csv',csv,'text/csv;charset=utf-8')
+    .then(function(){toast('ส่งออกแล้ว '+n(runs.length)+' รอบ')})
+    .catch(function(){toast('ส่งออกไม่สำเร็จ')});
+}
+function prPrint(){
+  var runs=prRuns(),r=prDates();
+  var all={qty:0,hours:0,theo:0,runs:runs.length,skus:{},lines:{}};
+  runs.forEach(function(x){all.qty+=x.qty;all.hours+=x.hours;all.theo+=x.theo});
+  var pct=prPct(all);
+  var byLine=prGroup(runs,function(x){return x.line}).sort(function(a,b){return a.key<b.key?-1:1});
+  var bySku=prGroup(runs,function(x){return x.skuId||'-'}).sort(function(a,b){return b.qty-a.qty});
+  var h='<h1>รายงานไลน์ผลิต</h1>'+
+    '<div class="meta">บริษัท ดีลักซ์ วอเตอร์ จำกัด · น้ำดื่มฟินร่า</div>'+
+    '<div class="meta">ช่วงวันที่ '+thDate(r.from)+' ถึง '+thDate(r.to)+
+      ' · '+(PR.line?esc(prLineName(PR.line)):'ทุกไลน์')+
+      (PR.sku?(' · '+esc(prSkuName(PR.sku))):'')+
+      (PR.shift?(' · กะ'+esc(PR.shift)):'')+'</div>'+
+    '<div class="meta">พิมพ์เมื่อ '+thDate(todayISO())+' โดย '+esc(whoNow())+'</div>'+
+    '<table><thead><tr><th class="l">ไลน์</th><th>ชั่วโมง</th><th>ผลิตได้</th><th>ควรได้</th><th>ประสิทธิภาพ</th><th>รอบ</th></tr></thead><tbody>';
+  if(!byLine.length)h+='<tr><td colspan="6">ไม่มียอดผลิตในช่วงนี้</td></tr>';
+  byLine.forEach(function(g){var p=prPct(g);
+    h+='<tr><td class="l">'+esc(prLineName(g.key))+'</td><td class="num">'+(g.hours>0?n1(g.hours):'—')+
+      '</td><td class="num">'+n(g.qty)+'</td><td class="num">'+(g.theo>0?n(g.theo):'—')+
+      '</td><td class="num">'+(p!=null?p+'%':'—')+'</td><td class="num">'+n(g.runs)+'</td></tr>';});
+  h+='</tbody><tfoot><tr><th class="l">รวม</th><th class="num">'+(all.hours>0?n1(all.hours):'—')+
+     '</th><th class="num">'+n(all.qty)+'</th><th class="num">'+(all.theo>0?n(all.theo):'—')+
+     '</th><th class="num">'+(pct!=null?pct+'%':'—')+'</th><th class="num">'+n(all.runs)+'</th></tr></tfoot></table>';
+  h+='<h2>แยกตามสินค้า</h2><table><thead><tr><th class="l">สินค้า</th><th>ผลิตได้ (แพ็ค)</th><th>ชั่วโมง</th><th>เฉลี่ย/ชม.</th></tr></thead><tbody>';
+  if(!bySku.length)h+='<tr><td colspan="4">—</td></tr>';
+  bySku.forEach(function(g){var sk=skuById(g.key);
+    h+='<tr><td class="l">'+esc(sk?(sk.brand+' '+sk.size):g.key)+'</td><td class="num">'+n(g.qty)+
+      '</td><td class="num">'+(g.hours>0?n1(g.hours):'—')+'</td><td class="num">'+(g.hours>0?n(g.qty/g.hours):'—')+'</td></tr>';});
+  h+='</tbody></table>';
+  h+='<h2>ทุกรอบผลิต</h2><table><thead><tr><th class="l">วันที่</th><th>เวลา</th><th class="l">ไลน์</th><th class="l">สินค้า</th>'+
+     '<th>แพ็ค</th><th>ชม.</th><th class="l">กะ</th><th class="l">ผู้บันทึก</th><th class="l">Lot</th></tr></thead><tbody>';
+  if(!runs.length)h+='<tr><td colspan="9">—</td></tr>';
+  runs.forEach(function(x){
+    h+='<tr><td class="l">'+thDate(x.iso)+'</td><td class="num">'+prTimeOf(x)+'</td><td class="l">'+esc(prLineName(x.line))+
+      '</td><td class="l">'+esc(x.sku?(x.sku.brand+' '+x.sku.size):x.skuId)+'</td><td class="num">'+n(x.qty)+
+      '</td><td class="num">'+(x.hours>0?n1(x.hours):'—')+'</td><td class="l">'+esc(x.shift||'—')+
+      '</td><td class="l">'+esc(x.by)+'</td><td class="l">'+esc(x.lot||'—')+'</td></tr>';});
+  h+='</tbody></table>'+
+     '<div class="signs"><div class="sign">ผู้คุมเครื่อง</div><div class="sign">หัวหน้าฝ่ายผลิต</div><div class="sign">ผู้จัดการ</div></div>';
+  printDoc(h,'รายงานไลน์ผลิต');
+}
 function repDays(){
   var r=repDates(), out=[];
   sortedDays().forEach(function(d){ if(d>=r.from&&d<=r.to) out.push(dayStats(d)) });
@@ -3646,6 +4023,7 @@ function renderReport(){
   renderMonths();
   renderExpense();
   renderBackfill();
+  renderProdRep();
   var r=repDates(), list=repDays(), T=repTotals(list);
   $('rep-range').textContent = (r.from===r.to? thDate(r.from)
     : thDate(r.from)+'  ถึง  '+thDate(r.to)+'  ('+n(list.length)+' วันที่มีข้อมูล)');
@@ -3805,6 +4183,86 @@ function renderRepDetail(){
     renderReport();
   };
 });
+[].forEach.call($('seg-pr').children,function(b){
+  b.onclick=function(){
+    PR.period=b.dataset.p;
+    [].forEach.call($('seg-pr').children,function(c){c.setAttribute('aria-pressed',String(c===b))});
+    $('pr-custom').classList.toggle('hidden',PR.period!=='custom');
+    if(PR.period==='custom'){
+      if(!$('pr-from').value)$('pr-from').value=addDays(todayISO(),-6);
+      if(!$('pr-to').value)$('pr-to').value=todayISO();
+    }
+    renderProdRep();
+  };
+});
+$('pr-from').addEventListener('change',renderProdRep);
+$('pr-to').addEventListener('change',renderProdRep);
+$('pr-sku').addEventListener('change',function(){PR.sku=this.value;renderProdRep()});
+$('pr-shift').addEventListener('change',function(){PR.shift=this.value;renderProdRep()});
+$('btn-pr-print').onclick=prPrint;
+$('btn-pr-csv').onclick=prCsv;
+/* ---------------- หมวดย่อยในแท็บตั้งค่า ---------------- */
+var SET_GROUPS={
+  cust:'ทะเบียนลูกค้า ราคาขาย ราคาที่ตกลงกับลูกค้า และพนักงานส่งของ',
+  prod:'กำลังผลิตแต่ละไลน์ ชั่วโมงทำงาน เวลาเปลี่ยนขนาดขวด ไลน์ไหนผลิตอะไรได้ และแบรนด์ที่รับผลิต',
+  sku:'รายการสินค้า ขวดต่อแพ็ค จุดสั่งผลิต บาร์โค้ด เพิ่มและลบสินค้า',
+  money:'ประเภทค่าใช้จ่ายที่ใช้เลือกตอนบันทึกค่าใช้จ่าย',
+  data:'นำเข้ายอดขายจากไฟล์ CSV และส่งออกข้อมูลออกเป็นไฟล์',
+  sys:'บัญชีผู้ใช้ ตำแหน่งและสิทธิ์ · สำรองข้อมูลและกู้คืนทั้งระบบ'
+};
+var setGroup=lsGet('finra_setgrp')||'cust';
+function showSetGroup(key,remember){
+  if(!SET_GROUPS[key])key='cust';
+  setGroup=key;
+  if(remember!==false)lsSet('finra_setgrp',key);
+  [].forEach.call(document.querySelectorAll('#set-nav button'),function(b){
+    b.setAttribute('aria-pressed',String(b.dataset.sg===key));
+  });
+  [].forEach.call(document.querySelectorAll('#tab-set .setgrp'),function(g){
+    g.classList.toggle('hidden',g.dataset.sg!==key);
+  });
+  var h=$('set-hint'); if(h)h.textContent=SET_GROUPS[key]||'';
+  window.scrollTo(0,0);
+}
+/* เปิดหมวดที่มีแผงนั้นอยู่ ใช้ตอนโค้ดสั่งเปิดแผงเอง เช่น ปุ่มราคาของลูกค้า */
+function revealPanel(id){
+  var p=$(id); if(!p)return;
+  var g=p.closest?p.closest('.setgrp'):null;
+  if(g&&g.dataset.sg)showSetGroup(g.dataset.sg);
+}
+[].forEach.call(document.querySelectorAll('#set-nav button'),function(b){
+  b.onclick=function(){showSetGroup(b.dataset.sg)};
+});
+showSetGroup(setGroup,false);
+/* ---------------- หมวดย่อยในแท็บรายงาน ---------------- */
+var REP_GROUPS={
+  sale:'ยอดขายตามช่วงเวลาที่เลือก · แยกหน้าโรงงานกับขายส่ง ทีมขาย และสินค้าขายดี',
+  prod:'ยอดผลิตย้อนหลัง เลือกไลน์ สินค้า และกะได้ · หมวดนี้มีช่วงวันที่ของตัวเอง ไม่เกี่ยวกับช่วงเวลาของยอดขาย',
+  money:'บันทึกและดูค่าใช้จ่ายตามช่วงเวลาด้านล่าง · ประเภทค่าใช้จ่ายเพิ่มหรือแก้ได้ที่ ตั้งค่า → ค่าใช้จ่าย',
+  month:'ยอดขาย ค่าใช้จ่าย และกำไรสุทธิ แยกเป็นเดือน',
+  back:'กรอกยอดขายของวันที่ผ่านมาเอง สำหรับวันที่ลืมบันทึก'
+};
+var repGroup=lsGet('finra_repgrp')||'sale';
+function showRepGroup(key,remember){
+  if(!REP_GROUPS[key])key='sale';
+  repGroup=key;
+  if(remember!==false)lsSet('finra_repgrp',key);
+  [].forEach.call(document.querySelectorAll('#rep-nav button'),function(b){
+    b.setAttribute('aria-pressed',String(b.dataset.rg===key));
+  });
+  [].forEach.call(document.querySelectorAll('#tab-rep .repgrp'),function(g){
+    g.classList.toggle('hidden',g.dataset.rg!==key);
+  });
+  /* ช่วงเวลาด้านบนใช้กับยอดขายและ KPI ผลิตเท่านั้น หมวดอื่นมีวันที่ของตัวเอง */
+  /* ช่วงเวลาด้านบนใช้กับยอดขายและค่าใช้จ่าย · หมวดอื่นมีวันที่ของตัวเอง */
+  var rw=$('rep-rangewrap'); if(rw)rw.classList.toggle('hidden',key!=='sale'&&key!=='money');
+  var h=$('rep-hint'); if(h)h.textContent=REP_GROUPS[key]||'';
+  window.scrollTo(0,0);
+}
+[].forEach.call(document.querySelectorAll('#rep-nav button'),function(b){
+  b.onclick=function(){showRepGroup(b.dataset.rg)};
+});
+showRepGroup(repGroup,false);
 $('rep-from').addEventListener('change',renderReport);
 $('rep-to').addEventListener('change',renderReport);
 $('rep-days').addEventListener('click',function(ev){
@@ -4483,12 +4941,19 @@ function renderPlan(){
   todo.forEach(function(r){packs+=r.need;hrs+=r.hours;pallets+=r.need/packsPerPallet(r.sku)});
   var cfg=linesCfg(),H=(+S.config.hoursPerDay||8),OT=(+S.config.otHours||0);
   var perDay=cfg.length*(H+OT);
-  var days=perDay>0?hrs/perDay:0;
+  /* เผื่อเวลาเปลี่ยนขนาดขวด: อย่างน้อยต้องเปลี่ยน (จำนวนขนาดที่ต้องทำ − จำนวนไลน์) ครั้ง */
+  var sizes={};todo.forEach(function(r){sizes[sizeKey(r.sku)]=1});
+  var nSizes=Object.keys(sizes).length;
+  var minSwitch=Math.max(0,nSizes-cfg.length);
+  var setupHrs=minSwitch*changeHours();
+  var days=perDay>0?(hrs+setupHrs)/perDay:0;
 
   $('plan-kpis').innerHTML=
-    '<div class="kpi"><span class="k">รายการที่ต้องผลิต</span><span class="v num">'+n(todo.length)+'</span><span class="u">จากทั้งหมด '+n(rs.length)+' รายการ</span></div>'+
+    '<div class="kpi"><span class="k">รายการที่ต้องผลิต</span><span class="v num">'+n(todo.length)+'</span><span class="u">'+
+      n(nSizes)+' ขนาด · จากทั้งหมด '+n(rs.length)+' รายการ</span></div>'+
     '<div class="kpi"><span class="k">ต้องผลิตรวม</span><span class="v num">'+n(packs)+'</span><span class="u">แพ็ค ≈ '+n(Math.ceil(pallets))+' พาเลท</span></div>'+
-    '<div class="kpi"><span class="k">ใช้เวลาเดินเครื่อง</span><span class="v num">'+n1(hrs)+'</span><span class="u">ชั่วโมงรวมทุกไลน์</span></div>'+
+    '<div class="kpi"><span class="k">ใช้เวลาเดินเครื่อง</span><span class="v num">'+n1(hrs)+'</span><span class="u">ชั่วโมงรวมทุกไลน์'+
+      (setupHrs>0?(' + ตั้งเครื่อง '+n1(setupHrs)+' ชม.'):'')+'</span></div>'+
     '<div class="kpi'+(days>7?' alert':'')+'"><span class="k">เสร็จภายใน</span><span class="v num">'+(perDay>0?n1(days):'—')+'</span><span class="u">วันทำงาน ('+cfg.length+' ไลน์)</span></div>';
 
   $('plan-cfg-note').textContent='ตอนนี้ใช้ยอดขาย '+S.win+' วันย้อนหลัง · เผื่อสต๊อก '+S.cover+' วันทำการ';
@@ -4517,7 +4982,8 @@ function renderPlan(){
 }
 function renderSched(rs){
   var cfg=linesCfg(),H=+S.config.hoursPerDay||8,OT=+S.config.otHours||0;
-  $('cap-note').textContent=cfg.length+' ไลน์ · ทำงาน '+n1(H)+' ชม./วัน'+(OT>0?' + OT ได้อีก '+n1(OT)+' ชม.':'');
+  $('cap-note').textContent=cfg.length+' ไลน์ · ทำงาน '+n1(H)+' ชม./วัน'+(OT>0?' + OT ได้อีก '+n1(OT)+' ชม.':'')+
+    ' · เปลี่ยนขนาดขวดครั้งละ '+n(changeMin())+' นาที';
   var host=$('sched');host.innerHTML='';
   var queue=rs.filter(function(r){return r.need>0}).map(function(r){return {sku:r.sku,left:r.need,size:sizeKey(r.sku)}});
   if(!queue.length){host.innerHTML='<div class="empty">ไม่มีรายการที่ต้องผลิตในรอบนี้ — สต๊อกพอตามเป้าหมาย</div>';return}
@@ -4533,23 +4999,49 @@ function renderSched(rs){
   }
   var tbl=el('table');
   tbl.innerHTML='<thead><tr><th class="l">วัน</th><th class="l">ไลน์</th><th class="l">สินค้า</th><th>แพ็ค</th><th>พาเลท</th><th>ชั่วโมง</th><th class="l">หมายเหตุ</th></tr></thead>';
-  var body=el('tbody'),qi=0,rowsOut=0;
-  for(var d=0;d<7&&qi<queue.length;d++){
+  var body=el('tbody'),rowsOut=0;
+  /* เวลาที่เสียไปตอนเปลี่ยนขนาดขวด — ตั้งค่าได้เอง ค่าเริ่มต้น 30 นาที */
+  var CH=changeHours();
+  /* ขนาดที่แต่ละไลน์ตั้งเครื่องค้างไว้ · ข้ามวันได้ เพราะเครื่องไม่ได้ถูกรื้อตอนกลางคืน */
+  var setUp={}, switches=0, lostHours=0;
+  linesCfg().forEach(function(L){
+    var st=S.lines[L.id];
+    setUp[L.id]=(st&&st.status==='run'&&st.skuId&&skuById(st.skuId))?sizeKey(skuById(st.skuId)):null;
+  });
+  function anyLeft(){ return queue.some(function(q){return q.left>0}) }
+  for(var d=0;d<7&&anyLeft();d++){
     var iso=addDays(todayISO(),d),dayHas=false;
-    for(var li=0;li<cfg.length&&qi<queue.length;li++){
+    for(var li=0;li<cfg.length;li++){
       var L=cfg[li],room=H+OT,used=0;
-      while(room>0.01&&qi<queue.length){
-        var item=null,idx=-1;
-        for(var q=qi;q<queue.length;q++){
-          if(queue[q].left>0&&canMake(L,queue[q].sku)){item=queue[q];idx=q;break}
-        }
-        if(!item)break;
+      while(room>0.01){
+        /* งานที่ไลน์นี้ทำได้ เรียงตามความด่วนอยู่แล้ว */
+        var cand=queue.filter(function(q){return q.left>0&&canMake(L,q.sku)});
+        if(!cand.length)break;
+        /* ทำขนาดเดิมให้หมดก่อน จะได้ไม่ต้องเปลี่ยนเครื่องบ่อย */
+        var same=cand.filter(function(q){return q.size===setUp[L.id]});
+        var item=same.length?same[0]:cand[0];
+        var needSwitch=(!same.length&&setUp[L.id]!==null&&setUp[L.id]!==item.size);
+        var setup=needSwitch?CH:0;
+        /* เวลาที่เหลือน้อยกว่าเวลาเปลี่ยนเครื่อง ไม่คุ้มที่จะเปลี่ยน เก็บไว้พรุ่งนี้ */
+        if(setup>0&&room<setup+0.25)break;
         var rate=rateOf(item.sku);
-        var take=Math.min(item.left,Math.floor(room*rate));
+        var take=Math.min(item.left,Math.floor((room-setup)*rate));
         if(take<=0)break;
+        if(setup>0){
+          switches++; lostHours+=setup; room-=setup; used+=setup;
+          var trc=el('tr');
+          trc.innerHTML='<td class="l">'+(dayHas?'':'<b>'+thShort(iso)+'</b><div class="brandline">'+thDate(iso)+'</div>')+'</td>'+
+            '<td class="l"><b class="ui">'+esc(L.name)+'</b></td>'+
+            '<td class="l" style="color:var(--serious)">'+ICON.warn+' เปลี่ยนขนาดขวด '+
+              esc(setUp[L.id])+' → '+esc(item.size)+'</td>'+
+            '<td class="num">—</td><td class="num">—</td>'+
+            '<td class="num" style="color:var(--serious)">'+n1(setup)+'</td>'+
+            '<td class="l"><span class="stat serious">เสียเวลาตั้งเครื่อง</span></td>';
+          body.appendChild(trc); dayHas=true; rowsOut++;
+        }
         var hrs=take/rate;
-        item.left-=take;room-=hrs;used+=hrs;
-        var ot=Math.max(0,used-H), otRow=ot>0;
+        item.left-=take; room-=hrs; used+=hrs; setUp[L.id]=item.size;
+        var otRow=used>H;
         var tr=el('tr');
         tr.innerHTML='<td class="l">'+(dayHas?'':'<b>'+thShort(iso)+'</b><div class="brandline">'+thDate(iso)+'</div>')+'</td>'+
           '<td class="l"><b class="ui">'+esc(L.name)+'</b></td>'+
@@ -4559,12 +5051,16 @@ function renderSched(rs){
           '<td class="num">'+n1(hrs)+'</td>'+
           '<td class="l">'+(otRow?'<span class="stat warn">'+ICON.warn+'ต้อง OT</span>':'<span class="note">ในเวลาปกติ</span>')+'</td>';
         body.appendChild(tr);dayHas=true;rowsOut++;
-        while(qi<queue.length&&queue[qi].left<=0)qi++;
-        if(idx===qi&&item.left<=0)qi++;
       }
     }
   }
   tbl.appendChild(body);host.appendChild(tbl);
+  var note=el('p','note');
+  note.innerHTML= switches
+    ? ('ตารางนี้จัดให้ทำขนาดเดียวกันติดกันให้มากที่สุด · ยังต้องเปลี่ยนขนาดขวด <b class="num">'+n(switches)+
+       '</b> ครั้ง เสียเวลารวม <b class="num">'+n1(lostHours)+'</b> ชม. (ครั้งละ '+n(CH*60)+' นาที)')
+    : 'ตารางนี้ไม่ต้องเปลี่ยนขนาดขวดเลย — แต่ละไลน์ทำขนาดเดียวรวดเดียวจบ';
+  host.appendChild(note);
   var leftTotal=0;queue.forEach(function(q){if(q.left>0)leftTotal+=q.left});
   if(leftTotal>0)host.appendChild(el('p','note','เหลืออีก '+n(leftTotal)+' แพ็คที่ลงตาราง 7 วันไม่พอ — ต้องเพิ่ม OT หรือเพิ่มกะ'));
   if(!rowsOut)host.innerHTML='<div class="empty">ไม่มีไลน์ไหนผลิตขนาดที่ต้องการได้ — ไปตั้งค่าไลน์ที่แท็บตั้งค่า</div>';
@@ -4609,6 +5105,13 @@ function renderMoney(){
 /* ---------------- render: settings ---------------- */
 function renderSet(){
   $('bk-panel').classList.toggle('hidden',!P('user.manage'));
+  var sgb=$('sgb-sys');
+  if(sgb){
+    /* หมวด "ผู้ใช้และสำรองข้อมูล" เห็นเฉพาะคนที่จัดการผู้ใช้ได้ */
+    var canSys=P('user.manage');
+    sgb.classList.toggle('hidden',!canSys);
+    if(!canSys&&setGroup==='sys')showSetGroup('cust');
+  }
   renderExpCats();
   renderDrivers();
   renderCust();
@@ -4648,8 +5151,10 @@ function renderSet(){
   renderMakeGrid();
   $('f-hours').value=S.config.hoursPerDay||8;
   $('f-ot').value=S.config.otHours||0;
+  $('f-change').value=changeMin();
   $('f-staff').value=(S.config.staff||[]).join(', ');
   $('f-hours').disabled=!S.admin;$('f-ot').disabled=!S.admin;$('f-staff').disabled=!S.admin;
+  $('f-change').disabled=!S.admin;
 
   var tb=$('set-body');
   var sig=skuSig+'|'+S.admin+'|'+(S.costs?'c':'n');
@@ -4893,6 +5398,7 @@ var RATEFOR=null;
 function openRateTable(id){
   var c=custById(id); if(!c)return;
   RATEFOR=id;
+  revealPanel('rate-panel');
   $('rate-panel').classList.remove('hidden');
   $('rate-title').textContent='ราคาที่ตกลงกับ '+c.name;
   $('rate-find').value='';
@@ -5567,6 +6073,7 @@ async function saveConfig(){
   try{
     await S.db.doc('master/config').set({lines:lines,rates:rates,palletPacks:pp,lineSkus:lineSkus,
       hoursPerDay:+$('f-hours').value||8,otHours:+$('f-ot').value||0,
+      changeMin:Math.max(0,+$('f-change').value||0),
       staff:staff,coverTarget:S.cover,updatedAt:new Date().toISOString()});
     toast('บันทึกแล้ว — แผนผลิตและหน้าจอไลน์จะใช้กติกาใหม่ทันที');
   }catch(e){toast('บันทึกไม่สำเร็จ — ต้องมีสิทธิ์แก้ข้อมูลหลัก')}
@@ -5970,6 +6477,7 @@ function startApp(me){
     if(d.palletPacks)c.palletPacks=Object.assign(c.palletPacks,d.palletPacks);
     if(d.hoursPerDay)c.hoursPerDay=+d.hoursPerDay;
     if(d.otHours!=null)c.otHours=+d.otHours;
+    if(d.changeMin!=null)c.changeMin=+d.changeMin;
     if(d.staff)c.staff=d.staff;
     S.config=c;
     var rb=$('set-body');if(rb)rb.dataset.sig='';
