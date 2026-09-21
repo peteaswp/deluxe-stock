@@ -1,4 +1,4 @@
-<title>คลังและแผนผลิต ฟินร่า</title>
+<title>Deluxe Water Inventory System (คลังและแผนผลิต ฟินร่า)</title>
 <script src="api.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -6,14 +6,15 @@
 <style>
 :root{
   color-scheme: light;
-  --bg:#eef3f4; --plane:#f7fafa; --surface:#ffffff; --surface-2:#f2f7f8;
-  --ink:#0c1a1e; --ink-2:#48595e; --muted:#76878b;
-  --line:#dae4e6; --line-2:#c3d2d5;
-  --accent:#0b6f85; --accent-2:#0e8aa5; --accent-soft:#e3f1f4; --on-accent:#ffffff;
-  --good:#0ca30c; --warn:#fab219; --serious:#ec835a; --crit:#d03b3b;
-  --good-soft:#e6f6e6; --warn-soft:#fdf3dc; --serious-soft:#fceee7; --crit-soft:#fae9e9;
-  --grid:#e4ecee; --axis:#c3d2d5;
-  --shadow:0 1px 1px rgba(12,26,30,.04), 0 10px 26px -20px rgba(12,26,30,.5);
+  --bg:#eef4ef; --plane:#f7fbf8; --surface:#ffffff; --surface-2:#f2f8f3;
+  --ink:#0d1c12; --ink-2:#4a5d51; --muted:#77897d;
+  --line:#dbe7de; --line-2:#c4d5c9;
+  /* เขียวจากโลโก้ฟินร่า: เข้ม #0B9444 อ่อน #3AB54B */
+  --accent:#0B9444; --accent-2:#3AB54B; --accent-soft:#e6f5ea; --on-accent:#ffffff;
+  --good:#0B9444; --warn:#e0930a; --serious:#ec835a; --crit:#d03b3b;
+  --good-soft:#e6f5ea; --warn-soft:#fdf3dc; --serious-soft:#fceee7; --crit-soft:#fae9e9;
+  --grid:#e4eee7; --axis:#c4d5c9;
+  --shadow:0 1px 1px rgba(13,28,18,.04), 0 10px 26px -20px rgba(13,28,18,.5);
   --r:10px;
   --f-ui:"IBM Plex Sans Thai", system-ui, -apple-system, "Segoe UI", sans-serif;
   --f-body:"Noto Sans Thai Looped","IBM Plex Sans Thai", system-ui, sans-serif;
@@ -25,8 +26,8 @@
     --bg:#080f11; --plane:#0c1517; --surface:#111f22; --surface-2:#17282c;
     --ink:#e9f3f4; --ink-2:#a6bcc0; --muted:#87999d;
     --line:#21363b; --line-2:#2d474d;
-    --accent:#3fb6cf; --accent-2:#5fc9df; --accent-soft:#10323b; --on-accent:#04181d;
-    --good-soft:#0e2a10; --warn-soft:#31280b; --serious-soft:#331d12; --crit-soft:#331313;
+    --accent:#4ec36a; --accent-2:#6fd487; --accent-soft:#11321d; --on-accent:#05190c;
+    --good:#4ec36a; --good-soft:#11321d; --warn-soft:#31280b; --serious-soft:#331d12; --crit-soft:#331313;
     --grid:#1b2d31; --axis:#2d474d;
     --shadow:0 1px 1px rgba(0,0,0,.3), 0 12px 28px -20px rgba(0,0,0,.9);
   }
@@ -36,8 +37,8 @@
   --bg:#080f11; --plane:#0c1517; --surface:#111f22; --surface-2:#17282c;
   --ink:#e9f3f4; --ink-2:#a6bcc0; --muted:#87999d;
   --line:#21363b; --line-2:#2d474d;
-  --accent:#3fb6cf; --accent-2:#5fc9df; --accent-soft:#10323b; --on-accent:#04181d;
-  --good-soft:#0e2a10; --warn-soft:#31280b; --serious-soft:#331d12; --crit-soft:#331313;
+  --accent:#4ec36a; --accent-2:#6fd487; --accent-soft:#11321d; --on-accent:#05190c;
+  --good:#4ec36a; --good-soft:#11321d; --warn-soft:#31280b; --serious-soft:#331d12; --crit-soft:#331313;
   --grid:#1b2d31; --axis:#2d474d;
   --shadow:0 1px 1px rgba(0,0,0,.3), 0 12px 28px -20px rgba(0,0,0,.9);
 }
@@ -47,12 +48,15 @@ h1,h2,h3,th,.ui{font-family:var(--f-ui)}
 .num{font-family:var(--f-num);font-variant-numeric:tabular-nums}
 button,input,select,textarea{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--accent-2);outline-offset:2px;border-radius:6px}
+input[type="checkbox"],input[type="radio"]{accent-color:var(--accent)}
 @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
 .wrap{max-width:1180px;margin:0 auto;padding-inline:16px;padding-block:0 56px}
 header.top{position:sticky;top:0;z-index:30;background:var(--plane);border-bottom:1px solid var(--line)}
 .top-in{max-width:1180px;margin:0 auto;padding:12px 16px 0;display:flex;flex-direction:column;gap:10px}
 .brandrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .mark{width:34px;height:34px;border-radius:9px;background:var(--accent);display:grid;place-items:center;flex:none}
+.brand h1 .th{font-weight:400;color:var(--muted);font-size:.86em;white-space:nowrap}
+@media(max-width:700px){.brand h1 .th{display:block;font-size:.9em}}
 .mark svg{display:block}
 .brand h1{font-size:17px;margin:0;font-weight:600;letter-spacing:-.01em}
 .brand p{margin:0;font-size:12px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;font-family:var(--f-ui)}
@@ -141,9 +145,10 @@ input[type=number]{font-family:var(--f-num);font-variant-numeric:tabular-nums}
 .dayrow:hover td{background:var(--surface-2)}
 .dayrow.on td{background:var(--accent-soft)}
 .login{position:fixed;inset:0;z-index:90;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px}
-.lbox{background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:26px;max-width:380px;width:100%;display:flex;flex-direction:column;gap:14px}
-.lhead{display:flex;align-items:center;gap:12px;margin-bottom:4px}
-.lhead h2{margin:0;font-size:17px;font-weight:600}
+.lbox{background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:26px;max-width:410px;width:100%;display:flex;flex-direction:column;gap:14px}
+.lhead{display:flex;align-items:flex-start;gap:12px;margin-bottom:4px}
+.lhead .mark{margin-top:2px}
+.lhead h2{margin:0;font-size:16.5px;font-weight:600;line-height:1.3}
 .lhead p{margin:0}
 .rolebox{display:flex;flex-wrap:wrap;gap:6px;border:1px solid var(--line);border-radius:9px;padding:9px;background:var(--surface-2)}
 .rolebox label{display:inline-flex;align-items:center;gap:6px;font-family:var(--f-ui);font-size:13px;background:var(--surface);border:1px solid var(--line);border-radius:99px;padding:5px 11px 5px 8px;cursor:pointer;white-space:nowrap}
@@ -179,6 +184,12 @@ input[type=number]{font-family:var(--f-num);font-variant-numeric:tabular-nums}
 @keyframes pulse{0%,100%{opacity:.55}50%{opacity:.95}}
 .hidden{display:none!important}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.setnav{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 6px}
+.setnav button{background:var(--surface);border:1px solid var(--line-2);border-radius:9px;
+  padding:9px 15px;cursor:pointer;font-family:var(--f-ui);font-size:14px;font-weight:600;color:var(--muted)}
+.setnav button:hover{border-color:var(--accent)}
+.setnav button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}
+.setnav-hint{margin:0 0 14px}
 .seg{display:inline-flex;border:1px solid var(--line-2);border-radius:8px;overflow:hidden}
 .seg button{background:var(--surface);border:0;border-inline-start:1px solid var(--line-2);padding:6px 11px;cursor:pointer;font-family:var(--f-ui);font-size:13px}
 .seg button:first-child{border-inline-start:0}
@@ -246,6 +257,16 @@ footer.foot{margin-top:26px;padding-top:14px;border-top:1px solid var(--line);co
   #printarea{display:block!important;position:static;padding:0}
   @page{size:A4;margin:14mm}
 }
+.formgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(258px,1fr));gap:12px}
+.formcard{border:1px solid var(--line);border-radius:11px;padding:13px 14px;background:var(--surface-2);
+  display:flex;flex-direction:column;gap:8px}
+.formcard h3{margin:0;font-size:14.5px;font-weight:600;font-family:var(--f-ui)}
+.formcard p{margin:0;font-size:12.5px;color:var(--muted);line-height:1.45;flex:1}
+.formcard .row{gap:7px}
+.formcard .ic{font-size:19px;line-height:1}
+.bywho{font-size:11.5px;color:var(--muted);font-family:var(--f-ui);white-space:nowrap}
+.bywho b{color:var(--ink-2);font-weight:600}
+.entry .when{font-family:var(--f-num);font-size:12px;color:var(--muted);min-width:38px}
 .sizebox{display:flex;flex-wrap:wrap;gap:7px}
 .sizebox label{display:inline-flex;align-items:center;gap:6px;font-family:var(--f-ui);font-size:13.5px;
   background:var(--surface);border:1px solid var(--line-2);border-radius:99px;padding:6px 13px 6px 9px;cursor:pointer;white-space:nowrap}
@@ -269,11 +290,11 @@ details.fold .panel-b{padding-top:0}
   <div class="top-in">
     <div class="brandrow">
       <div class="mark" aria-hidden="true">
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2.2c3.1 3.5 5.4 6.4 5.4 9A5.4 5.4 0 0 1 10 16.6 5.4 5.4 0 0 1 4.6 11.2c0-2.6 2.3-5.5 5.4-9Z" fill="#fff" fill-opacity=".95"/></svg>
+        <svg width="22" height="22" viewBox="0 0 100 100" fill="none" role="img" aria-label="Deluxe Water"><path d="M69.8 9.6 L71 9.7 L71.7 10.6 L73 28.2 L73.4 29.6 L75.7 29.8 L81.6 29.4 L83.2 30 L83.3 31.3 L70.6 51.8 L69.3 54.4 L70.4 54.7 L72.2 54.3 L75.3 52.9 L84.3 50.5 L85 51.4 L85 59.3 L97.6 65.7 L98 66.9 L97.5 68.1 L88.5 77.5 L88.4 78.6 L91.3 83.9 L91.5 85.6 L90.8 86.2 L79.4 86.9 L66.4 88.6 L63.5 89.2 L62.8 90.3 L61.7 90.4 L51 90.4 L48.3 89.2 L41.9 84.6 L41.2 85.1 L39.9 90.3 L34.5 90.4 L32.6 90.4 L32 89.7 L35.9 83.6 L36.2 82.8 L35.5 82.2 L13.3 79.4 L13 78.4 L13.4 77.8 L19.4 70.7 L12.6 61.2 L2.5 49.4 L2 48.3 L2.1 47.5 L2.7 46.9 L10.3 44.4 L11.1 31.1 L11.4 30.1 L12.3 29.7 L14.5 30.1 L24.7 34.3 L25.5 34.3 L30.8 28.6 L32.3 28.5 L35.5 33.4 L39.5 40.6 L40.4 41.1 L41.2 39.6 L46.3 15.3 L47.4 14.8 L48.6 15.4 L54 21.1 L55.1 21.8 L66 13.1 Z" fill="#fff"/></svg>
       </div>
       <div class="brand">
-        <h1>คลังและแผนผลิต ฟินร่า</h1>
-        <p>Deluxe Water · 3 lines · stock &amp; production</p>
+        <h1>Deluxe Water Inventory System <span class="th">(คลังและแผนผลิต ฟินร่า)</span></h1>
+        <p>บริษัท ดีลักซ์ วอเตอร์ จำกัด · น้ำดื่มฟินร่า · 3 lines</p>
       </div>
       <div class="spacer"></div>
       <span class="chip" id="chip-date">—</span>
@@ -309,6 +330,8 @@ details.fold .panel-b{padding-top:0}
       <div class="kpi"><span class="k">ผลิตวันนี้</span><span class="v num" id="kpi-prod">—</span><span class="u" id="kpi-prod-u">แพ็ค</span></div>
       <div class="kpi"><span class="k">ขายวันนี้</span><span class="v num" id="kpi-sell">—</span><span class="u" id="kpi-sell-u">แพ็ค</span></div>
       <div class="kpi alert"><span class="k">ต้องผลิตด่วน</span><span class="v num" id="kpi-urgent">—</span><span class="u">รายการ</span></div>
+      <div class="kpi hidden" id="kpi-exp-card"><span class="k">ค่าใช้จ่าย 30 วัน</span><span class="v num" id="kpi-exp">—</span><span class="u" id="kpi-exp-u">บาท</span></div>
+      <div class="kpi hidden" id="kpi-profit-card"><span class="k">กำไรสุทธิ 30 วัน</span><span class="v num" id="kpi-profit">—</span><span class="u" id="kpi-profit-u">บาท</span></div>
     </div>
 
     <section class="panel">
@@ -319,6 +342,31 @@ details.fold .panel-b{padding-top:0}
           <div class="tip" id="tip"></div>
         </div>
         <div class="row" style="margin-top:12px;gap:18px" id="chan-split"></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-h"><h2>ประสิทธิภาพการผลิต</h2>
+        <span class="sub">30 วันล่าสุด · ผลิตได้จริง เทียบกับที่ควรได้ตามชั่วโมงเดินเครื่อง
+          <b class="num" id="eff-avg">—</b></span></div>
+      <div class="panel-b">
+        <div class="chartbox" id="effbox">
+          <svg id="effchart" viewBox="0 0 760 210" role="img" aria-label="กราฟประสิทธิภาพการผลิตรายวัน"></svg>
+          <div class="tip" id="efftip"></div>
+        </div>
+        <div class="row" style="margin-top:12px;gap:18px" id="eff-legend"></div>
+      </div>
+    </section>
+
+    <section class="panel hidden" id="pl-panel">
+      <div class="panel-h"><h2>รายรับ · รายจ่าย · กำไรสุทธิ</h2>
+        <span class="sub">30 วันล่าสุด <b class="num" id="pl-sum">—</b></span></div>
+      <div class="panel-b">
+        <div class="chartbox" id="plbox">
+          <svg id="plchart" viewBox="0 0 760 230" role="img" aria-label="กราฟรายรับรายจ่ายและกำไรสุทธิรายวัน"></svg>
+          <div class="tip" id="pltip"></div>
+        </div>
+        <div class="row" style="margin-top:12px;gap:18px" id="pl-legend"></div>
       </div>
     </section>
 
@@ -340,6 +388,11 @@ details.fold .panel-b{padding-top:0}
           <tbody id="eff-body"></tbody>
         </table>
       </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-h"><h2>แบบฟอร์มและคู่มือ</h2><span class="sub">กดพิมพ์ออกกระดาษ หรือดาวน์โหลดเก็บไว้</span></div>
+      <div class="panel-b"><div class="formgrid" id="form-list"></div></div>
     </section>
   </div>
 
@@ -372,6 +425,12 @@ details.fold .panel-b{padding-top:0}
             <option value="port">1 ดวงเต็มแผ่น แนวตั้ง (76 × 130 มม.)</option>
           </select></div>
           <div class="field"><label for="lbl-lot">LOT</label><input type="text" id="lbl-lot" placeholder="เว้นว่างไว้ = เขียนเอง"></div>
+          <div class="field"><label for="lbl-line">ไลน์ผลิต</label><select id="lbl-line">
+            <option value="">เว้นว่างไว้ — ติ๊กเอง</option></select></div>
+          <div class="field"><label for="lbl-time">เวลา</label><select id="lbl-time">
+            <option value="now">ใส่เวลาที่พิมพ์ให้เลย</option>
+            <option value="">เว้นว่างไว้ — เขียนเอง</option>
+          </select></div>
           <div class="field"><label for="lbl-seq">เลขพาเลท</label><select id="lbl-seq">
             <option value="0">เว้นช่องไว้เขียนเอง</option>
             <option value="1">พิมพ์เลขรันนิ่ง เริ่มที่ 1</option>
@@ -381,7 +440,8 @@ details.fold .panel-b{padding-top:0}
         </div>
         <div class="row" style="margin-bottom:12px">
           <button class="btn" id="btn-lbl-prev">ดูตัวอย่าง</button>
-          <button class="btn primary" id="btn-lbl-dl">ดาวน์โหลดไฟล์สำหรับพิมพ์</button>
+          <button class="btn primary" id="btn-lbl-print">พิมพ์ป้ายเลย</button>
+          <button class="btn" id="btn-lbl-dl">ดาวน์โหลดเก็บไว้</button>
           <span class="note" id="lbl-note"></span>
         </div>
         <div class="labelbox" id="lbl-preview"><div class="empty">กด "ดูตัวอย่าง" เพื่อดูป้าย</div></div>
@@ -562,12 +622,13 @@ details.fold .panel-b{padding-top:0}
 
     <section class="panel">
       <div class="panel-h"><h2>วัตถุดิบคงเหลือ</h2><span class="sub" id="mat-asof">—</span>
+        <span class="sub cost-col" id="mat-value">—</span>
         <div class="spacer"></div>
         <span class="seg" id="seg-matgroup"></span>
       </div>
       <div class="panel-b tscroll">
         <table>
-          <thead><tr><th class="l">รายการ</th><th>คงเหลือ</th><th class="l">หน่วยใหญ่</th><th>ใช้เฉลี่ย/วัน</th><th>พอใช้อีก</th><th>ขั้นต่ำ</th><th class="l">สถานะ</th></tr></thead>
+          <thead><tr><th class="l">รายการ</th><th>คงเหลือ</th><th class="l">หน่วยใหญ่</th><th>ใช้เฉลี่ย/วัน</th><th>พอใช้อีก</th><th>ขั้นต่ำ</th><th class="cost-col">ทุน/หน่วย</th><th class="cost-col">มูลค่า</th><th class="l">สถานะ</th></tr></thead>
           <tbody id="mat-body"><tr><td colspan="7"><div class="skel"></div></td></tr></tbody>
         </table>
       </div>
@@ -584,7 +645,7 @@ details.fold .panel-b{padding-top:0}
         <p class="note" id="bom-locked">ต้องมีสิทธิ์แก้ข้อมูลหลัก จึงจะใช้ส่วนนี้ได้</p>
         <div id="bom-ui" class="hidden">
           <div class="tscroll" style="max-height:420px;overflow-y:auto">
-            <table><thead><tr><th class="l">สินค้า</th><th>ขวด/แพ็ค</th><th class="l">ขวด PET ที่ใช้</th><th class="l">ฝาที่ใช้</th></tr></thead><tbody id="bom-body"></tbody></table>
+            <table><thead><tr><th class="l">สินค้า</th><th>ขวด/แพ็ค</th><th class="l">ขวด PET ที่ใช้</th><th class="l">ฝาที่ใช้</th><th class="cost-col">ทุนขวด+ฝา/แพ็ค</th></tr></thead><tbody id="bom-body"></tbody></table>
           </div>
           <div class="row" style="margin-top:12px">
             <button class="btn primary" id="btn-bom-save">บันทึกการผูกวัตถุดิบ</button>
@@ -594,8 +655,48 @@ details.fold .panel-b{padding-top:0}
       </div>
     </section>
 
+    <section class="panel" id="matedit-panel">
+      <div class="panel-h"><h2>เพิ่ม-แก้-ลบ รายการวัตถุดิบ</h2>
+        <span class="sub">เช่น ฝา ขวด ฉลาก กล่อง · ตั้งชื่อ หน่วย และจำนวนต่อหน่วยใหญ่ได้เอง</span></div>
+      <div class="panel-b">
+        <p class="note hidden" id="matedit-locked">ต้องมีสิทธิ์แก้ข้อมูลหลัก จึงจะใช้ส่วนนี้ได้</p>
+        <div id="matedit-ui" class="hidden">
+          <div class="grid2" style="margin-bottom:12px">
+            <div class="field" style="grid-column:span 2"><label for="mn-name">ชื่อวัตถุดิบ</label>
+              <input type="text" id="mn-name" placeholder="เช่น ฝาขวดสีน้ำเงิน"></div>
+            <div class="field"><label for="mn-group">กลุ่ม</label>
+              <input type="text" id="mn-group" list="matgroups" placeholder="เช่น ฝา"></div>
+            <div class="field"><label for="mn-unit">หน่วยนับ</label>
+              <input type="text" id="mn-unit" placeholder="เช่น ชิ้น"></div>
+            <div class="field"><label for="mn-packunit">หน่วยใหญ่</label>
+              <input type="text" id="mn-packunit" placeholder="เช่น ถุง (เว้นว่างได้)"></div>
+            <div class="field"><label for="mn-per">1 หน่วยใหญ่ = กี่หน่วยนับ</label>
+              <input type="number" id="mn-per" min="1" step="1" placeholder="เช่น 10000"></div>
+            <div class="field"><label for="mn-min">ขั้นต่ำที่ควรมี</label>
+              <input type="number" id="mn-min" min="0" step="1" placeholder="0"></div>
+            <div class="field" style="align-self:end"><button class="btn primary" id="btn-mat-add">เพิ่มวัตถุดิบ</button></div>
+          </div>
+          <datalist id="matgroups"></datalist>
+          <div class="tscroll" style="max-height:420px"><table>
+            <thead><tr><th class="l">ชื่อ</th><th class="l">กลุ่ม</th><th class="l">หน่วย</th>
+              <th class="l">หน่วยใหญ่</th><th>ต่อหน่วยใหญ่</th><th>ขั้นต่ำ</th>
+              <th class="cost-col">ราคาทุน</th><th class="cost-col l">ราคาต่อ</th>
+              <th class="cost-col">ทุน/หน่วยนับ</th><th class="cost-col">มูลค่าคงคลัง</th>
+              <th>ใช้งาน</th><th class="l"></th></tr></thead>
+            <tbody id="matedit-body"></tbody>
+          </table></div>
+          <div class="row" style="margin-top:12px">
+            <button class="btn" id="btn-matedit-save">บันทึกการแก้ไข</button>
+            <span class="note" id="matedit-count">—</span>
+            <span class="note cost-col" id="matedit-value" style="margin-inline-start:auto"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section class="panel" id="matcount-panel">
-      <div class="panel-h"><h2>ตรวจนับวัตถุดิบ</h2><span class="sub">ตั้งยอดตั้งต้นใหม่</span></div>
+      <div class="panel-h"><h2>ตรวจนับ / แก้ยอดวัตถุดิบ</h2>
+        <span class="sub">ช่องกรอกมียอดปัจจุบันให้แล้ว แก้ตัวเลขเฉพาะรายการที่ต้องการ แล้วกดบันทึก</span></div>
       <div class="panel-b">
         <p class="note" id="matcount-locked">ต้องมีสิทธิ์แก้ข้อมูลหลัก จึงจะใช้ส่วนนี้ได้</p>
         <div id="matcount-ui" class="hidden">
@@ -613,6 +714,16 @@ details.fold .panel-b{padding-top:0}
 
   <!-- ================= REPORT & KPI ================= -->
   <div id="tab-rep" class="hidden">
+    <div class="setnav" id="rep-nav" role="tablist" aria-label="หมวดรายงาน">
+      <button data-rg="sale"  aria-pressed="true">ยอดขาย</button>
+      <button data-rg="prod"  aria-pressed="false">ไลน์ผลิต</button>
+      <button data-rg="money" aria-pressed="false">ค่าใช้จ่าย</button>
+      <button data-rg="month" aria-pressed="false">สรุปรายเดือน</button>
+      <button data-rg="back"  aria-pressed="false">กรอกยอดย้อนหลัง</button>
+    </div>
+    <p class="note setnav-hint" id="rep-hint">—</p>
+
+    <div id="rep-rangewrap">
     <section class="panel">
       <div class="panel-h"><h2>ช่วงเวลาที่ดู</h2><span class="sub" id="rep-range">—</span></div>
       <div class="panel-b">
@@ -635,7 +746,9 @@ details.fold .panel-b{padding-top:0}
         </div>
       </div>
     </section>
+    </div>
 
+    <div class="repgrp hidden" data-rg="sale">
     <section class="panel">
       <div class="panel-h"><h2>KPI ยอดขาย</h2><span class="sub">แยกขายหน้าโรงงาน กับ ขายส่ง / ขนส่ง</span></div>
       <div class="panel-b"><div class="kpis" id="kpi-sale"></div></div>
@@ -660,10 +773,140 @@ details.fold .panel-b{padding-top:0}
       </div>
     </section>
 
+    <section class="panel hidden" id="rep-detail-panel">
+      <div class="panel-h"><h2 id="rep-detail-h">รายละเอียดรายวัน</h2><span class="sub">แยกตามสินค้าและช่องทาง</span></div>
+      <div class="panel-b tscroll"><table id="rep-detail"></table></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-h"><h2>ทีมขาย (Sales force)</h2><span class="sub">ขายส่งแยกตามคนส่ง · หน้าโรงงานแยกตามคนออกบิล</span></div>
+      <div class="panel-b tscroll">
+        <table>
+          <thead><tr><th class="l">คน</th><th class="l">ช่องทาง</th><th>บิล</th><th>แพ็ค</th><th>เฉลี่ย/บิล</th><th>ลูกค้า</th><th class="l">สัดส่วน</th></tr></thead>
+          <tbody id="rep-force"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-h"><h2>สินค้าขายดี</h2><span class="sub">ในช่วงที่เลือก</span></div>
+      <div class="panel-b tscroll">
+        <table>
+          <thead><tr><th class="l">สินค้า</th><th>หน้าโรงงาน</th><th>ขายส่ง</th><th>รวม</th><th class="l">สัดส่วน</th></tr></thead>
+          <tbody id="rep-top"></tbody>
+        </table>
+      </div>
+    </section>
+    </div>
+
+    <div class="repgrp hidden" data-rg="prod">
+    <section class="panel" id="prod-panel">
+      <div class="panel-h"><h2>รายงานไลน์ผลิต</h2><span class="sub" id="pr-range">—</span></div>
+      <div class="panel-b">
+        <p class="note" style="margin:0 0 10px">ดูย้อนหลังได้ทุกวัน · เลือกไลน์และสินค้าที่ต้องการ แล้วกดพิมพ์หรือส่งออกได้เลย</p>
+        <div class="row" style="flex-wrap:wrap;gap:10px;margin-bottom:10px">
+          <span class="seg" id="seg-pr">
+            <button data-p="today" aria-pressed="false">วันนี้</button>
+            <button data-p="yday" aria-pressed="false">เมื่อวาน</button>
+            <button data-p="7" aria-pressed="true">7 วัน</button>
+            <button data-p="30" aria-pressed="false">30 วัน</button>
+            <button data-p="mtd" aria-pressed="false">เดือนนี้</button>
+            <button data-p="custom" aria-pressed="false">เลือกวันเอง</button>
+          </span>
+          <span class="row hidden" id="pr-custom" style="gap:6px">
+            <input type="date" id="pr-from" style="max-width:160px">
+            <span class="note">ถึง</span>
+            <input type="date" id="pr-to" style="max-width:160px">
+          </span>
+        </div>
+        <div class="row" style="flex-wrap:wrap;gap:10px;margin-bottom:14px">
+          <span class="seg" id="seg-prline"></span>
+          <select id="pr-sku" style="max-width:240px"><option value="">ทุกสินค้า</option></select>
+          <select id="pr-shift" style="max-width:150px">
+            <option value="">ทุกกะ</option>
+            <option value="เช้า">กะเช้า</option>
+            <option value="กลางวัน">กะกลางวัน</option>
+            <option value="เย็น">กะเย็น</option>
+          </select>
+          <button class="btn sm primary" id="btn-pr-print">พิมพ์รายงาน</button>
+          <button class="btn sm" id="btn-pr-csv">ส่งออก CSV</button>
+        </div>
+        <div class="kpis" id="pr-kpis"></div>
+        <h3 class="ui" style="font-size:14px;margin:20px 0 6px">สรุปรายไลน์</h3>
+        <div class="tscroll"><table>
+          <thead><tr><th class="l">ไลน์</th><th>ชั่วโมงเดินเครื่อง</th><th>ผลิตได้ (แพ็ค)</th><th>ควรได้</th>
+            <th>ประสิทธิภาพ</th><th>จำนวนรอบ</th><th>เฉลี่ย/ชม.</th><th class="l">สินค้าที่ทำ</th></tr></thead>
+          <tbody id="pr-line-body"></tbody><tfoot id="pr-line-foot"></tfoot>
+        </table></div>
+        <h3 class="ui" style="font-size:14px;margin:22px 0 6px">แยกตามสินค้า</h3>
+        <div class="tscroll" style="max-height:320px;overflow-y:auto"><table>
+          <thead><tr><th class="l">สินค้า</th><th>ผลิตได้ (แพ็ค)</th><th>พาเลท</th><th>ชั่วโมง</th><th>เฉลี่ย/ชม.</th><th class="l">ไลน์ที่ทำ</th></tr></thead>
+          <tbody id="pr-sku-body"></tbody>
+        </table></div>
+        <h3 class="ui" style="font-size:14px;margin:22px 0 6px">รายวัน</h3>
+        <div class="tscroll" style="max-height:360px;overflow-y:auto"><table>
+          <thead><tr><th class="l">วันที่</th><th class="l">ไลน์</th><th>ผลิตได้</th><th>ชั่วโมง</th><th>ควรได้</th><th>ประสิทธิภาพ</th><th>รอบ</th></tr></thead>
+          <tbody id="pr-day-body"></tbody>
+        </table></div>
+        <h3 class="ui" style="font-size:14px;margin:22px 0 6px">ทุกรอบผลิต <span class="note" id="pr-run-count"></span></h3>
+        <div class="tscroll" style="max-height:420px;overflow-y:auto"><table>
+          <thead><tr><th class="l">วันที่</th><th>เวลา</th><th class="l">ไลน์</th><th class="l">สินค้า</th><th>แพ็ค</th>
+            <th>ชม.</th><th>ประสิทธิภาพ</th><th class="l">กะ</th><th class="l">ผู้บันทึก</th><th class="l">Lot</th></tr></thead>
+          <tbody id="pr-run-body"></tbody>
+        </table></div>
+      </div>
+    </section>
+    </div>
+
+    <div class="repgrp hidden" data-rg="money">
+    <section class="panel" id="exp-panel">
+      <div class="panel-h"><h2>ค่าใช้จ่าย</h2>
+        <span class="sub">ค่าน้ำมัน ค่าซื้อของ เบิกเงินพนักงาน ฯลฯ · พิมพ์รายละเอียดเองได้</span></div>
+      <div class="panel-b">
+        <p class="note hidden" id="exp-locked">ต้องมีสิทธิ์ "บันทึกและแก้ค่าใช้จ่าย" จึงจะใช้ส่วนนี้ได้</p>
+        <div id="exp-ui" class="hidden">
+          <div class="grid2" style="margin-bottom:12px">
+            <div class="field"><label for="ex-date">วันที่</label><input type="date" id="ex-date"></div>
+            <div class="field"><label for="ex-cat">ประเภท</label>
+              <input type="text" id="ex-cat" list="expcats" placeholder="เลือก หรือพิมพ์ใหม่"></div>
+            <div class="field" style="grid-column:span 2"><label for="ex-note">รายละเอียด</label>
+              <input type="text" id="ex-note" placeholder="เช่น เติมน้ำมันรถ 1กก 1234 ให้แบงค์"></div>
+            <div class="field"><label for="ex-amt">จำนวนเงิน (บาท)</label>
+              <input type="number" id="ex-amt" min="0" step="0.01" placeholder="0"></div>
+            <div class="field"><label for="ex-to">จ่ายให้ / ผู้รับเงิน</label>
+              <input type="text" id="ex-to" placeholder="ชื่อคนหรือร้าน"></div>
+            <div class="field"><label for="ex-doc">เลขที่เอกสาร / บิล</label>
+              <input type="text" id="ex-doc" placeholder="ถ้ามี"></div>
+            <div class="field" style="align-self:end"><button class="btn primary" id="btn-exp-add">บันทึกค่าใช้จ่าย</button></div>
+          </div>
+          <datalist id="expcats"></datalist>
+          <div class="row" style="flex-wrap:wrap;gap:16px;margin-bottom:10px" id="exp-sum"></div>
+          <div class="entrylist" id="exp-list"></div>
+        </div>
+      </div>
+    </section>
+    </div>
+
+    <div class="repgrp hidden" data-rg="month">
+    <section class="panel" id="month-panel">
+      <div class="panel-h"><h2>สรุปรายเดือน</h2>
+        <span class="sub">รายรับ ต้นทุน ค่าใช้จ่าย และกำไรสุทธิ ของแต่ละเดือน · กดปุ่มพิมพ์เพื่อเอาไปเสนอ</span></div>
+      <div class="panel-b">
+        <div class="row" style="margin-bottom:12px;flex-wrap:wrap;gap:10px">
+          <button class="btn sm primary" id="btn-month-print">สรุปรายเดือน (พิมพ์)</button>
+          <button class="btn sm" id="btn-month-csv">ส่งออก CSV</button>
+          <span class="note" id="month-note">—</span>
+        </div>
+        <div class="tscroll"><table id="month-table"></table></div>
+      </div>
+    </section>
+    </div>
+
+    <div class="repgrp hidden" data-rg="back">
     <section class="panel" id="back-panel">
       <div class="panel-h"><h2>กรอกยอดขายย้อนหลัง</h2><span class="sub">สำหรับผู้จัดการ · ใส่ยอดของวันที่ผ่านมาเองได้</span></div>
       <div class="panel-b">
-        <div class="note" id="back-locked">ต้องเป็นผู้จัดการถึงจะกรอกยอดย้อนหลังได้</div>
+        <div class="note" id="back-locked">ต้องมีสิทธิ์ "กรอก-แก้ยอดขายย้อนหลัง" จึงจะใช้ส่วนนี้ได้ — ผู้จัดการตั้งให้ได้ที่แท็บตั้งค่า</div>
         <div id="back-ui" class="hidden">
           <div class="note" style="margin-bottom:12px">
             เลือกวันที่ แล้วใส่จำนวนแพ็คที่ขายไปในวันนั้น ระบบจะคิดเงินให้ตามราคาที่ตั้งไว้
@@ -697,31 +940,8 @@ details.fold .panel-b{padding-top:0}
         </div>
       </div>
     </section>
+    </div>
 
-    <section class="panel hidden" id="rep-detail-panel">
-      <div class="panel-h"><h2 id="rep-detail-h">รายละเอียดรายวัน</h2><span class="sub">แยกตามสินค้าและช่องทาง</span></div>
-      <div class="panel-b tscroll"><table id="rep-detail"></table></div>
-    </section>
-
-    <section class="panel">
-      <div class="panel-h"><h2>ทีมขาย (Sales force)</h2><span class="sub">ขายส่งแยกตามคนส่ง · หน้าโรงงานแยกตามคนออกบิล</span></div>
-      <div class="panel-b tscroll">
-        <table>
-          <thead><tr><th class="l">คน</th><th class="l">ช่องทาง</th><th>บิล</th><th>แพ็ค</th><th>เฉลี่ย/บิล</th><th>ลูกค้า</th><th class="l">สัดส่วน</th></tr></thead>
-          <tbody id="rep-force"></tbody>
-        </table>
-      </div>
-    </section>
-
-    <section class="panel">
-      <div class="panel-h"><h2>สินค้าขายดี</h2><span class="sub">ในช่วงที่เลือก</span></div>
-      <div class="panel-b tscroll">
-        <table>
-          <thead><tr><th class="l">สินค้า</th><th>หน้าโรงงาน</th><th>ขายส่ง</th><th>รวม</th><th class="l">สัดส่วน</th></tr></thead>
-          <tbody id="rep-top"></tbody>
-        </table>
-      </div>
-    </section>
   </div>
 
   <!-- ================= PLAN ================= -->
@@ -778,30 +998,21 @@ details.fold .panel-b{padding-top:0}
 
   <!-- ================= SETTINGS ================= -->
   <div id="tab-set" class="hidden">
-    <section class="panel">
-      <div class="panel-h"><h2>ไลน์ผลิตและกำลังผลิต</h2><span class="sub">กำลังผลิตต่อชั่วโมง และจำนวนแพ็คต่อพาเลท</span></div>
-      <div class="panel-b">
-        <div class="tscroll"><table>
-          <thead><tr><th class="l">ขนาด</th><th>ขวด/แพ็ค</th><th>แพ็ค/ชั่วโมง</th><th>แพ็ค/พาเลท</th><th>ได้/วัน ต่อ 1 ไลน์</th></tr></thead>
-          <tbody id="rate-body"></tbody>
-        </table></div>
-        <div class="grid2" style="margin-top:14px">
-          <div class="field"><label for="f-hours">ชั่วโมงทำงานปกติต่อวัน</label><input type="number" id="f-hours" min="1" max="24" step="0.5"></div>
-          <div class="field"><label for="f-ot">ชั่วโมง OT ต่อวัน</label><input type="number" id="f-ot" min="0" max="12" step="0.5"></div>
-          <div class="field"><label for="f-staff">รายชื่อผู้บันทึก</label><input type="text" id="f-staff" readonly tabindex="-1" placeholder="มาจากบัญชีผู้ใช้" style="background:var(--surface-2);color:var(--muted);cursor:default"><span class="note">ชื่อผู้บันทึกมาจากบัญชีที่ล็อกอิน ตั้งที่ "ผู้ใช้และสิทธิ์"</span></div>
-        </div>
-        <div class="tscroll" style="margin-top:14px"><table>
-          <thead><tr><th class="l">ไลน์</th><th class="l">ผลิตขนาดไหนได้บ้าง</th></tr></thead>
-          <tbody id="line-body"></tbody>
-        </table></div>
-        <div class="row" style="margin-top:12px"><button class="btn primary" id="btn-save-config">บันทึกกำลังผลิต</button></div>
-      </div>
-    </section>
+    <div class="setnav" id="set-nav" role="tablist" aria-label="หมวดการตั้งค่า">
+      <button data-sg="cust"  aria-pressed="true">ลูกค้าและราคา</button>
+      <button data-sg="prod"  aria-pressed="false">ไลน์ผลิตและแบรนด์</button>
+      <button data-sg="sku"   aria-pressed="false">สินค้าและบาร์โค้ด</button>
+      <button data-sg="money" aria-pressed="false">ค่าใช้จ่าย</button>
+      <button data-sg="data"  aria-pressed="false">นำเข้า-ส่งออกข้อมูล</button>
+      <button data-sg="sys"   aria-pressed="false" id="sgb-sys">ผู้ใช้และสำรองข้อมูล</button>
+    </div>
+    <p class="note setnav-hint" id="set-hint">—</p>
 
+    <div class="setgrp hidden" data-sg="cust">
     <section class="panel" id="cust-panel">
       <div class="panel-h"><h2>ทะเบียนลูกค้า</h2><span class="sub">ชื่อ ที่อยู่ เบอร์ และราคาที่ตกลงกันไว้</span></div>
       <div class="panel-b">
-        <p class="note hidden" id="cust-locked">ต้องมีสิทธิ์แก้ข้อมูลหลัก จึงจะแก้ทะเบียนลูกค้าได้</p>
+        <p class="note hidden" id="cust-locked">ต้องมีสิทธิ์ "เพิ่ม-แก้ทะเบียนลูกค้า" จึงจะแก้ส่วนนี้ได้</p>
         <div id="cust-ui">
           <h3 class="ui" style="font-size:14px;margin:0 0 8px">เพิ่มลูกค้าใหม่</h3>
           <div class="grid2">
@@ -835,7 +1046,7 @@ details.fold .panel-b{padding-top:0}
     <section class="panel" id="price-panel">
       <div class="panel-h"><h2>ราคาขาย</h2><span class="sub">ราคาหน้าโรงงาน · เรตขายส่งตามจำนวน · โปรโมชั่นตามช่วงวันที่</span></div>
       <div class="panel-b">
-        <p class="note hidden" id="price-locked">ต้องมีสิทธิ์แก้ข้อมูลหลัก จึงจะแก้ราคาได้</p>
+        <p class="note hidden" id="price-locked">ต้องมีสิทธิ์ "ตั้งราคาขาย" จึงจะแก้ส่วนนี้ได้</p>
         <div id="price-ui">
           <h3 class="ui" style="font-size:14px;margin:0 0 4px">เรตขายส่ง ตามจำนวนแพ็คทั้งบิล</h3>
           <p class="note" style="margin:0 0 10px">ลูกค้าสั่งรวมกันได้ถึงขั้นไหน ก็ได้ราคานั้นทุกรายการในบิล</p>
@@ -857,6 +1068,88 @@ details.fold .panel-b{padding-top:0}
             <span class="note" id="price-hint"></span>
           </div>
         </div>
+      </div>
+    </section>
+
+    <section class="panel hidden" id="rate-panel">
+      <div class="panel-h"><h2 id="rate-title">ราคาที่ตกลงกับลูกค้า</h2>
+        <span class="sub">ใส่เฉพาะรายการที่ตกลงราคาไว้ · เว้นว่าง = ใช้เรตปกติ</span></div>
+      <div class="panel-b">
+        <div class="row" style="flex-wrap:wrap;gap:10px;margin-bottom:12px">
+          <input type="text" id="rate-find" placeholder="ค้นหาสินค้า" style="max-width:220px">
+          <button class="btn sm" id="btn-rate-fill">เติมราคาหน้าโรงงานให้ทุกช่องที่ว่าง</button>
+          <button class="btn sm" id="btn-rate-clear">ล้างราคาทั้งหมด</button>
+          <span class="note" id="rate-note">—</span>
+        </div>
+        <div class="tscroll" style="max-height:420px"><table>
+          <thead><tr><th class="l">สินค้า</th><th>ราคาที่ตกลง (บาท/แพ็ค)</th><th>เรตปกติ</th><th>ต่างจากเรต</th></tr></thead>
+          <tbody id="rate-body"></tbody>
+        </table></div>
+        <div class="row" style="margin-top:14px">
+          <button class="btn primary" id="btn-rate-save">บันทึกราคา</button>
+          <button class="btn" id="btn-rate-close">ปิด</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="drv-panel">
+      <div class="panel-h"><h2>พนักงานส่งของ</h2><span class="sub">ใส่ชื่อไว้ครั้งเดียว แล้วเลือกตอนออกบิลขายส่ง</span></div>
+      <div class="panel-b">
+        <p class="note hidden" id="drv-locked">ต้องมีสิทธิ์ "เพิ่ม-แก้ทะเบียนลูกค้า" จึงจะแก้รายชื่อได้</p>
+        <div id="drv-ui" class="hidden">
+          <div class="grid2" style="margin-bottom:12px">
+            <div class="field"><label for="dv-name">ชื่อพนักงานส่ง</label><input type="text" id="dv-name" placeholder="เช่น สมชาย"></div>
+            <div class="field"><label for="dv-phone">เบอร์โทร</label><input type="text" id="dv-phone" placeholder="08x-xxx-xxxx"></div>
+            <div class="field"><label for="dv-plate">ทะเบียนรถประจำ</label><input type="text" id="dv-plate" placeholder="เช่น 1กก 1234"></div>
+            <div class="field" style="align-self:end"><button class="btn primary" id="btn-drv-add">เพิ่มพนักงานส่ง</button></div>
+          </div>
+          <div class="tscroll" style="max-height:320px"><table>
+            <thead><tr><th class="l">ชื่อ</th><th class="l">เบอร์โทร</th><th class="l">ทะเบียนรถประจำ</th><th>ใช้งาน</th><th class="l"></th></tr></thead>
+            <tbody id="drv-body"></tbody>
+          </table></div>
+          <div class="row" style="margin-top:12px">
+            <button class="btn" id="btn-drv-save">บันทึกการแก้ไข</button>
+            <span class="note" id="drv-count">—</span>
+          </div>
+        </div>
+      </div>
+    </section>
+    </div>
+
+    <div class="setgrp hidden" data-sg="prod">
+    <section class="panel" id="line-panel">
+      <div class="panel-h"><h2>ไลน์ผลิตและกำลังผลิต</h2><span class="sub">กำลังผลิตต่อชั่วโมง และจำนวนแพ็คต่อพาเลท</span></div>
+      <div class="panel-b">
+        <div class="tscroll"><table>
+          <thead><tr><th class="l">ขนาด</th><th>ขวด/แพ็ค</th><th>แพ็ค/ชั่วโมง</th><th>แพ็ค/พาเลท</th><th>ได้/วัน ต่อ 1 ไลน์</th></tr></thead>
+          <tbody id="rate-body"></tbody>
+        </table></div>
+        <div class="grid2" style="margin-top:14px">
+          <div class="field"><label for="f-hours">ชั่วโมงทำงานปกติต่อวัน</label><input type="number" id="f-hours" min="1" max="24" step="0.5"></div>
+          <div class="field"><label for="f-ot">ชั่วโมง OT ต่อวัน</label><input type="number" id="f-ot" min="0" max="12" step="0.5"></div>
+          <div class="field"><label for="f-change">เปลี่ยนขนาดขวด เสียเวลา (นาที)</label><input type="number" id="f-change" min="0" max="480" step="5" placeholder="30"></div>
+          <div class="field"><label for="f-staff">รายชื่อผู้บันทึก</label><input type="text" id="f-staff" readonly tabindex="-1" placeholder="มาจากบัญชีผู้ใช้" style="background:var(--surface-2);color:var(--muted);cursor:default"><span class="note">ชื่อผู้บันทึกมาจากบัญชีที่ล็อกอิน ตั้งที่ "ผู้ใช้และสิทธิ์"</span></div>
+        </div>
+        <div class="tscroll" style="margin-top:14px"><table>
+          <thead><tr><th class="l">ไลน์</th><th class="l">ขนาดที่เครื่องรองรับ</th><th class="l">เฉพาะที่ติ๊กเท่านั้น</th></tr></thead>
+          <tbody id="line-body"></tbody>
+        </table></div>
+
+        <h3 class="ui" style="font-size:14px;margin:20px 0 6px">ไลน์ไหนผลิตอะไรได้</h3>
+        <p class="note" style="margin:0 0 10px">
+          ติ๊กไว้ = ไลน์นั้นผลิตสินค้าตัวนั้นได้ · แผนการผลิตและหน้าจอไลน์จะยึดตามตารางนี้
+          · สินค้าที่ไม่มีไลน์ไหนติ๊กเลย จะขึ้นเตือนในแผนผลิต
+        </p>
+        <div class="row" style="margin-bottom:10px;flex-wrap:wrap;gap:8px">
+          <input type="text" id="mk-find" placeholder="ค้นหาสินค้า" style="max-width:220px">
+          <span class="note" id="mk-count">—</span>
+        </div>
+        <div class="tscroll" style="max-height:460px"><table>
+          <thead><tr><th class="l">สินค้า</th><th class="l" id="mk-head"></th></tr></thead>
+          <tbody id="mk-body"></tbody>
+        </table></div>
+
+        <div class="row" style="margin-top:12px"><button class="btn primary" id="btn-save-config">บันทึกกำลังผลิต</button></div>
       </div>
     </section>
 
@@ -899,13 +1192,17 @@ details.fold .panel-b{padding-top:0}
         </div>
       </div>
     </section>
+    </div>
 
-    <section class="panel">
+    <div class="setgrp hidden" data-sg="sku">
+    <section class="panel" id="sku-panel">
       <div class="panel-h"><h2>สินค้า จุดสั่งผลิต และบาร์โค้ด</h2><span class="sub">ใส่บาร์โค้ดแล้ว สแกน 1 ครั้ง = เข้าสต๊อก 1 พาเลท</span></div>
       <div class="panel-b">
         <p class="note hidden" id="set-locked">คุณดูได้อย่างเดียว — ต้องมีสิทธิ์แก้ข้อมูลหลัก จึงจะแก้สินค้าได้</p>
+        <p class="note" style="margin-bottom:10px">เอาเครื่องหมาย <b>ใช้งาน</b> ออก = ซ่อนจากหน้าขายและแผนผลิต แต่ยอดเก่ายังอยู่ครบ
+          · ปุ่ม <b>ลบ</b> ใช้ได้เฉพาะสินค้าที่ยังไม่เคยมีการซื้อขายหรือผลิต</p>
         <div class="tscroll" style="max-height:440px;overflow-y:auto">
-          <table><thead><tr><th class="l">สินค้า</th><th>ขวด/แพ็ค</th><th>ขั้นต่ำ (แพ็ค)</th><th class="l">บาร์โค้ดสินค้า</th><th>ต้นทุน/แพ็ค</th><th>ราคาขาย/แพ็ค</th><th>ใช้งาน</th></tr></thead><tbody id="set-body"></tbody></table>
+          <table><thead><tr><th class="l">สินค้า · ยี่ห้อ · ขนาด</th><th>ขวด/แพ็ค</th><th>ขั้นต่ำ</th><th class="l">บาร์โค้ดสินค้า</th><th>ต้นทุน/แพ็ค</th><th>ราคาขาย/แพ็ค</th><th>ใช้งาน</th><th class="l"></th></tr></thead><tbody id="set-body"></tbody></table>
         </div>
         <div class="row" style="margin-top:12px">
           <button class="btn primary" id="btn-save-master">บันทึกการตั้งค่า</button>
@@ -913,8 +1210,34 @@ details.fold .panel-b{padding-top:0}
         </div>
       </div>
     </section>
+    </div>
 
-    <section class="panel">
+    <div class="setgrp hidden" data-sg="money">
+    <section class="panel" id="expcat-panel">
+      <div class="panel-h"><h2>ประเภทค่าใช้จ่าย</h2>
+        <span class="sub">ตั้งไว้ครั้งเดียว แล้วเลือกตอนบันทึก · เพิ่ม แก้ ลบ ได้เอง</span></div>
+      <div class="panel-b">
+        <p class="note hidden" id="expcat-locked">ต้องมีสิทธิ์ "บันทึกและแก้ค่าใช้จ่าย" จึงจะแก้ได้</p>
+        <div id="expcat-ui" class="hidden">
+          <div class="row" style="flex-wrap:wrap;gap:10px;margin-bottom:12px">
+            <input type="text" id="ec-name" placeholder="ชื่อประเภทใหม่ เช่น ค่าเช่าโกดัง" style="max-width:280px">
+            <button class="btn primary" id="btn-ec-add">เพิ่มประเภท</button>
+            <span class="note" id="ec-count">—</span>
+          </div>
+          <div class="tscroll" style="max-height:300px"><table>
+            <thead><tr><th class="l">ประเภท</th><th>เคยใช้ (รายการ)</th><th class="l"></th></tr></thead>
+            <tbody id="ec-body"></tbody>
+          </table></div>
+          <div class="row" style="margin-top:12px">
+            <button class="btn" id="btn-ec-save">บันทึกการแก้ไข</button>
+          </div>
+        </div>
+      </div>
+    </section>
+    </div>
+
+    <div class="setgrp hidden" data-sg="data">
+    <section class="panel" id="imp-panel">
       <div class="panel-h"><h2>นำเข้ายอดขายจากไฟล์ CSV</h2><span class="sub">บอกระบบว่าคอลัมน์ไหนคืออะไร แล้วกดนำเข้า</span></div>
       <div class="panel-b">
         <div class="grid2">
@@ -937,6 +1260,16 @@ details.fold .panel-b{padding-top:0}
       </div>
     </section>
 
+    <section class="panel" id="expcsv-panel">
+      <div class="panel-h"><h2>ส่งออกข้อมูล</h2><span class="sub">ไฟล์ CSV เปิดด้วย Excel ได้</span></div>
+      <div class="panel-b row">
+        <button class="btn" id="btn-csv-ledger">ส่งออกรายการทั้งหมด (CSV)</button>
+        <button class="btn" id="btn-csv-stock">ส่งออกสต๊อกปัจจุบัน (CSV)</button>
+      </div>
+    </section>
+    </div>
+
+    <div class="setgrp hidden" data-sg="sys">
     <section class="panel hidden" id="users-panel">
       <div class="panel-h"><h2>ผู้ใช้และสิทธิ์</h2><span class="sub">แต่ละคนมีชื่อผู้ใช้และรหัสผ่านของตัวเอง · 1 คนถือได้หลายตำแหน่ง สิทธิ์จะรวมกัน</span></div>
       <div class="panel-b">
@@ -964,14 +1297,6 @@ details.fold .panel-b{padding-top:0}
       </div>
     </section>
 
-    <section class="panel">
-      <div class="panel-h"><h2>ส่งออกข้อมูล</h2><span class="sub">ไฟล์ CSV เปิดด้วย Excel ได้</span></div>
-      <div class="panel-b row">
-        <button class="btn" id="btn-csv-ledger">ส่งออกรายการทั้งหมด (CSV)</button>
-        <button class="btn" id="btn-csv-stock">ส่งออกสต๊อกปัจจุบัน (CSV)</button>
-      </div>
-    </section>
-
     <section class="panel hidden" id="bk-panel">
       <div class="panel-h"><h2>สำรองข้อมูล และ ย้ายระบบ</h2><span class="sub">ไฟล์เดียวจบ มีทุกอย่างรวมทั้งบัญชีผู้ใช้</span></div>
       <div class="panel-b">
@@ -996,6 +1321,8 @@ details.fold .panel-b{padding-top:0}
         </div>
       </div>
     </section>
+    </div>
+
   </div>
 
   <footer class="foot">
@@ -1007,8 +1334,8 @@ details.fold .panel-b{padding-top:0}
 <div class="toast" id="toast"></div>
 <div class="login" id="login">
   <form class="lbox" id="login-form">
-    <div class="lhead"><div class="mark" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2.2c3.1 3.5 5.4 6.4 5.4 9A5.4 5.4 0 0 1 10 16.6 5.4 5.4 0 0 1 4.6 11.2c0-2.6 2.3-5.5 5.4-9Z" fill="#fff" fill-opacity=".95"/></svg></div>
-      <div><h2>คลังและแผนผลิต ฟินร่า</h2><p class="note">บริษัท ดีลักซ์ วอเตอร์ จำกัด</p></div></div>
+    <div class="lhead"><div class="mark" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 100 100" fill="none" role="img" aria-label="Deluxe Water"><path d="M69.8 9.6 L71 9.7 L71.7 10.6 L73 28.2 L73.4 29.6 L75.7 29.8 L81.6 29.4 L83.2 30 L83.3 31.3 L70.6 51.8 L69.3 54.4 L70.4 54.7 L72.2 54.3 L75.3 52.9 L84.3 50.5 L85 51.4 L85 59.3 L97.6 65.7 L98 66.9 L97.5 68.1 L88.5 77.5 L88.4 78.6 L91.3 83.9 L91.5 85.6 L90.8 86.2 L79.4 86.9 L66.4 88.6 L63.5 89.2 L62.8 90.3 L61.7 90.4 L51 90.4 L48.3 89.2 L41.9 84.6 L41.2 85.1 L39.9 90.3 L34.5 90.4 L32.6 90.4 L32 89.7 L35.9 83.6 L36.2 82.8 L35.5 82.2 L13.3 79.4 L13 78.4 L13.4 77.8 L19.4 70.7 L12.6 61.2 L2.5 49.4 L2 48.3 L2.1 47.5 L2.7 46.9 L10.3 44.4 L11.1 31.1 L11.4 30.1 L12.3 29.7 L14.5 30.1 L24.7 34.3 L25.5 34.3 L30.8 28.6 L32.3 28.5 L35.5 33.4 L39.5 40.6 L40.4 41.1 L41.2 39.6 L46.3 15.3 L47.4 14.8 L48.6 15.4 L54 21.1 L55.1 21.8 L66 13.1 Z" fill="#fff"/></svg></div>
+      <div><h2>Deluxe Water Inventory System</h2><p class="note">คลังและแผนผลิต ฟินร่า · บริษัท ดีลักซ์ วอเตอร์ จำกัด</p></div></div>
     <div class="field"><label for="li-u">ชื่อผู้ใช้</label><input type="text" id="li-u" autocomplete="username" autocapitalize="off" required></div>
     <div class="field"><label for="li-p">รหัสผ่าน</label><input type="password" id="li-p" autocomplete="current-password" required></div>
     <label class="note" style="display:flex;gap:7px;align-items:center"><input type="checkbox" id="li-r" checked> จำเครื่องนี้ไว้ 30 วัน</label>
@@ -1044,6 +1371,15 @@ function thShort(iso){var p=iso.split('-');var d=new Date(+p[0],+p[1]-1,+p[2]);r
 function n(x){return (Math.round(x||0)).toLocaleString('th-TH')}
 function n1(x){return (Math.round((x||0)*10)/10).toLocaleString('th-TH',{minimumFractionDigits:0,maximumFractionDigits:1})}
 function baht(x){return (Math.round(x||0)).toLocaleString('th-TH')+' ฿'}
+/* ต้นทุนต่อหน่วยมักเป็นทศนิยม เช่น ขวดละ 2.35 บาท ฝาชิ้นละ 0.18 บาท */
+function n2(x){return (Math.round((x||0)*100)/100).toLocaleString('th-TH',{minimumFractionDigits:0,maximumFractionDigits:2})}
+/* ย่อจำนวนเงินให้สั้นพอใส่บนแกนกราฟ เช่น 1.2 ล้าน */
+function kbaht(v){
+  var a=Math.abs(v);
+  if(a>=1000000)return (v<0?'-':'')+(Math.round(a/100000)/10)+'ล.';
+  if(a>=1000)return (v<0?'-':'')+Math.round(a/1000)+'พ.';
+  return String(Math.round(v));
+}
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
 function sleep(ms){return new Promise(function(r){setTimeout(r,ms)})}
 function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
@@ -1103,10 +1439,22 @@ var STATUS={
 function statChip(k){var s=STATUS[k];return '<span class="stat '+s.cls+'">'+ICON[s.cls]+s.label+'</span>'}
 
 var DEFAULT_CFG={
-  lines:[{id:'L1',name:'ไลน์ 1',sizes:['600']},{id:'L2',name:'ไลน์ 2',sizes:['350','600','1500']},{id:'L3',name:'ไลน์ 3',sizes:['350','600','1500']}],
+  /* strict = ผลิตได้เฉพาะที่ติ๊กไว้เท่านั้น สินค้าใหม่จะไม่ขึ้นเองอัตโนมัติ */
+  lines:[{id:'L1',name:'ไลน์ 1',sizes:['600']},
+         {id:'L2',name:'ไลน์ 2',sizes:['350','600','1500']},
+         {id:'L3',name:'ไลน์ 3',sizes:['600','1500'],strict:true}],
+  /* ข้อยกเว้นรายสินค้า: true = ผลิตได้, false = ผลิตไม่ได้
+     ไม่มีชื่ออยู่ในนี้ = ยึดตามขนาดที่ไลน์นั้นผลิตได้ (และ strict) */
+  lineSkus:{
+    L1:{flw350:false,flw600:false,flw1500:false},
+    L2:{flw350:true,flw600:true,flw1500:true},
+    L3:{fin600:true,fin1500:true,flw600:true,flw1500:true,ppz1500:true}
+  },
   rates:{'350':1125,'600':1125,'1500':900},
   palletPacks:{'350':225,'600':150,'1500':112},
-  hoursPerDay:8, otHours:4, staff:[], coverTarget:5
+  hoursPerDay:8, otHours:4, staff:[], coverTarget:5,
+  /* เปลี่ยนขนาดขวดบนไลน์เดียวกัน เสียเวลาประมาณ 30 นาที */
+  changeMin:30
 };
 
 /* ---------------- state ---------------- */
@@ -1114,7 +1462,8 @@ var S={
   db:null, downloads:null, ready:false, admin:false,
   skus:[], config:JSON.parse(JSON.stringify(DEFAULT_CFG)),
   costs:null, baseline:null, days:{}, lines:{}, materials:[], matBaseline:null,
-  customers:[], prices:{walk:{},tiers:[],skuTiers:{},promos:[]},
+  customers:[], drivers:[], matCosts:null, expCats:[],
+  prices:{walk:{},tiers:[],skuTiers:{},promos:[]},
   win:30, cover:5,
   form:{type:'produce',sku:null},
   tab:'dash', pending:{}, flushT:null, csv:null
@@ -1122,7 +1471,17 @@ var S={
 var clientId = lsGet('finra_cid') || (function(){var v=uid();lsSet('finra_cid',v);return v})();
 
 /* ---------------- sku helpers ---------------- */
-function sizeKey(s){var m=/(\d{3,4})/.exec(s&&s.size||'');return m?m[1]:'600'}
+/* รหัสขนาด — คิดเป็นมิลลิลิตรเสมอ
+   "600 ml" -> 600 · "1500 ml" -> 1500 · "18.9 L" -> 18900 · "1.5 ลิตร" -> 1500
+   ถ้าอ่านไม่ออกให้ถือเป็น 600 เหมือนเดิม                                        */
+function sizeKey(s){
+  var t=String((s&&s.size)||'');
+  var L=/(\d+(?:[.,]\d+)?)\s*(?:L\b|ลิตร|ล\.)/i.exec(t);
+  if(L)return String(Math.round(parseFloat(L[1].replace(',','.'))*1000));
+  var m=/(\d{3,4})/.exec(t);
+  return m?m[1]:'600';
+}
+function sizeText(s){var t=String((s&&s.size)||'').trim();return (!t||t==='-')?'':t}
 function unitOf(s){return (s&&s.unit)||'แพ็ค'}
 function isPack(s){return unitOf(s)==='แพ็ค'}
 function packsPerPallet(s){if(!isPack(s))return 0;return +(S.config.palletPacks||{})[sizeKey(s)]||150}
@@ -1139,16 +1498,158 @@ function skuByBarcode(code){
   return null;
 }
 function linesCfg(){return (S.config.lines&&S.config.lines.length)?S.config.lines:DEFAULT_CFG.lines}
+/* เวลาที่เสียไปตอนเปลี่ยนขนาดขวดบนไลน์เดียวกัน (นาที) */
+function changeMin(){var v=+S.config.changeMin;return (isFinite(v)&&v>=0)?v:30}
+function changeHours(){return changeMin()/60}
 function lineById(id){var L=linesCfg();for(var i=0;i<L.length;i++)if(L[i].id===id)return L[i];return null}
+/* ไลน์นี้ผลิตสินค้าตัวนี้ได้ไหม */
+function lineSkuMap(){ return S.config.lineSkus||{} }
+function canMake(L,sku){
+  if(!L||!sku)return false;
+  if(!isPack(sku))return false;                       /* น้ำถังไม่ได้ผลิตที่ไลน์ */
+  var m=(lineSkuMap()[L.id]||{});
+  if(Object.prototype.hasOwnProperty.call(m,sku.id))return m[sku.id]===true;
+  if(L.strict)return false;                            /* ไลน์ที่ล็อกไว้ ต้องติ๊กเองเท่านั้น */
+  return (L.sizes||[]).indexOf(sizeKey(sku))>=0;
+}
+function linesForSku(sku){ return linesCfg().filter(function(L){return canMake(L,sku)}) }
+function skusForLine(L){ return activeSkus().filter(function(s2){return canMake(L,s2)}) }
 function palletsOf(s,packs){var pp=packsPerPallet(s);if(!pp)return {full:0,rem:0,pp:0};return {full:Math.floor(packs/pp),rem:packs%pp,pp:pp}}
 function palletText(s,packs){var pp=packsPerPallet(s);if(!pp)return '—';var p=palletsOf(s,packs);return p.full+(p.rem?' + '+p.rem:'')}
 
+/* ---------------- ค่าใช้จ่าย ---------------- */
+var EXPCATS_DEFAULT=['ค่าน้ำมัน','ค่าซื้อของ','เบิกเงินพนักงาน','ค่าซ่อมเครื่องจักร',
+                     'ค่าขนส่ง','ค่าน้ำค่าไฟ','ค่าอาหาร','อื่นๆ'];
+function expCats(){
+  var a=(S.expCats||[]).filter(function(c){return String(c||'').trim()});
+  return a.length? a : EXPCATS_DEFAULT;
+}
+function expOf(iso){ return ((S.days[iso]||{}).exp)||[] }
+function expTotalOf(iso){
+  return expOf(iso).reduce(function(t,e){return t+(parseFloat(e.amount)||0)},0);
+}
+/* รวมค่าใช้จ่ายในช่วงวันที่ + แยกตามประเภท */
+function expRange(from,to){
+  var out={total:0,byCat:{},list:[]};
+  sortedDays().forEach(function(d){
+    if(d<from||d>to)return;
+    expOf(d).forEach(function(e){
+      var a=parseFloat(e.amount)||0;
+      out.total+=a;
+      var c=e.cat||'อื่นๆ';
+      out.byCat[c]=(out.byCat[c]||0)+a;
+      out.list.push({date:d,e:e});
+    });
+  });
+  out.list.sort(function(a,b){return a.date<b.date?1:-1});
+  return out;
+}
+
+/* ---------------- ต้นทุนวัตถุดิบ ---------------- */
+/* เก็บเป็น {cost:{matId:ราคา}, per:{matId:'base'|'pack'}}
+   base = ราคาต่อหน่วยนับ (ต่อขวด / ต่อชิ้น / ต่อโล)
+   pack = ราคาต่อหน่วยใหญ่ (ต่อถุง / ต่อกล่อง / ต่อม้วน) */
+function canMatCost(){ return can('mat.cost') }
+function matCostRaw(id){
+  var C=S.matCosts||{};
+  var v=parseFloat((C.cost||{})[id]);
+  return isFinite(v)&&v>0?v:0;
+}
+function matCostMode(id){
+  var C=S.matCosts||{};
+  return ((C.per||{})[id]==='pack')?'pack':'base';
+}
+/* ต้นทุนต่อ 1 หน่วยนับ ไม่ว่าจะกรอกมาแบบไหน */
+function matUnitCost(id){
+  var m=matById(id); if(!m)return 0;
+  var raw=matCostRaw(id); if(raw<=0)return 0;
+  if(matCostMode(id)==='pack'){
+    var per=+m.per||1;
+    return per>0? raw/per : 0;
+  }
+  return raw;
+}
+/* มูลค่าของที่มีอยู่ในคลัง */
+function matStockValue(id){
+  var q=+(matStockMap()[id]||0);
+  return q*matUnitCost(id);
+}
+function matTotalValue(){
+  var t=0; mats().forEach(function(m){ t+=matStockValue(m.id) });
+  return t;
+}
+/* ต้นทุนวัตถุดิบต่อ 1 แพ็คสินค้า (ขวด + ฝา ตามที่ผูกไว้) */
+function skuMatCost(sk){
+  if(!sk||!isPack(sk))return 0;
+  var per=bottlesPerPack(sk), c=0;
+  if(sk.bottleId)c+=matUnitCost(sk.bottleId)*per;
+  if(sk.capId)c+=matUnitCost(sk.capId)*per;
+  return c;
+}
+
 /* ---------------- ตัวช่วยกลาง ---------------- */
-function canMoney(){ return (typeof P==='function') ? !!P('money.view') : !!S.admin }
+function canMoney(){ return can('money.view') }
+/* ใครเป็นคนกดบันทึกรายการนี้ (ผูกกับบัญชีที่ล็อกอิน ปลอมไม่ได้) */
+function loggedBy(e){
+  var who=(e&&(e.uname||e.by))||'';
+  return who? ('ลงโดย '+who) : '';
+}
+/* เวลาที่กดบันทึกจริง (rts) ถ้าไม่มีก็ใช้เวลาของรายการ */
+function loggedAt(e){
+  var t=(e&&(e.rts||e.ts))||'';
+  var d=new Date(t);
+  if(isNaN(d.getTime()))return '';
+  return ('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2);
+}
+/* ชื่อคนที่รายการพูดถึง (คนขับ / คนคุมเครื่อง) — คนละอย่างกับคนลงบันทึก */
+function subjectOf(e){
+  if(!e)return '';
+  if(e.by&&e.uname&&e.by!==e.uname)return e.by;
+  return '';
+}
+function can(perm){ return (typeof P==='function') ? !!P(perm) : !!S.admin }
+/* บันทึกไฟล์: บนเซิร์ฟเวอร์ใช้การดาวน์โหลดของเบราว์เซอร์ ในหน้าตัวอย่างใช้ของระบบ */
+function saveFile(name,data,mime){
+  mime=mime||'text/plain;charset=utf-8';
+  if(typeof FS!=='undefined'&&FS&&FS.download) return FS.download(name,data,mime);
+  if(S.downloads) return S.downloads.save({filename:name,data:data});
+  /* ทางสำรอง: สร้างลิงก์ดาวน์โหลดเอง */
+  try{
+    var b=new Blob([data],{type:mime}), a=document.createElement('a');
+    a.href=URL.createObjectURL(b); a.download=name;
+    document.body.appendChild(a); a.click();
+    setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},2000);
+    return Promise.resolve({status:'saved'});
+  }catch(e){ return Promise.reject(e) }
+}
+/* สั่งพิมพ์เอกสารทันที โดยไม่ต้องดาวน์โหลดก่อน */
+function printDoc(html,label){
+  var old=$('printframe'); if(old)old.remove();
+  var f=document.createElement('iframe');
+  f.id='printframe';
+  f.setAttribute('aria-hidden','true');
+  f.style.cssText='position:fixed;right:0;bottom:0;width:1px;height:1px;opacity:0;border:0;pointer-events:none';
+  document.body.appendChild(f);
+  f.onload=function(){
+    setTimeout(function(){
+      try{ f.contentWindow.focus(); f.contentWindow.print() }
+      catch(e){ toast('เบราว์เซอร์นี้สั่งพิมพ์ไม่ได้ ลองกดดาวน์โหลดแล้วเปิดไฟล์แทน') }
+    },350);
+  };
+  f.srcdoc=html;
+  if(label)toast(label);
+}
 function whoNow(){ return (typeof meName==='function') ? meName() : ((S.me&&S.me.name)||'ไม่ระบุ') }
 
 /* ---------------- ลูกค้าและราคา ---------------- */
 function custList(){ return (S.customers||[]).filter(function(c){return c.active!==false}) }
+function drvList(){ return (S.drivers||[]).filter(function(d){return d.active!==false}) }
+function drvByName(nm){
+  nm=String(nm||'').trim().toLowerCase(); if(!nm)return null;
+  var a=S.drivers||[];
+  for(var i=0;i<a.length;i++)if(String(a[i].name||'').trim().toLowerCase()===nm)return a[i];
+  return null;
+}
 function custById(id){ var a=S.customers||[];for(var i=0;i<a.length;i++)if(a[i].id===id)return a[i];return null }
 function custByName(nm){
   nm=String(nm||'').trim().toLowerCase(); if(!nm)return null;
@@ -1248,6 +1749,26 @@ function dailySeries(days){
   }
   return out;
 }
+/* ประสิทธิภาพรายวัน: ผลิตได้จริง / ที่ควรได้ตามชั่วโมงเดินเครื่อง */
+/* รายรับ รายจ่าย กำไร รายวัน */
+function plSeries(days){
+  var out=[],t=todayISO();
+  for(var i=days-1;i>=0;i--){
+    var iso=addDays(t,-i), d=dayStats(iso);
+    out.push({date:iso,income:d.income,cogs:d.cogs,expense:d.expense,
+              profit:d.profit,sold:d.sold,margin:d.margin});
+  }
+  return out;
+}
+function effSeries(days){
+  var out=[],t=todayISO();
+  for(var i=days-1;i>=0;i--){
+    var iso=addDays(t,-i), d=dayStats(iso);
+    out.push({date:iso,prod:d.prod,theo:d.theo,hours:d.hours,waste:d.waste,
+              eff:(d.theo>0? Math.round(d.prod/d.theo*100) : null)});
+  }
+  return out;
+}
 function avgSales(win){
   var t=todayISO(),map={},total=0,ndays=0;
   S.skus.forEach(function(s){map[s.id]=0});
@@ -1314,8 +1835,22 @@ function runningLines(){
   return out;
 }
 
+/* วันนี้ยังไม่มียอด — บอกไปเลยว่าล่าสุดคือวันไหน กันเข้าใจผิดว่าข้อมูลหาย */
+function lastDayNote(kind){
+  var days=sortedDays().slice().reverse(), t=todayISO();
+  for(var i=0;i<days.length;i++){
+    var d=days[i]; if(d>=t)continue;
+    var st=dayStats(d), v= kind==='sell' ? st.sold : st.prod;
+    if(v>0) return 'แพ็ค · ล่าสุด '+esc(thDate(d))+' <b class="num">'+n(v)+'</b>';
+  }
+  return 'แพ็ค';
+}
+
 /* ---------------- render: dashboard ---------------- */
 function renderDash(){
+  renderForms();
+  drawEffChart();
+  drawPLChart();
   var st=stockMap(),tot=0,tanks=0;
   activeSkus().forEach(function(s){if(isPack(s))tot+=st[s.id]||0;else tanks+=st[s.id]||0});
   var tt=todayTotals(),av=avgSales(30);
@@ -1325,9 +1860,35 @@ function renderDash(){
   $('kpi-prod').textContent=n(tt.prod+tt.live);
   $('kpi-prod-u').textContent= tt.live>0? ('แพ็ค · กำลังผลิตอีก '+n(tt.live)) : 'แพ็ค';
   $('kpi-sell').textContent=n(tt.sell);
+  $('kpi-sell-u').innerHTML= tt.sell>0 ? 'แพ็ค' : lastDayNote('sell');
+  if(tt.prod+tt.live<=0)$('kpi-prod-u').innerHTML=lastDayNote('prod');
   $('kpi-avg').textContent=n1(av.total);
   var avn=$('avg-days');if(avn)avn.textContent=av.days?('จาก '+av.days+' วันทำการ'):'ยังไม่มีข้อมูลขาย';
   $('kpi-urgent').textContent=n(urgent.length);
+  /* ค่าใช้จ่ายและกำไรสุทธิ 30 วันล่าสุด — เฉพาะคนที่ดูเงินได้ */
+  (function(){
+    var showMoney=canMoney();
+    var ec=$('kpi-exp-card'), pc=$('kpi-profit-card');
+    if(!ec||!pc)return;
+    if(!showMoney){ec.classList.add('hidden');pc.classList.add('hidden');return}
+    var t=todayISO(), from=addDays(t,-29);
+    var inc=0,cogs=0,exp=0,prof=0,nd=0;
+    sortedDays().forEach(function(iso){
+      if(iso<from||iso>t)return;
+      var d=dayStats(iso);
+      if(!d.income&&!d.expense&&!d.cogs)return;
+      inc+=d.income;cogs+=d.cogs;exp+=d.expense;prof+=d.profit;nd++;
+    });
+    if(!nd){ec.classList.add('hidden');pc.classList.add('hidden');return}
+    ec.classList.remove('hidden'); pc.classList.remove('hidden');
+    $('kpi-exp').textContent=n(exp+cogs);
+    $('kpi-exp-u').innerHTML='บาท · ค่าใช้จ่าย '+n(exp)+' + ค่าขวดฝา '+n(cogs);
+    $('kpi-profit').textContent=n(prof);
+    $('kpi-profit').style.color= prof<0? 'var(--crit)' : '';
+    $('kpi-profit-u').innerHTML= inc>0
+      ? ('บาท · '+Math.round(prof/inc*100)+'% ของรายรับ '+n(inc))
+      : 'บาท';
+  })();
   var badge=$('tab-badge'),crit=rs.filter(function(r){return r.status==='crit'}).length;
   if(crit>0){badge.textContent=crit;badge.classList.remove('hidden')}else{badge.classList.add('hidden')}
   var rb=$('tab-run'),run=runningLines().length;
@@ -1426,6 +1987,198 @@ function drawChart(){
   svg.innerHTML=s;
   chartPts=data.map(function(d,i){return {x:x(i),y:y(d.qty),date:d.date,qty:d.qty}});
 }
+var plPts=[];
+function drawPLChart(){
+  var svg=$('plchart'); if(!svg)return;
+  var panel=$('pl-panel');
+  if(!canMoney()){ panel.classList.add('hidden'); return }
+  var W=760,H=230,L=76,R=16,T=18,B=30;
+  var data=plSeries(30);
+  var has=data.filter(function(d){return d.income||d.expense||d.cogs});
+  if(!has.length){ panel.classList.add('hidden'); return }
+  panel.classList.remove('hidden');
+  var iw=W-L-R, ih=H-T-B;
+  var x=function(i){return L+(data.length<2?iw/2:i*iw/(data.length-1))};
+  var hi=0,lo=0;
+  data.forEach(function(d){
+    var out=d.cogs+d.expense;
+    if(d.income>hi)hi=d.income; if(out>hi)hi=out;
+    if(d.profit>hi)hi=d.profit; if(d.profit<lo)lo=d.profit;
+  });
+  var span=(hi-lo)||1, top=hi+span*0.12, bot=lo-(lo<0?span*0.12:0);
+  var y=function(v){return T+ih-((v-bot)/((top-bot)||1))*ih};
+  var s='';
+  for(var g=0;g<=3;g++){
+    var v=bot+(top-bot)*g/3, yy=y(v);
+    s+='<line x1="'+L+'" y1="'+yy.toFixed(1)+'" x2="'+(W-R)+'" y2="'+yy.toFixed(1)+'" stroke="var(--grid)" stroke-width="1"/>'+
+       '<text x="'+(L-8)+'" y="'+(yy+4).toFixed(1)+'" text-anchor="end" font-family="var(--f-num)" font-size="11" fill="var(--muted)">'+kbaht(v)+'</text>';
+  }
+  /* เส้นศูนย์ ถ้ามีวันที่ขาดทุน */
+  if(bot<0)s+='<line x1="'+L+'" y1="'+y(0).toFixed(1)+'" x2="'+(W-R)+'" y2="'+y(0).toFixed(1)+
+    '" stroke="var(--axis)" stroke-width="1.5"/>';
+  /* แท่งคู่: รายรับ กับ รายจ่ายรวม (ต้นทุน+ค่าใช้จ่าย) */
+  var bw=Math.max(3,Math.min(9,iw/data.length*0.3));
+  data.forEach(function(d,i){
+    var out=d.cogs+d.expense;
+    if(d.income>0){
+      var yi=y(d.income), h0=y(Math.max(0,bot))-yi;
+      s+='<rect x="'+(x(i)-bw-1).toFixed(1)+'" y="'+yi.toFixed(1)+'" width="'+bw.toFixed(1)+
+         '" height="'+Math.max(1,h0).toFixed(1)+'" rx="1.5" fill="var(--good)" fill-opacity=".8"/>';
+    }
+    if(out>0){
+      var yo=y(out), h1=y(Math.max(0,bot))-yo;
+      s+='<rect x="'+(x(i)+1).toFixed(1)+'" y="'+yo.toFixed(1)+'" width="'+bw.toFixed(1)+
+         '" height="'+Math.max(1,h1).toFixed(1)+'" rx="1.5" fill="var(--crit)" fill-opacity=".7"/>';
+    }
+  });
+  /* เส้นกำไรสุทธิ */
+  var line='',any=false;
+  data.forEach(function(d,i){
+    if(!d.income&&!d.expense&&!d.cogs)return;
+    line+=(any?'L':'M')+x(i).toFixed(1)+' '+y(d.profit).toFixed(1)+' '; any=true;
+  });
+  if(any)s+='<path d="'+line+'" fill="none" stroke="var(--accent)" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>';
+  data.forEach(function(d,i){
+    var last=(i===data.length-1);
+    if(i%6!==1&&!last)return;
+    s+='<text x="'+x(i).toFixed(1)+'" y="'+(H-9)+'" text-anchor="'+(last?'end':'middle')+
+       '" font-family="var(--f-num)" font-size="11.5" fill="var(--muted)">'+thShort(d.date)+'</text>';
+  });
+  s+='<line id="plcross" x1="0" y1="'+T+'" x2="0" y2="'+(T+ih)+'" stroke="var(--accent)" stroke-width="1" stroke-dasharray="3 3" opacity="0"/>';
+  svg.innerHTML=s;
+  plPts=data.map(function(d,i){return {x:x(i),y:y(d.profit),d:d}});
+
+  var ti=0,tc=0,te=0,tp=0;
+  data.forEach(function(d){ti+=d.income;tc+=d.cogs;te+=d.expense;tp+=d.profit});
+  var mg= ti>0? Math.round(tp/ti*100) : null;
+  $('pl-sum').innerHTML= 'กำไรสุทธิ <b style="color:'+(tp<0?'var(--crit)':'var(--good)')+'">'+baht(tp)+'</b>'+
+    (mg!==null?(' · '+mg+'% ของรายรับ'):'');
+  $('pl-legend').innerHTML=
+    '<span class="note"><b class="ui" style="color:var(--good)">▉</b> รายรับ <b class="num">'+baht(ti)+'</b></span>'+
+    '<span class="note"><b class="ui" style="color:var(--crit)">▉</b> รายจ่ายรวม <b class="num">'+baht(tc+te)+'</b> '+
+      '<span style="color:var(--muted)">(ค่าขวดฝา '+baht(tc)+' · ค่าใช้จ่าย '+baht(te)+')</span></span>'+
+    '<span class="note"><b class="ui" style="color:var(--accent)">━</b> กำไรสุทธิ <b class="num">'+baht(tp)+'</b></span>'+
+    '<span class="note" style="color:var(--muted)">ยังไม่รวมค่าแรงและค่าไฟ ถ้าไม่ได้ลงเป็นค่าใช้จ่าย</span>';
+}
+(function bindPLChart(){
+  var box=$('plbox'); if(!box)return;
+  var svg=$('plchart'),tip=$('pltip');
+  function move(ev){
+    if(!plPts.length)return;
+    var r=svg.getBoundingClientRect(),sx=(ev.clientX-r.left)*760/r.width;
+    var best=0,bd=1e9;
+    plPts.forEach(function(p,i){var d=Math.abs(p.x-sx);if(d<bd){bd=d;best=i}});
+    var p=plPts[best],sc=r.width/760,d=p.d;
+    var c=svg.querySelector('#plcross');
+    if(c){c.setAttribute('x1',p.x);c.setAttribute('x2',p.x);c.setAttribute('opacity','1')}
+    tip.innerHTML='<div class="note">'+thDate(d.date)+'</div>'+
+      '<div class="big" style="color:'+(d.profit<0?'var(--crit)':'var(--good)')+'">'+baht(d.profit)+'</div>'+
+      '<div class="note">รับ '+baht(d.income)+' · ขวดฝา '+baht(d.cogs)+' · ค่าใช้จ่าย '+baht(d.expense)+'</div>';
+    tip.classList.add('on');
+    var tw=tip.offsetWidth,left=p.x*sc-tw/2;
+    left=Math.max(2,Math.min(r.width-tw-2,left));
+    tip.style.left=left+'px'; tip.style.top=Math.max(0,p.y*sc-62)+'px';
+  }
+  box.addEventListener('pointermove',move);
+  box.addEventListener('pointerleave',function(){
+    tip.classList.remove('on');
+    var c=svg.querySelector('#plcross'); if(c)c.setAttribute('opacity','0');
+  });
+})();
+
+var effPts=[];
+function drawEffChart(){
+  var svg=$('effchart'); if(!svg)return;
+  var W=760,H=210,L=52,R=16,T=18,B=30;
+  var data=effSeries(30);
+  var has=data.filter(function(d){return d.eff!==null});
+  var iw=W-L-R, ih=H-T-B;
+  var x=function(i){return L+(data.length<2?iw/2:i*iw/(data.length-1))};
+  var top=120;
+  data.forEach(function(d){ if(d.eff!==null&&d.eff>top-10)top=Math.ceil((d.eff+10)/20)*20 });
+  var y=function(v){return T+ih-(Math.max(0,Math.min(top,v))/top)*ih};
+  var s='';
+  /* เส้นกริดทุก 25% */
+  for(var g=0;g<=top;g+=(top>150?50:25)){
+    var yy=y(g);
+    s+='<line x1="'+L+'" y1="'+yy.toFixed(1)+'" x2="'+(W-R)+'" y2="'+yy.toFixed(1)+
+       '" stroke="var(--grid)" stroke-width="1"/>'+
+       '<text x="'+(L-8)+'" y="'+(yy+4).toFixed(1)+'" text-anchor="end" font-family="var(--f-num)" font-size="11.5" fill="var(--muted)">'+g+'%</text>';
+  }
+  /* เส้น 100% = ได้ตามเป้า */
+  s+='<line x1="'+L+'" y1="'+y(100).toFixed(1)+'" x2="'+(W-R)+'" y2="'+y(100).toFixed(1)+
+     '" stroke="var(--good)" stroke-width="1.5" stroke-dasharray="5 4" opacity=".8"/>';
+  if(!has.length){
+    s+='<text x="'+(W/2)+'" y="'+(T+ih/2)+'" text-anchor="middle" font-family="var(--f-ui)" font-size="13" fill="var(--muted)">'+
+       'ยังไม่มีรอบผลิตที่บันทึกชั่วโมงเดินเครื่อง</text>';
+    svg.innerHTML=s; effPts=[];
+    $('eff-avg').textContent='—';
+    $('eff-legend').innerHTML='<span class="note">เริ่มรอบผลิตที่แท็บไลน์ผลิต ระบบจะจับชั่วโมงเดินเครื่องให้เอง แล้วกราฟนี้จะมีข้อมูล</span>';
+    return;
+  }
+  /* แท่งของแต่ละวัน */
+  var bw=Math.max(6,Math.min(18,iw/data.length*0.62));
+  data.forEach(function(d,i){
+    if(d.eff===null)return;
+    var col= d.eff>=95?'var(--good)' : (d.eff>=80?'var(--warn)':'var(--crit)');
+    var yy=y(d.eff), h0=y(0)-yy;
+    s+='<rect x="'+(x(i)-bw/2).toFixed(1)+'" y="'+yy.toFixed(1)+'" width="'+bw.toFixed(1)+
+       '" height="'+Math.max(1,h0).toFixed(1)+'" rx="2" fill="'+col+'" fill-opacity=".85"/>';
+  });
+  s+='<line x1="'+L+'" y1="'+y(0).toFixed(1)+'" x2="'+(W-R)+'" y2="'+y(0).toFixed(1)+'" stroke="var(--axis)" stroke-width="1"/>';
+  data.forEach(function(d,i){
+    var last=(i===data.length-1);
+    if(i%6!==1&&!last)return;
+    s+='<text x="'+x(i).toFixed(1)+'" y="'+(H-9)+'" text-anchor="'+(last?'end':'middle')+
+       '" font-family="var(--f-num)" font-size="11.5" fill="var(--muted)">'+thShort(d.date)+'</text>';
+  });
+  s+='<line id="effcross" x1="0" y1="'+T+'" x2="0" y2="'+(T+ih)+'" stroke="var(--accent)" stroke-width="1" stroke-dasharray="3 3" opacity="0"/>';
+  svg.innerHTML=s;
+  effPts=data.map(function(d,i){return {x:x(i),y:(d.eff===null?y(0):y(d.eff)),d:d}});
+
+  var sumP=0,sumT=0,wd=0;
+  has.forEach(function(d){sumP+=d.prod;sumT+=d.theo;wd++});
+  var avg= sumT>0? Math.round(sumP/sumT*100) : null;
+  $('eff-avg').textContent= avg!==null? (avg+'% จาก '+n(wd)+' วันที่เดินเครื่อง') : '—';
+  var good=has.filter(function(d){return d.eff>=95}).length;
+  var mid=has.filter(function(d){return d.eff>=80&&d.eff<95}).length;
+  var bad=has.filter(function(d){return d.eff<80}).length;
+  var hrs=0,pr=0,ws=0;
+  has.forEach(function(d){hrs+=d.hours;pr+=d.prod;ws+=d.waste});
+  $('eff-legend').innerHTML=
+    '<span class="note"><b class="ui" style="color:var(--good)">▉</b> ได้ตามเป้า (95%+) <b class="num">'+n(good)+'</b> วัน</span>'+
+    '<span class="note"><b class="ui" style="color:var(--warn)">▉</b> ต่ำกว่าเป้า (80-94%) <b class="num">'+n(mid)+'</b> วัน</span>'+
+    '<span class="note"><b class="ui" style="color:var(--crit)">▉</b> ต่ำมาก (ต่ำกว่า 80%) <b class="num">'+n(bad)+'</b> วัน</span>'+
+    '<span class="note">เดินเครื่องรวม <b class="num">'+n1(hrs)+'</b> ชม. · ผลิตได้ <b class="num">'+n(pr)+'</b> แพ็ค'+
+    (ws>0?(' · ของเสีย <b class="num">'+n(ws)+'</b> แพ็ค'):'')+'</span>';
+}
+(function bindEffChart(){
+  var box=$('effbox'); if(!box)return;
+  var svg=$('effchart'),tip=$('efftip');
+  function move(ev){
+    if(!effPts.length)return;
+    var r=svg.getBoundingClientRect(),sx=(ev.clientX-r.left)*760/r.width;
+    var best=0,bd=1e9;
+    effPts.forEach(function(p,i){var d=Math.abs(p.x-sx);if(d<bd){bd=d;best=i}});
+    var p=effPts[best],sc=r.width/760,d=p.d;
+    var c=svg.querySelector('#effcross');
+    if(c){c.setAttribute('x1',p.x);c.setAttribute('x2',p.x);c.setAttribute('opacity','1')}
+    tip.innerHTML='<div class="note">'+thDate(d.date)+'</div>'+
+      (d.eff===null? '<div class="big">ไม่ได้เดินเครื่อง</div>'
+        : '<div class="big">'+d.eff+'%</div><div class="note">ผลิตได้ '+n(d.prod)+
+          ' จากที่ควรได้ '+n(Math.round(d.theo))+' แพ็ค · '+n1(d.hours)+' ชม.'+
+          (d.waste>0?(' · ของเสีย '+n(d.waste)):'')+'</div>');
+    tip.classList.add('on');
+    var tw=tip.offsetWidth,left=p.x*sc-tw/2;
+    left=Math.max(2,Math.min(r.width-tw-2,left));
+    tip.style.left=left+'px'; tip.style.top=Math.max(0,p.y*sc-56)+'px';
+  }
+  box.addEventListener('pointermove',move);
+  box.addEventListener('pointerleave',function(){
+    tip.classList.remove('on');
+    var c=svg.querySelector('#effcross'); if(c)c.setAttribute('opacity','0');
+  });
+})();
 (function bindChart(){
   var box=$('chartbox'),svg=$('chart'),tip=$('tip');
   function move(ev){
@@ -1451,8 +2204,19 @@ function drawChart(){
   });
 })();
 
+/* สรุปสั้นๆ ว่าไลน์นี้ผลิตอะไรได้ ไว้โชว์บนหัวการ์ด */
+function lineMakesText(L){
+  var mk=skusForLine(L);
+  if(!mk.length)return 'ยังไม่ได้ตั้ง';
+  var br={},order=[];
+  mk.forEach(function(s2){ if(!br[s2.brand]){br[s2.brand]=[];order.push(s2.brand)} br[s2.brand].push(sizeKey(s2)) });
+  if(order.length>3)return order.length+' ยี่ห้อ · '+mk.length+' รายการ';
+  return order.map(function(b){return b+' '+br[b].join('/')}).join(' · ');
+}
+
 /* ---------------- LINE STATION ---------------- */
 function renderLines(){
+  fillLabelLines();
   var host=$('lines'),cfg=linesCfg();
   var sig=cfg.map(function(L){return L.id+L.sizes.join('')}).join('|')+'|'+S.skus.length;
   if(host.dataset.sig!==sig){host.dataset.sig=sig;host.innerHTML='';
@@ -1470,7 +2234,7 @@ function renderLines(){
     var theo=s?rateOf(s):0;
     var pal=s?palletsOf(s,packs):{full:0,rem:0,pp:0};
     c.classList.toggle('running',running);
-    var h='<div class="lh"><h3>'+esc(L.name)+'</h3><span class="sizes">'+L.sizes.join(' / ')+' ml</span>'+
+    var h='<div class="lh"><h3>'+esc(L.name)+'</h3><span class="sizes">'+esc(lineMakesText(L))+'</span>'+
       '<span class="pill '+(running?'on':'')+'">'+(running?'<i></i>กำลังผลิต':'หยุด')+'</span></div>';
     if(running&&s){
       var pct=theo>0?Math.min(100,Math.round(rate/theo*100)):0;
@@ -1498,10 +2262,17 @@ function renderLines(){
     c.innerHTML=h;
     if(!running){
       var sel=c.querySelector('[data-sel="sku"]');
-      activeSkus().filter(function(s2){return L.sizes.indexOf(sizeKey(s2))>=0}).forEach(function(s2){
-        var o=el('option',null,s2.brand+' '+s2.size);o.value=s2.id;sel.appendChild(o);
-      });
-      if(st.skuId)sel.value=st.skuId;
+      var mk=skusForLine(L);
+      if(!mk.length){
+        var o0=el('option',null,'— ยังไม่ได้ตั้งว่าไลน์นี้ผลิตอะไรได้ —');o0.value='';sel.appendChild(o0);
+        sel.disabled=true;
+        var sb=c.querySelector('[data-act="start"]'); if(sb)sb.disabled=true;
+      }else{
+        mk.forEach(function(s2){
+          var o=el('option',null,s2.brand+' '+s2.size);o.value=s2.id;sel.appendChild(o);
+        });
+        if(st.skuId&&mk.some(function(x){return x.id===st.skuId}))sel.value=st.skuId;
+      }
       var op=c.querySelector('[data-sel="op"]');
       if(op)op.value=meName();
     }
@@ -1520,7 +2291,8 @@ function renderRunList(){
   runs.slice().reverse().forEach(function(e){
     var s=skuById(e.skuId), pal=s?palletsOf(s,e.qty):null;
     var row=el('div','entry');
-    row.innerHTML='<span class="tag" style="background:var(--accent-soft);color:var(--accent)">'+esc(e.line)+'</span>'+
+    row.innerHTML='<span class="when">'+esc(loggedAt(e))+'</span>'+
+      '<span class="tag" style="background:var(--accent-soft);color:var(--accent)">'+esc(e.line)+'</span>'+
       '<span class="nm"><b>'+(s?esc(s.brand)+' '+esc(s.size):esc(e.skuId))+'</b></span>'+
       '<span class="meta">'+esc(e.by||'')+(e.hours?' · '+n1(e.hours)+' ชม.':'')+
         (pal&&pal.pp?(' · '+pal.full+' พาเลท'+(pal.rem?'+'+pal.rem:'')):'')+'</span>'+
@@ -1585,7 +2357,7 @@ async function stopRun(id){
   S.pending[id]=0;
   if(S.flushT){clearTimeout(S.flushT);S.flushT=null}
   var s=skuById(st.skuId);
-  if(packs<=0){ if(!await askConfirm('รอบนี้ยังไม่มีจำนวน จะยกเลิกรอบผลิตใช่หรือไม่?','ยกเลิกรอบ'))return; }
+  if(packs<=0){ if(!await askConfirm('รอบนี้ยังไม่มีจำนวน จะยกเลิกรอบผลิตใช่ไหม?','ยกเลิกรอบ'))return; }
   var hours=st.startedAt?Math.max(0,(Date.now()-new Date(st.startedAt).getTime())/3600000):0;
   if(packs>0){
     var iso=todayISO();
@@ -1721,15 +2493,31 @@ function labelOpts(){
     lot:($('lbl-lot').value||'').trim(),
     auto:auto,
     start:Math.max(1,parseInt($('lbl-start').value,10)||1),
-    count:Math.max(1,Math.min(200,parseInt($('lbl-n').value,10)||10))
+    count:Math.max(1,Math.min(200,parseInt($('lbl-n').value,10)||10)),
+    stamp:printStamp(),
+    line:($('lbl-line')&&$('lbl-line').value)||'',
+    time:($('lbl-time')&&$('lbl-time').value==='now')?nowHHMM():''
   };
 }
 function labelCode(sku,packs,lot){ return 'DWP-'+sku.id+'-'+packs+(lot?('-'+lot):''); }
+/* วันเวลาที่กดพิมพ์ ใช้ตอนตามย้อนหลังว่าป้ายชุดนี้ออกเมื่อไหร่ */
+function nowHHMM(){
+  var d=new Date();
+  return ('0'+d.getHours()).slice(-2)+'.'+('0'+d.getMinutes()).slice(-2)+' น.';
+}
+function printStamp(){
+  var d=new Date();
+  return thDate(d.toISOString().slice(0,10))+' '+
+         ('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2)+' น.';
+}
 function oneLabel(o,i){
   var s=o.sku, L=o.L, pp=packsPerPallet(s), bottles=pp*bottlesPerPack(s);
   var no = o.auto? String(o.start+i) : '';
   var code=labelCode(s,pp,o.lot);
-  var boxes=linesCfg().map(function(x){return '<span class="box"></span>'+x.id.replace('L','')}).join('');
+  var boxes=linesCfg().map(function(x){
+    var on=(o.line===x.id);
+    return '<span class="box'+(on?' on':'')+'">'+(on?'&#10003;':'')+'</span>'+x.id.replace('L','');
+  }).join('');
   var head='<div class="hd"><div class="ttl"><span class="bg">'+esc((s.brand||'').toUpperCase())+'</span>'+
     '<span class="sz">'+esc(String(s.size).replace(/\s*ml/i,''))+' มล.</span></div>'+
     '<img class="logo" src="'+DW_LOGO+'" alt="Deluxe Water"></div>';
@@ -1737,15 +2525,17 @@ function oneLabel(o,i){
   if(o.mode==='duo'){
     return '<div class="lab">'+head+
       '<div class="r"><span><b>LOT:</b> '+(o.lot?'<span class="v">'+esc(o.lot)+'</span>':'<span class="rule"></span>')+'</span>'+
+        (o.time?('<span><b>เวลา:</b> <span class="v">'+esc(o.time)+'</span></span>'):'')+
         '<span class="palwrap"><b>พาเลทที่</b> '+palletBox+'</span></div>'+
       '<div class="r"><span><b>จำนวน:</b> <span class="v">'+n(pp)+'</span> แพ็ค <span class="sm">('+n(bottles)+' ขวด)</span></span>'+
         '<span><b>ไลน์</b> '+boxes+'</span></div>'+
       '<div class="bc">'+labelSvg(code,{h:L.bch*3,mw:2,fs:L.bfs*3})+'</div>'+
       '<div class="r ft"><span><b>ผู้ทำ</b> <span class="rule"></span></span>'+
-        '<span><b>ผู้ตรวจสอบ</b> <span class="rule"></span></span></div></div>';
+        '<span><b>ผู้ตรวจสอบ</b> <span class="rule"></span></span></div>'+
+      '<div class="stamp">พิมพ์ '+esc(o.stamp)+'</div></div>';
   }
   var lot='<span><b>LOT:</b> '+(o.lot?'<span class="v">'+esc(o.lot)+'</span>':'<span class="rule"></span>')+'</span>';
-  var tm='<span><b>เวลา:</b> <span class="rule"></span></span>';
+  var tm='<span><b>เวลา:</b> '+(o.time?('<span class="v">'+esc(o.time)+'</span>'):'<span class="rule"></span>')+'</span>';
   var qty='<span><b>จำนวน:</b> <span class="v">'+n(pp)+'</span> แพ็ค <span class="sm">('+n(bottles)+' ขวด)</span></span>';
   var ln='<span><b>ไลน์ผลิต</b> '+boxes+'</span>';
   var pal='<span class="palwrap"><b>พาเลทที่</b> '+palletBox+'</span>';
@@ -1758,7 +2548,7 @@ function oneLabel(o,i){
     : '<div class="r">'+lot+tm+'</div><div class="r">'+qty+ln+'</div>'+
       '<div class="bc">'+labelSvg(code,{h:L.bch*3,mw:2,fs:L.bfs*3})+'</div>'+
       '<div class="r">'+pal+mk+'</div><div class="r ft">'+ck+'</div>';
-  return '<div class="lab">'+head+body+'</div>';
+  return '<div class="lab">'+head+body+'<div class="stamp">พิมพ์ '+esc(o.stamp)+'</div></div>';
 }
 function labelCss(o){
   var L=o.L, duo=(o.mode==='duo');
@@ -1782,18 +2572,21 @@ function labelCss(o){
   '.v{font-size:'+(L.big*0.82).toFixed(2)+'mm;font-weight:700}'+
   '.sm{font-size:'+(L.base*0.88).toFixed(2)+'mm}'+
   '.box{display:inline-block;width:'+(duo?'3mm':'3.6mm')+';height:'+(duo?'3mm':'3.6mm')+';'+
-    'border:0.35mm solid #000;vertical-align:-0.5mm;margin:0 0.5mm 0 1mm}'+
+    'border:0.35mm solid #000;vertical-align:-0.5mm;margin:0 0.5mm 0 1mm;'+
+    'text-align:center;line-height:'+(duo?'2.8mm':'3.4mm')+';font-size:'+(duo?'2.6mm':'3.2mm')+'}'+
+  '.box.on{background:#000;color:#fff;font-weight:700}'+
   '.palwrap{display:flex;align-items:center;gap:1mm}'+
   '.pal{display:inline-block;min-width:'+L.pal+'mm;height:'+(duo?'5.4mm':'7mm')+';'+
     'border:0.4mm solid #000;border-radius:0.6mm;text-align:center;'+
     'font-size:'+(L.big*0.8).toFixed(2)+'mm;font-weight:700;line-height:'+(duo?'5.4mm':'7mm')+'}'+
   '.rule{display:inline-block;border-bottom:0.3mm solid #000;min-width:'+L.rule+'mm;vertical-align:-0.7mm}'+
+  '.stamp{font-size:'+(L.base*0.72).toFixed(2)+'mm;color:#444;text-align:end;margin-top:0.6mm;white-space:nowrap}'+
   '.bc{text-align:center}'+
   '.bc svg{width:100%;max-width:'+L.bcw+'mm;height:auto}'+
   '@media screen{body{background:#e9edee;padding:6mm 0}'+
     '.sheet{margin:0 auto 5mm;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.2)}}';
 }
-function labelDoc(o){
+function labelDoc(o,noAuto){
   var per=o.L.per, html='', i=0;
   while(i<o.count){
     html+='<div class="sheet">';
@@ -1803,7 +2596,7 @@ function labelDoc(o){
   return '<!doctype html><html lang="th"><head><meta charset="utf-8">'+
     '<title>ป้ายพาเลท '+esc(o.sku.brand)+' '+esc(o.sku.size)+'</title>'+
     '<style>'+labelCss(o)+'</style></head><body>'+html+
-    '<script>window.onload=function(){setTimeout(function(){window.print()},500)}<\/script>'+
+    (noAuto?'':'<script>window.onload=function(){setTimeout(function(){window.print()},500)}<\/script>')+
     '</body></html>';
 }
 $('btn-lbl-prev').onclick=function(){
@@ -1827,15 +2620,33 @@ function lblNote(o){
     (o.L.per>1?(' (ประหยัด '+(o.count-sheets)+' แผ่น)'):'')+
     ' · สแกน 1 ครั้งเข้าสต๊อก '+n(packsPerPallet(o.sku))+' แพ็คเข้าสต๊อก';
 }
+$('btn-lbl-print').onclick=function(){
+  var o=labelOpts();if(!o.sku){toast('เลือกสินค้าก่อน');return}
+  printDoc(labelDoc(o,true),
+    'กำลังเปิดหน้าต่างพิมพ์ · '+o.count+' ดวง ('+Math.ceil(o.count/o.L.per)+' แผ่น)');
+};
 $('btn-lbl-dl').onclick=async function(){
   var o=labelOpts();if(!o.sku){toast('เลือกสินค้าก่อน');return}
-  if(!S.downloads){toast('หน้านี้ดาวน์โหลดไฟล์ไม่ได้');return}
+  var nm='ป้ายพาเลท-'+o.sku.brand+'-'+String(o.sku.size).replace(/\s/g,'')+
+         (o.lot?('-LOT'+o.lot):'')+'.html';
   try{
-    await FS.download('pallet-'+o.sku.id+(o.lot?('-'+o.lot):'')+'.html',labelDoc(o),'text/html;charset=utf-8');
-    toast('บันทึกไฟล์แล้ว '+o.count+' ดวง ('+Math.ceil(o.count/o.L.per)+' แผ่น) — เปิดไฟล์แล้วสั่งพิมพ์');
-  }catch(e){toast(e&&e.code==='user_declined'?'ยกเลิกการบันทึก':'บันทึกไฟล์ไม่สำเร็จ')}
+    await saveFile(nm,labelDoc(o),'text/html;charset=utf-8');
+    toast('ดาวน์โหลดแล้ว '+o.count+' ดวง — เปิดไฟล์แล้วกด Ctrl+P เพื่อพิมพ์');
+  }catch(e){toast(e&&e.code==='user_declined'?'ยกเลิกการบันทึก':'ดาวน์โหลดไม่สำเร็จ')}
 };
-['lbl-sku','lbl-mode','lbl-lot','lbl-seq','lbl-start','lbl-n'].forEach(function(id){
+function fillLabelLines(){
+  var sel=$('lbl-line'); if(!sel)return;
+  var cfg=linesCfg(), sig=cfg.map(function(L){return L.id+L.name}).join(',');
+  if(sel.dataset.sig===sig)return;
+  var cur=sel.value;
+  sel.dataset.sig=sig;
+  sel.innerHTML='<option value="">เว้นว่างไว้ — ติ๊กเอง</option>';
+  cfg.forEach(function(L){
+    var o=el('option',null,L.name||L.id); o.value=L.id; sel.appendChild(o);
+  });
+  if(cur)sel.value=cur;
+}
+['lbl-sku','lbl-mode','lbl-lot','lbl-seq','lbl-start','lbl-n','lbl-line','lbl-time'].forEach(function(id){
   var e=$(id);if(e)e.addEventListener('change',function(){var o=labelOpts();if(o.sku)lblNote(o)});
 });
 (function(){var dd=todayISO();$('lbl-lot').value=dd.slice(8,10)+dd.slice(5,7)})();
@@ -1895,17 +2706,25 @@ function renderSale(){
           '<input type="text" id="s-bill" placeholder="ต้องใส่ทุกครั้ง"></div>'+
         '<div class="field"><label for="s-plate">ทะเบียนรถ <b style="color:var(--crit)">*</b></label>'+
           '<input type="text" id="s-plate" placeholder="เช่น 1กก 1234"></div>'+
-        '<div class="field"><label for="s-drv">ชื่อคนส่ง</label><input type="text" id="s-drv" placeholder="ชื่อพนักงานขนส่ง"></div>'+
+        '<div class="field"><label for="s-drv">ชื่อคนส่ง</label><input type="text" id="s-drv" list="drv-opts" placeholder="เลือกจากรายชื่อ หรือพิมพ์เอง"></div>'+
         '<div class="field" style="grid-column:span 2"><label for="s-cust">ชื่อลูกค้า</label>'+
           '<input type="text" id="s-cust" list="cust-opts" placeholder="พิมพ์ชื่อ หรือเลือกจากทะเบียน"></div>';
-    head.insertAdjacentHTML('beforeend','<datalist id="cust-opts"></datalist>');
+    head.insertAdjacentHTML('beforeend','<datalist id="cust-opts"></datalist><datalist id="drv-opts"></datalist>');
     ['s-bill','s-plate','s-cust'].forEach(function(id){
       var e=$(id); if(e)e.addEventListener('input',function(){e.classList.remove('reqd');billTotals()});
+    });
+    var dv=$('s-drv');
+    if(dv)dv.addEventListener('input',function(){
+      var d=drvByName(dv.value);
+      var pl=$('s-plate');
+      if(d&&d.plate&&pl&&!pl.value.trim()){pl.value=d.plate;pl.classList.remove('reqd')}
+      billTotals();
     });
     $('s-bill').value=nextBillNo(walk);
   }
   var g=$('sale-grid'),groups=brandGroups(),tanks=tankSkus();
-  var sig=SALE.mode+'|'+(SALE.all?'all':'top')+'|'+groups.map(function(b){return b.brand+Object.keys(b.cells).join('')}).join(',');
+  var sig=SALE.mode+'|'+(SALE.all?'all':'top')+'|'+groups.map(function(b){return b.brand+Object.keys(b.cells).join('')}).join(',')+
+          '|'+tanks.map(function(t){return t.id+sizeText(t)}).join(',');
   if(g.dataset.sig!==sig){
     g.dataset.sig=sig;
     var h='<thead><tr><th class="l">ยี่ห้อ</th>';
@@ -1919,15 +2738,26 @@ function renderSale(){
       });
       h+='<td class="num" id="brow-'+b.brand.replace(/\s/g,'_')+'">0</td></tr>';
     });
-    if(walk)tanks.forEach(function(sk){
-      h+='<tr><td class="l"><b class="ui">'+esc(sk.brand)+'</b> <span class="note">('+esc(unitOf(sk))+')</span></td>'+
-         '<td colspan="3"><input type="number" min="0" step="1" inputmode="numeric" class="bill-q" data-sku="'+sk.id+'" id="bq-'+sk.id+'" style="max-width:104px;text-align:right"><input type="number" min="0" step="0.25" inputmode="decimal" class="bill-p hidden" data-sku="'+sk.id+'" id="bp-'+sk.id+'" placeholder="ราคา/แพ็ค" style="max-width:104px;text-align:right;margin-top:4px"><div class="note" id="bs-'+sk.id+'" style="margin-top:3px"></div></td>'+
+    /* น้ำถังขายได้ทั้งหน้าโรงงานและขายส่ง — ส่งขึ้นรถไปให้ลูกค้าก็ได้ */
+    tanks.forEach(function(sk){
+      var sz=sizeText(sk);
+      h+='<tr><td class="l"><b class="ui">'+esc(sk.brand)+'</b>'+(sz?(' '+esc(sz)):'')+
+         ' <span class="note">('+esc(unitOf(sk))+')</span></td>'+
+         '<td colspan="'+SIZES.length+'"><input type="number" min="0" step="1" inputmode="numeric" class="bill-q" data-sku="'+sk.id+'" id="bq-'+sk.id+'" style="max-width:104px;text-align:right"><input type="number" min="0" step="0.25" inputmode="decimal" class="bill-p hidden" data-sku="'+sk.id+'" id="bp-'+sk.id+'" placeholder="ราคา/'+esc(unitOf(sk))+'" style="max-width:104px;text-align:right;margin-top:4px"><div class="note" id="bs-'+sk.id+'" style="margin-top:3px"></div></td>'+
          '<td class="num">'+esc(unitOf(sk))+'</td></tr>';
     });
     h+='</tbody>';
     g.innerHTML=h;
     [].forEach.call(g.querySelectorAll('.bill-q'),function(i){i.addEventListener('input',billTotals)});
     [].forEach.call(g.querySelectorAll('.bill-p'),function(i){i.addEventListener('input',billTotals)});
+  }
+  var dd=$('drv-opts');
+  if(dd){
+    var ds=drvList(), dsig=ds.map(function(d){return d.id}).join(',');
+    if(dd.dataset.sig!==dsig){
+      dd.dataset.sig=dsig; dd.innerHTML='';
+      ds.forEach(function(d){var o=el('option');o.value=d.name;dd.appendChild(o)});
+    }
   }
   var dl=$('cust-opts');
   if(dl){
@@ -1941,10 +2771,10 @@ function renderSale(){
   }
   var fp=$('btn-freeprice');
   if(fp){
-    fp.classList.toggle('hidden',!canMoney());
+    fp.classList.toggle('hidden',!can('price.edit'));
     fp.setAttribute('aria-pressed',String(!!SALE.free));
     fp.textContent= SALE.free? 'ใช้ราคาอัตโนมัติ' : 'แก้ราคาเอง';
-    if(!canMoney())SALE.free=false;
+    if(!can('price.edit'))SALE.free=false;
   }
   [].forEach.call(document.querySelectorAll('.bill-p'),function(i){i.classList.toggle('hidden',!SALE.free)});
   var tg=$('btn-brands'),hid=hiddenBrandCount();
@@ -1955,7 +2785,7 @@ function renderSale(){
   renderBills();
 }
 function billTotals(){
-  var tot=0,byBrand={},st=stockMap(),over=0;
+  var tot=0,tankTot=0,byBrand={},st=stockMap(),over=0;
   var walk=SALE.mode==='walk', chan=walk?'หน้าโรงงาน':'ขายส่ง';
   var iso=($('s-date')&&$('s-date').value)||todayISO();
   var cust=custByName($('s-cust')&&$('s-cust').value);
@@ -1980,7 +2810,7 @@ function billTotals(){
     if(q>0&&after<0)over++;
     if(q<=0)return;
     money+=pr.price*q;
-    if(!isPack(s))return;
+    if(!isPack(s)){tankTot+=q;return}
     tot+=q;byBrand[s.brand]=(byBrand[s.brand]||0)+q;
   });
   S.billOver=over; S.billMoney=Math.round(money*100)/100; S.billCust=cust;
@@ -1990,6 +2820,7 @@ function billTotals(){
   });
   var miss=billMissing();
   $('bill-hint').innerHTML='รวม <b class="num">'+n(tot)+'</b> แพ็ค'+
+    (tankTot>0?(' · น้ำถัง <b class="num">'+n(tankTot)+'</b> ถัง'):'')+
     (S.billMoney>0?(' · เป็นเงิน <b class="num">'+baht(S.billMoney)+'</b>'):'')+
     (cust&&!walk?(' · <span style="color:var(--accent)">'+esc(cust.name)+'</span>'):'')+
     (over? ' · <span style="color:var(--crit)">'+over+' รายการเกินสต๊อก</span>':'')+
@@ -2119,7 +2950,7 @@ function renderBills(){
   ((rec&&rec.entries)||[]).forEach(function(e){
     if(e.type!=='sell'||!e.bill)return;
     if(!bills[e.bill]){bills[e.bill]={id:e.bill,no:e.billNo||'',cust:e.cust||'',by:e.by||'',
-      plate:e.plate||'',ch:chanKey(e.channel),qty:0,money:0,ts:e.ts};order.push(e.bill)}
+      uname:e.uname||'',plate:e.plate||'',ch:chanKey(e.channel),qty:0,money:0,ts:e.ts};order.push(e.bill)}
     bills[e.bill].qty+=e.qty; bills[e.bill].money+=(+e.amount||0);
   });
   /* นับแยกช่องทางไว้โชว์บนปุ่ม */
@@ -2151,6 +2982,7 @@ function renderBills(){
     row.innerHTML='<span class="tag" style="background:'+(wh?'var(--accent-soft);color:var(--accent)':'var(--surface-2);color:var(--ink-2)')+'">'+(wh?'ขายส่ง':'หน้าโรงงาน')+'</span>'+
       '<span class="nm"><b>'+esc(b.cust||'ทั่วไป')+'</b>'+(b.no?(' <span class="note num">'+esc(b.no)+'</span>'):'')+'</span>'+
       '<span class="meta">'+esc([wh?b.by:'',b.plate,(b.ts||'').slice(11,16)].filter(Boolean).join(' · '))+'</span>'+
+      (b.uname?('<span class="bywho">ออกบิลโดย <b>'+esc(b.uname)+'</b></span>'):'')+
       '<span class="q minus">−'+n(b.qty)+(b.money?(' <span class="note">'+baht(b.money)+'</span>'):'')+'</span>';
     if(P('sell.delete')){
       var del=el('button','btn sm danger','ลบบิล');
@@ -2256,11 +3088,15 @@ function renderToday(){
   rec.entries.slice().reverse().forEach(function(e){
     var t=TYPES[e.type]||{label:e.type,sign:1,color:'var(--muted)'};
     var s=skuById(e.skuId);
-    var meta=[e.by,e.line,e.channel?CHANNELS[e.channel]||e.channel:'',e.note].filter(Boolean).join(' · ');
+    var subj=subjectOf(e);
+    var meta=[subj,e.line,e.channel?CHANNELS[e.channel]||e.channel:'',e.note].filter(Boolean).join(' · ');
+    var who=loggedBy(e), tm=loggedAt(e);
     var row=el('div','entry');
-    row.innerHTML='<span class="tag" style="background:var(--surface-2);color:'+t.color+'">'+t.label+'</span>'+
+    row.innerHTML='<span class="when">'+esc(tm)+'</span>'+
+      '<span class="tag" style="background:var(--surface-2);color:'+t.color+'">'+t.label+'</span>'+
       '<span class="nm">'+(s?esc(s.brand)+' '+esc(s.size):esc(e.skuId))+'</span>'+
       '<span class="meta">'+esc(meta)+'</span>'+
+      (who?('<span class="bywho">'+esc(who)+'</span>'):'')+
       '<span class="q '+(t.sign>0?'plus':'minus')+'">'+(t.sign>0?'+':'−')+n(e.qty)+'</span>';
     if(P('sell.delete')){
       var del=el('button','btn sm danger','ลบ');
@@ -2431,8 +3267,10 @@ function renderMat(){
   $('mat-asof').textContent=(S.matBaseline&&S.matBaseline.asOf)?('ยอดตั้งต้น '+thDate(S.matBaseline.asOf)+' + รายการหลังจากนั้น'):'ยังไม่ได้ตั้งยอดตั้งต้น';
   /* table */
   var tb=$('mat-body');tb.innerHTML='';
+  var showCost=canMatCost();
+  [].forEach.call(document.querySelectorAll('.cost-col'),function(e){e.classList.toggle('hidden',!showCost)});
   var show=rs.filter(function(r){return MAT.group==='ทั้งหมด'||(r.m.group||'อื่น ๆ')===MAT.group});
-  if(!show.length){tb.innerHTML='<tr><td colspan="7"><div class="empty">ยังไม่มีวัตถุดิบในกลุ่มนี้</div></td></tr>'}
+  if(!show.length){tb.innerHTML='<tr><td colspan="9"><div class="empty">ยังไม่มีวัตถุดิบในกลุ่มนี้</div></td></tr>'}
   show.sort(function(a,b){return a.cov-b.cov}).forEach(function(r){
     var tr=el('tr');
     tr.dataset.mat=r.m.id; tr.dataset.qty=r.qty;
@@ -2443,9 +3281,17 @@ function renderMat(){
       '<td class="num">'+(r.use>0?n1(r.use):'—')+'</td>'+
       '<td class="num">'+(r.use>0?n1(r.cov)+' วัน':'—')+'</td>'+
       '<td class="num" style="color:var(--muted)">'+n(+r.m.min||0)+'</td>'+
+      (showCost?
+        ('<td class="num cost-col" style="color:var(--muted)">'+(matUnitCost(r.m.id)>0?n2(matUnitCost(r.m.id)):'—')+'</td>'+
+         '<td class="num cost-col">'+(matUnitCost(r.m.id)>0
+            ?('<b'+(matStockValue(r.m.id)<0?' style="color:var(--crit)"':'')+'>'+baht(Math.round(matStockValue(r.m.id)))+'</b>')
+            :'—')+'</td>')
+        :'')+
       '<td class="l">'+(r.status==='none'?'<span class="note">ยังไม่ได้ตรวจนับ</span>':statChip(r.status))+'</td>';
     tb.appendChild(tr);
   });
+  var mv=$('mat-value');
+  if(mv)mv.innerHTML= showCost? ('มูลค่าคงคลังรวม <b class="num">'+baht(Math.round(matTotalValue()))+'</b>') : '';
   renderMatList();renderBom();renderMatCount();matHint();
 }
 function matUnits(){
@@ -2487,7 +3333,8 @@ function renderMatList(){
     var row=el('div','entry');
     row.innerHTML='<span class="tag" style="background:var(--surface-2);color:'+t.color+'">'+t.label+'</span>'+
       '<span class="nm">'+esc(m?m.name:e.matId)+'</span>'+
-      '<span class="meta">'+esc([e.docNo,e.by,e.dept,e.note].filter(Boolean).join(' · '))+'</span>'+
+      '<span class="meta">'+esc([e.docNo,subjectOf(e),e.dept,e.note].filter(Boolean).join(' · '))+'</span>'+
+      (loggedBy(e)?('<span class="bywho">'+esc(loggedBy(e))+'</span>'):'')+
       '<span class="q '+(t.sign>0?'plus':'minus')+'">'+(t.sign>0?'+':'−')+n1(e.qty)+' '+esc(m?m.unit:'')+'</span>';
     if(P('mat.move')&&e.type!=='auto'){
       var del=el('button','btn sm danger','ลบ');del.style.marginInlineStart='8px';
@@ -2501,7 +3348,9 @@ function renderBom(){
   $('bom-locked').classList.toggle('hidden',S.admin);
   $('bom-ui').classList.toggle('hidden',!S.admin);
   if(!S.admin)return;
-  var tb=$('bom-body'),sig=skuSig+'|'+(S.materials||[]).length;
+  var showCost=canMatCost();
+  var tb=$('bom-body'),sig=skuSig+'|'+(S.materials||[]).length+'|'+showCost+'|'+
+    JSON.stringify((S.matCosts||{}).cost||{});
   if(tb.dataset.sig===sig)return;
   tb.dataset.sig=sig;tb.innerHTML='';
   var bottles=mats().filter(function(m){return (m.group||'')==='ขวด'});
@@ -2516,11 +3365,13 @@ function renderBom(){
     tr.innerHTML='<td class="name l"><b>'+esc(s.brand)+' '+esc(s.size)+'</b></td>'+
       '<td class="num">'+bottlesPerPack(s)+'</td>'+
       '<td class="l"><select id="bom-b-'+s.id+'" style="max-width:230px">'+opts(bottles,s.bottleId)+'</select></td>'+
-      '<td class="l"><select id="bom-c-'+s.id+'" style="max-width:200px">'+opts(caps,s.capId)+'</select></td>';
+      '<td class="l"><select id="bom-c-'+s.id+'" style="max-width:200px">'+opts(caps,s.capId)+'</select></td>'+
+      (showCost?('<td class="num cost-col">'+(skuMatCost(s)>0?('<b>'+n2(skuMatCost(s))+'</b> <span class="note">฿</span>'):'<span class="note">ยังไม่ได้ใส่ราคาทุน</span>')+'</td>'):'');
     tb.appendChild(tr);
   });
 }
 function renderMatCount(){
+  renderMatEdit();
   $('matcount-locked').classList.toggle('hidden',P('stock.count'));
   $('matcount-ui').classList.toggle('hidden',!P('stock.count'));
   if(!P('stock.count'))return;
@@ -2531,11 +3382,172 @@ function renderMatCount(){
     var tr=el('tr');
     tr.innerHTML='<td class="name l">'+esc(m.name)+'</td>'+
       '<td class="num" style="color:var(--muted)">'+n1(st[m.id]||0)+' '+esc(m.unit)+'</td>'+
-      '<td class="l"><input type="number" min="0" step="any" id="mc-'+m.id+'" style="max-width:120px;text-align:right"> '+
+      '<td class="l"><input type="number" min="0" step="any" id="mc-'+m.id+'" value="'+n1(st[m.id]||0).replace(/,/g,'')+'" style="max-width:120px;text-align:right"> '+
         ((+m.per||1)>1?'<select id="mcu-'+m.id+'" style="max-width:120px;display:inline-block;width:auto"><option value="base">'+esc(m.unit)+'</option><option value="pack">'+esc(m.packUnit||'')+'</option></select>':'<span class="note">'+esc(m.unit)+'</span>')+'</td>';
     tb.appendChild(tr);
   });
 }
+/* ---------------- เพิ่ม-แก้-ลบ วัตถุดิบ ---------------- */
+function matGroups(){
+  var seen={},out=[];
+  (S.materials||[]).forEach(function(m){
+    var g=(m.group||'').trim();
+    if(g&&!seen[g]){seen[g]=1;out.push(g)}
+  });
+  return out;
+}
+/* วัตถุดิบตัวนี้ถูกใช้ไปแล้วแค่ไหน */
+function matUsage(id){
+  var u={moves:0,stock:0,bom:0};
+  sortedDays().forEach(function(d){
+    ((S.days[d]||{}).mat||[]).forEach(function(e){ if(e.matId===id)u.moves++ });
+  });
+  u.stock=+(matStockMap()[id]||0);
+  (S.skus||[]).forEach(function(sk){ if(sk.bottleId===id||sk.capId===id)u.bom++ });
+  return u;
+}
+function renderMatEdit(){
+  var ok=can('master.edit');
+  var showCost=canMatCost();
+  [].forEach.call(document.querySelectorAll('.cost-col'),function(e){e.classList.toggle('hidden',!showCost)});
+  $('matedit-locked').classList.toggle('hidden',ok);
+  $('matedit-ui').classList.toggle('hidden',!ok);
+  if(!ok)return;
+  var dl=$('matgroups'), gs=matGroups();
+  if(dl.dataset.sig!==gs.join(',')){
+    dl.dataset.sig=gs.join(','); dl.innerHTML='';
+    gs.forEach(function(g){var o=el('option');o.value=g;dl.appendChild(o)});
+  }
+  var list=S.materials||[];
+  $('matedit-count').textContent=n(list.length)+' รายการ · ใช้งานอยู่ '+n(mats().length)+' รายการ';
+  var tb=$('matedit-body');
+  var sig=list.map(function(m){return [m.id,m.name,m.group,m.unit,m.packUnit,m.per,m.min,m.active,
+        matCostRaw(m.id),matCostMode(m.id)].join('~')}).join('|')+'|'+showCost;
+  if(tb.dataset.sig===sig){matCostCells();return}
+  tb.dataset.sig=sig; tb.innerHTML='';
+  if(!list.length){tb.innerHTML='<tr><td colspan="12"><div class="empty">ยังไม่มีวัตถุดิบในระบบ</div></td></tr>';return}
+  list.forEach(function(m){
+    var tr=el('tr');
+    tr.innerHTML='<td class="l"><input type="text" id="me-n-'+m.id+'" value="'+esc(m.name||'')+'" style="min-width:180px"></td>'+
+      '<td class="l"><input type="text" id="me-g-'+m.id+'" value="'+esc(m.group||'')+'" list="matgroups" style="max-width:110px"></td>'+
+      '<td class="l"><input type="text" id="me-u-'+m.id+'" value="'+esc(m.unit||'')+'" style="max-width:90px"></td>'+
+      '<td class="l"><input type="text" id="me-p-'+m.id+'" value="'+esc(m.packUnit||'')+'" style="max-width:90px"></td>'+
+      '<td><input type="number" id="me-r-'+m.id+'" value="'+(+m.per||1)+'" min="1" step="1" style="max-width:100px;text-align:right"></td>'+
+      '<td><input type="number" id="me-m-'+m.id+'" value="'+(+m.min||0)+'" min="0" step="1" style="max-width:100px;text-align:right"></td>'+
+      (showCost?
+        ('<td><input type="number" class="matcost" data-mat="'+m.id+'" id="me-c-'+m.id+'" value="'+(matCostRaw(m.id)||'')+
+           '" min="0" step="0.01" placeholder="—" style="max-width:100px;text-align:right"></td>'+
+         '<td class="l"><select class="matcostper" data-mat="'+m.id+'" id="me-cp-'+m.id+'" style="min-width:126px;max-width:150px">'+
+           '<option value="base"'+(matCostMode(m.id)==='base'?' selected':'')+'>ต่อ '+esc(m.unit||'หน่วย')+'</option>'+
+           ((+m.per||1)>1?('<option value="pack"'+(matCostMode(m.id)==='pack'?' selected':'')+'>ต่อ '+esc(m.packUnit||'หน่วยใหญ่')+'</option>'):'')+
+           '</select></td>'+
+         '<td class="num" id="me-uc-'+m.id+'" style="color:var(--muted)"></td>'+
+         '<td class="num" id="me-sv-'+m.id+'"></td>')
+        :'')+
+      '<td><input type="checkbox" id="me-a-'+m.id+'"'+(m.active!==false?' checked':'')+'></td>'+
+      '<td class="l"><button class="btn sm danger" data-matdel="'+m.id+'">ลบ</button></td>';
+    tb.appendChild(tr);
+  });
+  matCostCells();
+}
+/* ช่องคำนวณ: ทุนต่อหน่วยนับ และมูลค่าของที่มีอยู่ */
+function matCostCells(){
+  if(!canMatCost())return;
+  var tot=0;
+  (S.materials||[]).forEach(function(m){
+    var uc=$('me-uc-'+m.id), sv=$('me-sv-'+m.id);
+    if(!uc||!sv)return;
+    var box=$('me-c-'+m.id), sel=$('me-cp-'+m.id);
+    var raw=box? (parseFloat(box.value)||0) : matCostRaw(m.id);
+    var mode=sel? sel.value : matCostMode(m.id);
+    var per=+m.per||1;
+    var u= raw<=0? 0 : (mode==='pack'&&per>0 ? raw/per : raw);
+    var q=+(matStockMap()[m.id]||0), val=q*u;
+    if(m.active!==false)tot+=val;
+    uc.textContent= u>0? (n2(u)+' /'+(m.unit||'')) : '—';
+    sv.innerHTML= u<=0 ? '<span style="color:var(--muted)">—</span>'
+      : (val<0 ? '<b style="color:var(--crit)">'+baht(Math.round(val))+'</b>'
+               : '<b>'+baht(Math.round(val))+'</b>');
+  });
+  var v=$('matedit-value');
+  if(v)v.innerHTML='มูลค่าวัตถุดิบคงคลังรวม <b class="num">'+baht(Math.round(tot))+'</b>';
+}
+async function saveMaterials(items){
+  try{ await S.db.doc('master/materials').set({items:items,updatedAt:new Date().toISOString()}); return true }
+  catch(e){ toast('บันทึกไม่สำเร็จ — ต้องมีสิทธิ์แก้ข้อมูลหลัก'); return false }
+}
+$('btn-mat-add').onclick=async function(){
+  if(!requireDb())return;
+  var nm=$('mn-name').value.trim();
+  if(!nm){toast('ใส่ชื่อวัตถุดิบก่อน');return}
+  if((S.materials||[]).some(function(m){return (m.name||'').trim().toLowerCase()===nm.toLowerCase()})){
+    toast('มีวัตถุดิบชื่อนี้อยู่แล้ว');return;
+  }
+  var unit=$('mn-unit').value.trim()||'ชิ้น';
+  var m={id:'m'+uid(),name:nm,group:$('mn-group').value.trim()||'อื่นๆ',
+    unit:unit,packUnit:$('mn-packunit').value.trim(),
+    per:Math.max(1,+$('mn-per').value||1),min:+$('mn-min').value||0,active:true};
+  $('btn-mat-add').disabled=true;
+  if(await saveMaterials((S.materials||[]).concat([m]))){
+    toast('เพิ่ม '+nm+' แล้ว — ไปใส่ยอดคงเหลือได้ที่ "ตรวจนับ / แก้ยอดวัตถุดิบ"');
+    ['mn-name','mn-group','mn-unit','mn-packunit','mn-per','mn-min'].forEach(function(id){$(id).value=''});
+  }
+  $('btn-mat-add').disabled=false;
+};
+$('btn-matedit-save').onclick=async function(){
+  if(!requireDb())return;
+  var items=(S.materials||[]).map(function(m){
+    var o={};for(var k in m)o[k]=m[k];
+    var g=$('me-n-'+m.id); if(g)o.name=g.value.trim()||m.name;
+    g=$('me-g-'+m.id); if(g)o.group=g.value.trim()||'อื่นๆ';
+    g=$('me-u-'+m.id); if(g)o.unit=g.value.trim()||m.unit;
+    g=$('me-p-'+m.id); if(g)o.packUnit=g.value.trim();
+    g=$('me-r-'+m.id); if(g)o.per=Math.max(1,+g.value||1);
+    g=$('me-m-'+m.id); if(g)o.min=+g.value||0;
+    g=$('me-a-'+m.id); if(g)o.active=g.checked;
+    return o;
+  });
+  var okM=await saveMaterials(items);
+  if(canMatCost()){
+    var cost={},per={};
+    (S.materials||[]).forEach(function(m){
+      var b=$('me-c-'+m.id), sel=$('me-cp-'+m.id);
+      if(!b)return;
+      var v=parseFloat(b.value);
+      if(isFinite(v)&&v>0){ cost[m.id]=v; per[m.id]=sel?sel.value:'base' }
+    });
+    try{ await S.db.doc('master/matcosts').set({cost:cost,per:per,updatedAt:new Date().toISOString()}) }
+    catch(e){ toast('บันทึกต้นทุนไม่สำเร็จ — ต้องมีสิทธิ์ดูและแก้ต้นทุนวัตถุดิบ'); return }
+  }
+  if(okM)toast('บันทึกรายการวัตถุดิบแล้ว');
+};
+$('matedit-body').addEventListener('input',function(ev){
+  if(ev.target.classList.contains('matcost'))matCostCells();
+});
+$('matedit-body').addEventListener('change',function(ev){
+  if(ev.target.classList.contains('matcostper'))matCostCells();
+});
+$('matedit-body').addEventListener('click',async function(ev){
+  var b=ev.target.closest('button[data-matdel]'); if(!b)return;
+  if(!requireDb())return;
+  var id=b.dataset.matdel, m=matById(id); if(!m)return;
+  var u=matUsage(id);
+  if(u.moves>0||u.stock!==0||u.bom>0){
+    var why=[];
+    if(u.moves>0)why.push('มีรายการรับเข้า-เบิกใช้ '+n(u.moves)+' รายการ');
+    if(u.stock!==0)why.push('ยังมีของค้างอยู่ '+n1(u.stock)+' '+m.unit);
+    if(u.bom>0)why.push('ผูกอยู่กับสินค้า '+n(u.bom)+' รายการ');
+    if(!await askConfirm('ลบ '+m.name+' ไม่ได้ เพราะ '+why.join(' · ')+
+      '\nถ้าเลิกใช้แล้ว ให้ซ่อนแทน — ประวัติเดิมจะยังอยู่ครบ จะซ่อนเลยไหม?','ซ่อนรายการนี้'))return;
+    var a=$('me-a-'+id); if(a)a.checked=false;
+    $('btn-matedit-save').click();
+    return;
+  }
+  if(!await askConfirm('ลบ '+m.name+' ออกจากระบบถาวรใช่ไหม?\nรายการนี้ยังไม่เคยถูกใช้งาน จึงลบได้','ลบถาวร'))return;
+  if(await saveMaterials((S.materials||[]).filter(function(x){return x.id!==id})))
+    toast('ลบ '+m.name+' แล้ว');
+});
+
 /* ---- material writes ---- */
 function matEntry(type,matId,qty,by,dept,note,docNo){
   return {id:uid(),ts:new Date().toISOString(),rts:new Date().toISOString(),type:type,matId:matId,qty:Math.abs(qty),
@@ -2689,7 +3701,288 @@ function dayStats(iso){
   o.money=o.cash+o.tr;
   o.sold=o.walk+o.wh;
   o.eff=o.theo>0?Math.round(o.prod/o.theo*100):null;
+  /* ---- ตัวเลขกำไร ----
+     รายรับ   = เงินที่รับจริง ถ้ายังไม่ได้ลงเงิน ใช้ยอดตามบิลแทน
+     ต้นทุนของที่ขาย = ค่าขวด + ค่าฝา ของสินค้าที่ขายไปจริง (เท่าที่ใส่ราคาทุนไว้)
+     ค่าใช้จ่าย = ที่บันทึกไว้ในวันนั้น
+     กำไรสุทธิ = รายรับ − ต้นทุนของที่ขาย − ค่าใช้จ่าย
+     หมายเหตุ: ยังไม่รวมค่าแรง ค่าไฟ ค่าเสื่อม ถ้าไม่ได้ลงเป็นค่าใช้จ่าย */
+  o.income = o.money>0 ? o.money : o.billed;
+  o.cogs=0; o.cogsKnown=0; o.cogsMissing=0;
+  ents.forEach(function(e){
+    if(e.type!=='sell')return;
+    var sk=skuById(e.skuId); if(!sk||!isPack(sk))return;
+    var c=skuMatCost(sk);
+    if(c>0){ o.cogs+=c*(+e.qty||0); o.cogsKnown+=(+e.qty||0) }
+    else o.cogsMissing+=(+e.qty||0);
+  });
+  o.expense=expTotalOf(iso);
+  o.profit=o.income-o.cogs-o.expense;
+  o.margin=o.income>0?(o.profit/o.income*100):null;
   return o;
+}
+/* ================= รายงานไลน์ผลิต ================= */
+var PR={period:'7',line:'',sku:'',shift:''};
+var PR_NOLINE='(ไม่ได้ระบุไลน์)';
+function prDates(){
+  var t=todayISO(),from,to;
+  if(PR.period==='today'){from=to=t}
+  else if(PR.period==='yday'){from=to=addDays(t,-1)}
+  else if(PR.period==='7'){from=addDays(t,-6);to=t}
+  else if(PR.period==='30'){from=addDays(t,-29);to=t}
+  else if(PR.period==='mtd'){from=t.slice(0,8)+'01';to=t}
+  else{from=$('pr-from').value||addDays(t,-6);to=$('pr-to').value||t}
+  if(from>to){var x=from;from=to;to=x}
+  return {from:from,to:to};
+}
+/* ทุกรอบผลิตในช่วงที่เลือก หลังกรองไลน์/สินค้า/กะแล้ว */
+function prRuns(){
+  var r=prDates(),out=[];
+  sortedDays().forEach(function(d){
+    if(d<r.from||d>r.to)return;
+    var rec=S.days[d];if(!rec||!rec.entries)return;
+    rec.entries.forEach(function(e){
+      if(e.type!=='produce')return;
+      var ln=e.line||PR_NOLINE;
+      if(PR.line&&ln!==PR.line)return;
+      if(PR.sku&&e.skuId!==PR.sku)return;
+      if(PR.shift&&(e.shift||'')!==PR.shift)return;
+      var sk=skuById(e.skuId);
+      var hrs=+e.hours||0, rate=sk?rateOf(sk):1125;
+      out.push({iso:d,line:ln,sku:sk,skuId:e.skuId,qty:+e.qty||0,hours:hrs,
+        theo:hrs*rate,shift:e.shift||'',by:(e.uname||e.by||'ไม่ระบุ'),
+        lot:e.lot||'',ts:e.ts||'',note:e.note||''});
+    });
+  });
+  return out.sort(function(a,b){return (a.iso+a.ts)<(b.iso+b.ts)?1:-1});
+}
+function prLineName(id){
+  if(id===PR_NOLINE)return id;
+  var L=linesCfg().filter(function(x){return x.id===id})[0];
+  return L?L.name:id;
+}
+function prSkuName(id){var sk=skuById(id);return sk?(sk.brand+' '+sk.size):id}
+function prEffColor(p){return p>=85?'var(--good)':p>=65?'var(--warn)':'var(--crit)'}
+function prGroup(runs,keyOf){
+  var m={},order=[];
+  runs.forEach(function(r){
+    var k=keyOf(r);
+    if(!m[k]){m[k]={key:k,qty:0,hours:0,theo:0,runs:0,skus:{},lines:{}};order.push(k)}
+    var g=m[k];g.qty+=r.qty;g.hours+=r.hours;g.theo+=r.theo;g.runs++;
+    if(r.skuId)g.skus[r.skuId]=(g.skus[r.skuId]||0)+r.qty;
+    g.lines[r.line]=1;
+  });
+  return order.map(function(k){return m[k]});
+}
+function prPct(g){return g.theo>0?Math.round(g.qty/g.theo*100):null}
+function prTimeOf(r){
+  if(!r.ts)return '—';
+  var d=new Date(r.ts); if(isNaN(d.getTime()))return '—';
+  return ('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2);
+}
+function renderProdRep(){
+  if(!$('prod-panel'))return;
+  var r=prDates(),runs=prRuns();
+  $('pr-range').textContent=thDate(r.from)+' ถึง '+thDate(r.to)+
+    (PR.line?(' · '+prLineName(PR.line)):' · ทุกไลน์')+
+    (PR.sku?(' · '+prSkuName(PR.sku)):'')+
+    (PR.shift?(' · กะ'+PR.shift):'');
+
+  /* ปุ่มเลือกไลน์ สร้างจากไลน์ที่ตั้งไว้จริง */
+  var seg=$('seg-prline');
+  var ids=linesCfg().map(function(L){return L.id});
+  var hasNone=false;
+  sortedDays().forEach(function(d){
+    if(d<r.from||d>r.to)return;
+    var rec=S.days[d];if(!rec||!rec.entries)return;
+    rec.entries.forEach(function(e){if(e.type==='produce'&&!e.line)hasNone=true});
+  });
+  var sig=ids.join(',')+'|'+(hasNone?'n':'')+'|'+PR.line;
+  if(seg.dataset.sig!==sig){
+    seg.dataset.sig=sig; seg.innerHTML='';
+    var opts=[{v:'',t:'ทุกไลน์'}].concat(linesCfg().map(function(L){return {v:L.id,t:L.name}}));
+    if(hasNone)opts.push({v:PR_NOLINE,t:'ไม่ระบุไลน์'});
+    opts.forEach(function(o){
+      var b=el('button',null,o.t);
+      b.dataset.l=o.v; b.setAttribute('aria-pressed',String(PR.line===o.v));
+      b.onclick=function(){PR.line=o.v;renderProdRep()};
+      seg.appendChild(b);
+    });
+  }
+
+  /* รายชื่อสินค้าในกล่องเลือก */
+  var sel=$('pr-sku'), ssig=skuSig+'|'+S.skus.length;
+  if(sel.dataset.sig!==ssig){
+    sel.dataset.sig=ssig;
+    var keep=PR.sku;
+    sel.innerHTML='<option value="">ทุกสินค้า</option>';
+    activeSkus().filter(isPack).forEach(function(sk){
+      var o=el('option',null,sk.brand+' '+sk.size); o.value=sk.id; sel.appendChild(o);
+    });
+    sel.value=keep;
+  }
+
+  var all={qty:0,hours:0,theo:0,runs:runs.length,skus:{},lines:{}};
+  runs.forEach(function(x){all.qty+=x.qty;all.hours+=x.hours;all.theo+=x.theo;
+    if(x.skuId)all.skus[x.skuId]=1; all.lines[x.line]=1});
+  var pct=prPct(all), dayCount={};
+  runs.forEach(function(x){dayCount[x.iso]=1});
+  var nDays=Object.keys(dayCount).length;
+
+  $('pr-kpis').innerHTML=
+    '<div class="kpi"><span class="k">ผลิตได้รวม</span><span class="v num">'+n(all.qty)+
+      '</span><span class="u">แพ็ค · '+n(runs.length)+' รอบ · '+n(nDays)+' วันที่มีการผลิต</span></div>'+
+    '<div class="kpi"><span class="k">ชั่วโมงเดินเครื่อง</span><span class="v num">'+n1(all.hours)+
+      '</span><span class="u">ชั่วโมง'+(all.hours>0?(' · เฉลี่ย '+n(all.qty/all.hours)+' แพ็ค/ชม.'):'')+'</span></div>'+
+    '<div class="kpi"><span class="k">ควรได้ตามกำลังผลิต</span><span class="v num">'+(all.theo>0?n(all.theo):'—')+
+      '</span><span class="u">แพ็ค'+(all.theo>0?(' · ขาดไป '+n(Math.max(0,all.theo-all.qty))+' แพ็ค'):' — ยังไม่มีชั่วโมงเดินเครื่อง')+'</span></div>'+
+    '<div class="kpi"><span class="k">ประสิทธิภาพ</span><span class="v num" style="color:'+
+      (pct!=null?prEffColor(pct):'var(--muted)')+'">'+(pct!=null?pct+'%':'—')+
+      '</span><span class="u">'+(pct!=null?'ผลิตจริง ÷ ที่ควรได้':'ต้องเริ่ม-ปิดรอบที่แท็บไลน์ผลิต')+'</span></div>';
+
+  /* สรุปรายไลน์ */
+  var lb=$('pr-line-body'); lb.innerHTML='';
+  var byLine=prGroup(runs,function(x){return x.line});
+  byLine.sort(function(a,b){return a.key<b.key?-1:1});
+  if(!byLine.length){
+    lb.innerHTML='<tr><td colspan="8"><div class="empty">ไม่มียอดผลิตในช่วงที่เลือก — ลองเปลี่ยนวันหรือเลือกทุกไลน์</div></td></tr>';
+    $('pr-line-foot').innerHTML='';
+  }else{
+    byLine.forEach(function(g){
+      var p=prPct(g), sk=Object.keys(g.skus).sort(function(a,b){return g.skus[b]-g.skus[a]});
+      var tr=el('tr');
+      tr.innerHTML='<td class="l"><b class="ui">'+esc(prLineName(g.key))+'</b></td>'+
+        '<td class="num">'+(g.hours>0?n1(g.hours):'—')+'</td>'+
+        '<td class="num"><b>'+n(g.qty)+'</b></td>'+
+        '<td class="num" style="color:var(--muted)">'+(g.theo>0?n(g.theo):'—')+'</td>'+
+        '<td class="num">'+(p!=null?('<b style="color:'+prEffColor(p)+'">'+p+'%</b>'):'<span class="note">—</span>')+'</td>'+
+        '<td class="num">'+n(g.runs)+'</td>'+
+        '<td class="num">'+(g.hours>0?n(g.qty/g.hours):'—')+'</td>'+
+        '<td class="l"><span class="note">'+esc(sk.slice(0,3).map(prSkuName).join(', ')+
+          (sk.length>3?(' และอีก '+(sk.length-3)):''))+'</span></td>';
+      lb.appendChild(tr);
+    });
+    $('pr-line-foot').innerHTML='<tr><th class="l">รวมทุกไลน์</th>'+
+      '<th class="num">'+(all.hours>0?n1(all.hours):'—')+'</th>'+
+      '<th class="num">'+n(all.qty)+'</th>'+
+      '<th class="num">'+(all.theo>0?n(all.theo):'—')+'</th>'+
+      '<th class="num">'+(pct!=null?pct+'%':'—')+'</th>'+
+      '<th class="num">'+n(all.runs)+'</th>'+
+      '<th class="num">'+(all.hours>0?n(all.qty/all.hours):'—')+'</th><th></th></tr>';
+  }
+
+  /* แยกตามสินค้า */
+  var sb=$('pr-sku-body'); sb.innerHTML='';
+  var bySku=prGroup(runs,function(x){return x.skuId||'-'});
+  bySku.sort(function(a,b){return b.qty-a.qty});
+  if(!bySku.length)sb.innerHTML='<tr><td colspan="6"><div class="empty">ไม่มีข้อมูล</div></td></tr>';
+  bySku.forEach(function(g){
+    var sk=skuById(g.key), lines=Object.keys(g.lines).sort();
+    var tr=el('tr');
+    tr.innerHTML='<td class="name l"><b>'+esc(sk?sk.brand:g.key)+'</b> '+esc(sk?sk.size:'')+'</td>'+
+      '<td class="num"><b>'+n(g.qty)+'</b></td>'+
+      '<td class="num" style="color:var(--muted)">'+(sk?n1(g.qty/packsPerPallet(sk)):'—')+'</td>'+
+      '<td class="num">'+(g.hours>0?n1(g.hours):'—')+'</td>'+
+      '<td class="num">'+(g.hours>0?n(g.qty/g.hours):'—')+'</td>'+
+      '<td class="l"><span class="note">'+esc(lines.map(prLineName).join(', '))+'</span></td>';
+    sb.appendChild(tr);
+  });
+
+  /* รายวัน แยกไลน์ */
+  var db=$('pr-day-body'); db.innerHTML='';
+  var byDay=prGroup(runs,function(x){return x.iso+'|'+x.line});
+  byDay.sort(function(a,b){return a.key<b.key?1:-1});
+  if(!byDay.length)db.innerHTML='<tr><td colspan="7"><div class="empty">ไม่มีข้อมูล</div></td></tr>';
+  var lastDay='';
+  byDay.forEach(function(g){
+    var pp=g.key.split('|'), iso=pp[0], ln=pp[1], p=prPct(g);
+    var tr=el('tr');
+    tr.innerHTML='<td class="l">'+(iso===lastDay?'':('<b>'+thShort(iso)+'</b> <span class="note">'+thDate(iso)+'</span>'))+'</td>'+
+      '<td class="l">'+esc(prLineName(ln))+'</td>'+
+      '<td class="num"><b>'+n(g.qty)+'</b></td>'+
+      '<td class="num">'+(g.hours>0?n1(g.hours):'—')+'</td>'+
+      '<td class="num" style="color:var(--muted)">'+(g.theo>0?n(g.theo):'—')+'</td>'+
+      '<td class="num">'+(p!=null?('<b style="color:'+prEffColor(p)+'">'+p+'%</b>'):'—')+'</td>'+
+      '<td class="num">'+n(g.runs)+'</td>';
+    db.appendChild(tr); lastDay=iso;
+  });
+
+  /* ทุกรอบผลิต */
+  var rb=$('pr-run-body'); rb.innerHTML='';
+  $('pr-run-count').textContent=runs.length?('('+n(runs.length)+' รอบ)'):'';
+  if(!runs.length)rb.innerHTML='<tr><td colspan="10"><div class="empty">ไม่มีรอบผลิตในช่วงที่เลือก</div></td></tr>';
+  runs.slice(0,400).forEach(function(x){
+    var p=x.theo>0?Math.round(x.qty/x.theo*100):null;
+    var tr=el('tr');
+    tr.innerHTML='<td class="l"><b>'+thShort(x.iso)+'</b></td>'+
+      '<td class="num" style="color:var(--muted)">'+prTimeOf(x)+'</td>'+
+      '<td class="l">'+esc(prLineName(x.line))+'</td>'+
+      '<td class="name l">'+esc(x.sku?(x.sku.brand+' '+x.sku.size):x.skuId)+'</td>'+
+      '<td class="num"><b>'+n(x.qty)+'</b></td>'+
+      '<td class="num">'+(x.hours>0?n1(x.hours):'—')+'</td>'+
+      '<td class="num">'+(p!=null?('<span style="color:'+prEffColor(p)+'">'+p+'%</span>'):'—')+'</td>'+
+      '<td class="l"><span class="note">'+esc(x.shift||'—')+'</span></td>'+
+      '<td class="l"><span class="note">'+esc(x.by)+'</span></td>'+
+      '<td class="l"><span class="note">'+esc(x.lot||'—')+'</span></td>';
+    rb.appendChild(tr);
+  });
+  if(runs.length>400)rb.appendChild(el('tr')).innerHTML=
+    '<td colspan="10"><span class="note">แสดง 400 รอบล่าสุด — ถ้าต้องการทั้งหมดให้กดส่งออก CSV</span></td>';
+}
+function prCsv(){
+  var runs=prRuns(),r=prDates();
+  var rows=[['วันที่','เวลา','ไลน์','สินค้า','ขนาด','แพ็ค','ชั่วโมง','ควรได้','ประสิทธิภาพ %','กะ','ผู้บันทึก','Lot','หมายเหตุ']];
+  runs.forEach(function(x){
+    rows.push([x.iso,prTimeOf(x),prLineName(x.line),x.sku?x.sku.brand:x.skuId,x.sku?x.sku.size:'',
+      x.qty,x.hours||'',x.theo?Math.round(x.theo):'',x.theo>0?Math.round(x.qty/x.theo*100):'',
+      x.shift,x.by,x.lot,x.note]);
+  });
+  var csv='\ufeff'+rows.map(function(a){return a.map(function(v){
+    var t=String(v==null?'':v); return /[",\n]/.test(t)?('"'+t.replace(/"/g,'""')+'"'):t}).join(',')}).join('\n');
+  saveFile('รายงานไลน์ผลิต-'+r.from+'-ถึง-'+r.to+'.csv',csv,'text/csv;charset=utf-8')
+    .then(function(){toast('ส่งออกแล้ว '+n(runs.length)+' รอบ')})
+    .catch(function(){toast('ส่งออกไม่สำเร็จ')});
+}
+function prPrint(){
+  var runs=prRuns(),r=prDates();
+  var all={qty:0,hours:0,theo:0,runs:runs.length,skus:{},lines:{}};
+  runs.forEach(function(x){all.qty+=x.qty;all.hours+=x.hours;all.theo+=x.theo});
+  var pct=prPct(all);
+  var byLine=prGroup(runs,function(x){return x.line}).sort(function(a,b){return a.key<b.key?-1:1});
+  var bySku=prGroup(runs,function(x){return x.skuId||'-'}).sort(function(a,b){return b.qty-a.qty});
+  var h='<h1>รายงานไลน์ผลิต</h1>'+
+    '<div class="meta">บริษัท ดีลักซ์ วอเตอร์ จำกัด · น้ำดื่มฟินร่า</div>'+
+    '<div class="meta">ช่วงวันที่ '+thDate(r.from)+' ถึง '+thDate(r.to)+
+      ' · '+(PR.line?esc(prLineName(PR.line)):'ทุกไลน์')+
+      (PR.sku?(' · '+esc(prSkuName(PR.sku))):'')+
+      (PR.shift?(' · กะ'+esc(PR.shift)):'')+'</div>'+
+    '<div class="meta">พิมพ์เมื่อ '+thDate(todayISO())+' โดย '+esc(whoNow())+'</div>'+
+    '<table><thead><tr><th class="l">ไลน์</th><th>ชั่วโมง</th><th>ผลิตได้</th><th>ควรได้</th><th>ประสิทธิภาพ</th><th>รอบ</th></tr></thead><tbody>';
+  if(!byLine.length)h+='<tr><td colspan="6">ไม่มียอดผลิตในช่วงนี้</td></tr>';
+  byLine.forEach(function(g){var p=prPct(g);
+    h+='<tr><td class="l">'+esc(prLineName(g.key))+'</td><td class="num">'+(g.hours>0?n1(g.hours):'—')+
+      '</td><td class="num">'+n(g.qty)+'</td><td class="num">'+(g.theo>0?n(g.theo):'—')+
+      '</td><td class="num">'+(p!=null?p+'%':'—')+'</td><td class="num">'+n(g.runs)+'</td></tr>';});
+  h+='</tbody><tfoot><tr><th class="l">รวม</th><th class="num">'+(all.hours>0?n1(all.hours):'—')+
+     '</th><th class="num">'+n(all.qty)+'</th><th class="num">'+(all.theo>0?n(all.theo):'—')+
+     '</th><th class="num">'+(pct!=null?pct+'%':'—')+'</th><th class="num">'+n(all.runs)+'</th></tr></tfoot></table>';
+  h+='<h2>แยกตามสินค้า</h2><table><thead><tr><th class="l">สินค้า</th><th>ผลิตได้ (แพ็ค)</th><th>ชั่วโมง</th><th>เฉลี่ย/ชม.</th></tr></thead><tbody>';
+  if(!bySku.length)h+='<tr><td colspan="4">—</td></tr>';
+  bySku.forEach(function(g){var sk=skuById(g.key);
+    h+='<tr><td class="l">'+esc(sk?(sk.brand+' '+sk.size):g.key)+'</td><td class="num">'+n(g.qty)+
+      '</td><td class="num">'+(g.hours>0?n1(g.hours):'—')+'</td><td class="num">'+(g.hours>0?n(g.qty/g.hours):'—')+'</td></tr>';});
+  h+='</tbody></table>';
+  h+='<h2>ทุกรอบผลิต</h2><table><thead><tr><th class="l">วันที่</th><th>เวลา</th><th class="l">ไลน์</th><th class="l">สินค้า</th>'+
+     '<th>แพ็ค</th><th>ชม.</th><th class="l">กะ</th><th class="l">ผู้บันทึก</th><th class="l">Lot</th></tr></thead><tbody>';
+  if(!runs.length)h+='<tr><td colspan="9">—</td></tr>';
+  runs.forEach(function(x){
+    h+='<tr><td class="l">'+thDate(x.iso)+'</td><td class="num">'+prTimeOf(x)+'</td><td class="l">'+esc(prLineName(x.line))+
+      '</td><td class="l">'+esc(x.sku?(x.sku.brand+' '+x.sku.size):x.skuId)+'</td><td class="num">'+n(x.qty)+
+      '</td><td class="num">'+(x.hours>0?n1(x.hours):'—')+'</td><td class="l">'+esc(x.shift||'—')+
+      '</td><td class="l">'+esc(x.by)+'</td><td class="l">'+esc(x.lot||'—')+'</td></tr>';});
+  h+='</tbody></table>'+
+     '<div class="signs"><div class="sign">ผู้คุมเครื่อง</div><div class="sign">หัวหน้าฝ่ายผลิต</div><div class="sign">ผู้จัดการ</div></div>';
+  printDoc(h,'รายงานไลน์ผลิต');
 }
 function repDays(){
   var r=repDates(), out=[];
@@ -2699,9 +3992,11 @@ function repDays(){
 function repTotals(list){
   var t={prod:0,waste:0,walk:0,wh:0,tank:0,hours:0,theo:0,billCount:0,
          cash:0,tr:0,money:0,walkMoney:0,whMoney:0,sold:0,
+         billed:0,income:0,cogs:0,cogsKnown:0,cogsMissing:0,expense:0,profit:0,
          bySku:{walk:{},wh:{}},force:{},cust:{},days:list.length,workDays:0};
   list.forEach(function(d){
-    ['prod','waste','walk','wh','tank','hours','theo','billCount','cash','tr','money','walkMoney','whMoney','sold']
+    ['prod','waste','walk','wh','tank','hours','theo','billCount','cash','tr','money','walkMoney','whMoney','sold',
+     'billed','income','cogs','cogsKnown','cogsMissing','expense','profit']
       .forEach(function(k){t[k]+=d[k]||0});
     if(d.sold>0||d.prod>0)t.workDays++;
     ['walk','wh'].forEach(function(c){
@@ -2715,6 +4010,8 @@ function repTotals(list){
     }
   });
   t.eff=t.theo>0?Math.round(t.prod/t.theo*100):null;
+  t.margin=t.income>0?(t.profit/t.income*100):null;
+  t.profitPerPack=t.sold>0?(t.profit/t.sold):0;
   t.wasteRate=(t.prod+t.waste)>0?(t.waste/(t.prod+t.waste)*100):0;
   t.perHour=t.hours>0?t.prod/t.hours:0;
   t.avgBill=t.billCount>0?t.sold/t.billCount:0;
@@ -2738,7 +4035,10 @@ function meterCell(pct){
 function effColor(p){return p==null?'var(--muted)':p>=85?'var(--good)':p>=65?'var(--warn)':'var(--crit)'}
 
 function renderReport(){
+  renderMonths();
+  renderExpense();
   renderBackfill();
+  renderProdRep();
   var r=repDates(), list=repDays(), T=repTotals(list);
   $('rep-range').textContent = (r.from===r.to? thDate(r.from)
     : thDate(r.from)+'  ถึง  '+thDate(r.to)+'  ('+n(list.length)+' วันที่มีข้อมูล)');
@@ -2750,6 +4050,14 @@ function renderReport(){
     kpiCard('ขายรวม',n(T.sold)+' <span class="ks">แพ็ค</span>',
        T.tank?('+ น้ำถัง '+n(T.tank)+' ถัง'):('เฉลี่ย '+n(Math.round(T.avgDay))+' แพ็ค/วันทำการ'),{hi:1})+
     (MV?kpiCard('เงินขายรวม',baht(T.money),'เงินสด '+n(T.cash)+' · โอน '+n(T.tr)):'')+
+    (MV?(function(){
+      var r=repDates(), X=expRange(r.from,r.to);
+      if(!X.total&&!X.list.length)return '';
+      var net=T.money-X.total;
+      return kpiCard('ค่าใช้จ่าย',baht(X.total),n(X.list.length)+' รายการ')+
+             kpiCard('เหลือหลังหักค่าใช้จ่าย',baht(net),
+               net<0?'จ่ายมากกว่ารับ':'จากเงินขาย '+baht(T.money),{hi:1});
+    })():'')+
     kpiCard('ขายหน้าโรงงาน',n(T.walk)+' <span class="ks">แพ็ค</span>',
        (MV?baht(T.walkMoney)+' · ':'')+walkPct+'% ของยอด',{pct:walkPct})+
     kpiCard('ขายส่ง / ขนส่ง',n(T.wh)+' <span class="ks">แพ็ค</span>',
@@ -2762,7 +4070,8 @@ function renderReport(){
   /* ----- KPI ผลิต ----- */
   var cfg=linesCfg(), H=(+S.config.hoursPerDay||8);
   var capDay=0; cfg.forEach(function(L){
-    var best=0;(L.sizes||[]).forEach(function(z){var rr=+(S.config.rates||{})[z]||0;if(rr>best)best=rr});
+    var best=0;skusForLine(L).forEach(function(s2){var rr=rateOf(s2);if(rr>best)best=rr});
+    if(!best)(L.sizes||[]).forEach(function(z){var rr=+(S.config.rates||{})[z]||0;if(rr>best)best=rr});
     capDay+=best*H;
   });
   var capPeriod=capDay*Math.max(1,T.workDays);
@@ -2786,7 +4095,12 @@ function renderReport(){
   /* ----- ตารางรายวัน ----- */
   var tb=$('rep-days');tb.innerHTML='';
   if(!list.length){
-    tb.innerHTML='<tr><td colspan="11"><div class="empty">ยังไม่มีข้อมูลในช่วงวันที่เลือก</div></td></tr>';
+    var all=sortedDays().filter(function(d){return dayStats(d).sold>0});
+    var hint= all.length
+      ? ('ยังไม่มียอดในช่วงที่เลือก — มีข้อมูลตั้งแต่ '+esc(thDate(all[0]))+
+         ' ถึง '+esc(thDate(all[all.length-1]))+' ลองกด "30 วัน" หรือเลือกช่วงเอง')
+      : 'ยังไม่มียอดขายในระบบเลย';
+    tb.innerHTML='<tr><td colspan="11"><div class="empty">'+hint+'</div></td></tr>';
     $('rep-foot').innerHTML='';
   }else{
     list.forEach(function(d){
@@ -2884,6 +4198,86 @@ function renderRepDetail(){
     renderReport();
   };
 });
+[].forEach.call($('seg-pr').children,function(b){
+  b.onclick=function(){
+    PR.period=b.dataset.p;
+    [].forEach.call($('seg-pr').children,function(c){c.setAttribute('aria-pressed',String(c===b))});
+    $('pr-custom').classList.toggle('hidden',PR.period!=='custom');
+    if(PR.period==='custom'){
+      if(!$('pr-from').value)$('pr-from').value=addDays(todayISO(),-6);
+      if(!$('pr-to').value)$('pr-to').value=todayISO();
+    }
+    renderProdRep();
+  };
+});
+$('pr-from').addEventListener('change',renderProdRep);
+$('pr-to').addEventListener('change',renderProdRep);
+$('pr-sku').addEventListener('change',function(){PR.sku=this.value;renderProdRep()});
+$('pr-shift').addEventListener('change',function(){PR.shift=this.value;renderProdRep()});
+$('btn-pr-print').onclick=prPrint;
+$('btn-pr-csv').onclick=prCsv;
+/* ---------------- หมวดย่อยในแท็บตั้งค่า ---------------- */
+var SET_GROUPS={
+  cust:'ทะเบียนลูกค้า ราคาขาย ราคาที่ตกลงกับลูกค้า และพนักงานส่งของ',
+  prod:'กำลังผลิตแต่ละไลน์ ชั่วโมงทำงาน เวลาเปลี่ยนขนาดขวด ไลน์ไหนผลิตอะไรได้ และแบรนด์ที่รับผลิต',
+  sku:'รายการสินค้า ขวดต่อแพ็ค จุดสั่งผลิต บาร์โค้ด เพิ่มและลบสินค้า',
+  money:'ประเภทค่าใช้จ่ายที่ใช้เลือกตอนบันทึกค่าใช้จ่าย',
+  data:'นำเข้ายอดขายจากไฟล์ CSV และส่งออกข้อมูลออกเป็นไฟล์',
+  sys:'บัญชีผู้ใช้ ตำแหน่งและสิทธิ์ · สำรองข้อมูลและกู้คืนทั้งระบบ'
+};
+var setGroup=lsGet('finra_setgrp')||'cust';
+function showSetGroup(key,remember){
+  if(!SET_GROUPS[key])key='cust';
+  setGroup=key;
+  if(remember!==false)lsSet('finra_setgrp',key);
+  [].forEach.call(document.querySelectorAll('#set-nav button'),function(b){
+    b.setAttribute('aria-pressed',String(b.dataset.sg===key));
+  });
+  [].forEach.call(document.querySelectorAll('#tab-set .setgrp'),function(g){
+    g.classList.toggle('hidden',g.dataset.sg!==key);
+  });
+  var h=$('set-hint'); if(h)h.textContent=SET_GROUPS[key]||'';
+  window.scrollTo(0,0);
+}
+/* เปิดหมวดที่มีแผงนั้นอยู่ ใช้ตอนโค้ดสั่งเปิดแผงเอง เช่น ปุ่มราคาของลูกค้า */
+function revealPanel(id){
+  var p=$(id); if(!p)return;
+  var g=p.closest?p.closest('.setgrp'):null;
+  if(g&&g.dataset.sg)showSetGroup(g.dataset.sg);
+}
+[].forEach.call(document.querySelectorAll('#set-nav button'),function(b){
+  b.onclick=function(){showSetGroup(b.dataset.sg)};
+});
+showSetGroup(setGroup,false);
+/* ---------------- หมวดย่อยในแท็บรายงาน ---------------- */
+var REP_GROUPS={
+  sale:'ยอดขายตามช่วงเวลาที่เลือก · แยกหน้าโรงงานกับขายส่ง ทีมขาย และสินค้าขายดี',
+  prod:'ยอดผลิตย้อนหลัง เลือกไลน์ สินค้า และกะได้ · หมวดนี้มีช่วงวันที่ของตัวเอง ไม่เกี่ยวกับช่วงเวลาของยอดขาย',
+  money:'บันทึกและดูค่าใช้จ่ายตามช่วงเวลาด้านล่าง · ประเภทค่าใช้จ่ายเพิ่มหรือแก้ได้ที่ ตั้งค่า → ค่าใช้จ่าย',
+  month:'ยอดขาย ค่าใช้จ่าย และกำไรสุทธิ แยกเป็นเดือน',
+  back:'กรอกยอดขายของวันที่ผ่านมาเอง สำหรับวันที่ลืมบันทึก'
+};
+var repGroup=lsGet('finra_repgrp')||'sale';
+function showRepGroup(key,remember){
+  if(!REP_GROUPS[key])key='sale';
+  repGroup=key;
+  if(remember!==false)lsSet('finra_repgrp',key);
+  [].forEach.call(document.querySelectorAll('#rep-nav button'),function(b){
+    b.setAttribute('aria-pressed',String(b.dataset.rg===key));
+  });
+  [].forEach.call(document.querySelectorAll('#tab-rep .repgrp'),function(g){
+    g.classList.toggle('hidden',g.dataset.rg!==key);
+  });
+  /* ช่วงเวลาด้านบนใช้กับยอดขายและ KPI ผลิตเท่านั้น หมวดอื่นมีวันที่ของตัวเอง */
+  /* ช่วงเวลาด้านบนใช้กับยอดขายและค่าใช้จ่าย · หมวดอื่นมีวันที่ของตัวเอง */
+  var rw=$('rep-rangewrap'); if(rw)rw.classList.toggle('hidden',key!=='sale'&&key!=='money');
+  var h=$('rep-hint'); if(h)h.textContent=REP_GROUPS[key]||'';
+  window.scrollTo(0,0);
+}
+[].forEach.call(document.querySelectorAll('#rep-nav button'),function(b){
+  b.onclick=function(){showRepGroup(b.dataset.rg)};
+});
+showRepGroup(repGroup,false);
 $('rep-from').addEventListener('change',renderReport);
 $('rep-to').addEventListener('change',renderReport);
 $('rep-days').addEventListener('click',function(ev){
@@ -2906,7 +4300,7 @@ $('btn-back-del').onclick=async function(){
       return {entries:entries.filter(function(e){return e.back!==true})};
     });
     toast('ลบแล้ว'); $('back-body').dataset.sig=''; renderBackfill();
-  }catch(e){toast('ลบไม่สำเร็จ — ต้องเป็นผู้จัดการ')}
+  }catch(e){toast('ลบไม่สำเร็จ — ต้องมีสิทธิ์กรอกยอดขายย้อนหลัง')}
 };
 $('btn-rep-day').onclick=function(){
   printDay(REP.pick||($('rep-from').value&&REP.period==='custom'?$('rep-to').value:todayISO()));
@@ -2928,6 +4322,15 @@ $('btn-rep-csv').onclick=async function(){
   fl.forEach(function(f){
     out.push([f.who,f.ch,f.bills,f.qty,f.bills?(Math.round(f.qty/f.bills*10)/10):'',Object.keys(f.cust).length]);
   });
+  var XR=expRange(r.from,r.to);
+  if(XR.list.length){
+    out.push([]);out.push(['ค่าใช้จ่าย']);
+    out.push(['วันที่','ประเภท','รายละเอียด','จ่ายให้','เลขที่เอกสาร','จำนวนเงิน','ลงโดย']);
+    XR.list.forEach(function(x){
+      out.push([x.date,x.e.cat||'',x.e.note||'',x.e.payTo||'',x.e.docNo||'',x.e.amount||0,x.e.uname||'']);
+    });
+    out.push(['รวมค่าใช้จ่าย','','','','',XR.total,'']);
+  }
   out.push([]);out.push(['สินค้าขายดี']);
   out.push(['สินค้า','หน้าโรงงาน','ขายส่ง','รวม']);
   S.skus.forEach(function(sk){
@@ -2937,6 +4340,273 @@ $('btn-rep-csv').onclick=async function(){
   await saveRows(out,'finra-sales-'+r.from+'_'+r.to+'.csv');
 };
 
+/* ---------------- แบบฟอร์มและคู่มือ ---------------- */
+function formCss(){
+  return '@page{size:A4;margin:12mm}'+
+  'html,body{margin:0;padding:0;background:#fff;color:#000;'+
+    'font-family:"Tahoma","Sarabun","TH Sarabun New",sans-serif;font-size:12px}'+
+  '.pg{padding:0 0 10mm}'+
+  '.hd{display:flex;align-items:center;gap:10px;border-bottom:2px solid #000;padding-bottom:7px;margin-bottom:12px}'+
+  '.hd img{width:40px;height:auto}'+
+  '.hd .co{flex:1}.hd .co b{font-size:15px}.hd .co div{font-size:11px;color:#444}'+
+  '.hd .ti{text-align:right}.hd .ti b{font-size:16px}'+
+  '.hd .ti div{font-size:10.5px;color:#444}'+
+  'h2{font-size:13px;margin:14px 0 6px;border-bottom:1px solid #999;padding-bottom:3px}'+
+  'table{width:100%;border-collapse:collapse;font-size:11.5px}'+
+  'th,td{border:1px solid #999;padding:4px 6px;height:20px;text-align:center}'+
+  'th{background:#eee;font-weight:700}'+
+  'td.l,th.l{text-align:left}'+
+  '.meta{display:flex;flex-wrap:wrap;gap:6px 18px;margin-bottom:10px;font-size:12px}'+
+  '.meta span{white-space:nowrap}'+
+  '.ln{display:inline-block;border-bottom:1px dotted #333;min-width:120px;vertical-align:-2px}'+
+  '.ln.w2{min-width:200px}.ln.w3{min-width:300px}'+
+  '.sign{display:flex;gap:26px;margin-top:22px;font-size:11.5px}'+
+  '.sign div{flex:1;text-align:center}'+
+  '.sign i{display:block;border-top:1px solid #444;margin-bottom:4px;padding-top:0}'+
+  '.note{font-size:10.5px;color:#555;margin-top:8px}'+
+  '.man h3{font-size:12.5px;margin:12px 0 4px}'+
+  '.man p,.man li{font-size:11.5px;line-height:1.6;margin:3px 0}'+
+  '.man ol,.man ul{margin:4px 0 4px 18px;padding:0}'+
+  '.man .tip{background:#f2f2f2;border-inline-start:3px solid #666;padding:6px 9px;margin:7px 0}'+
+  '@media screen{body{background:#e9edee;padding:8mm 0}'+
+    '.pg{width:210mm;min-height:297mm;box-sizing:border-box;padding:12mm;margin:0 auto 6mm;'+
+    'background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.2)}}';
+}
+function formHead(title,sub){
+  return '<div class="hd"><img src="'+DW_LOGO+'" alt="">'+
+    '<div class="co"><b>บริษัท ดีลักซ์ วอเตอร์ จำกัด</b><div>น้ำดื่มฟินร่า · DELUXE WATER CO., LTD.</div></div>'+
+    '<div class="ti"><b>'+esc(title)+'</b><div>'+esc(sub||'')+'</div></div></div>';
+}
+function formDoc(title,inner,sub){
+  return '<!doctype html><html lang="th"><head><meta charset="utf-8"><title>'+esc(title)+
+    '</title><style>'+formCss()+'</style></head><body>'+
+    '<div class="pg">'+formHead(title,sub)+inner+'</div></body></html>';
+}
+function blankRows(cols,rows){
+  var h='';
+  for(var r=0;r<rows;r++){ h+='<tr>'; for(var c=0;c<cols;c++)h+='<td>&nbsp;</td>'; h+='</tr>' }
+  return h;
+}
+function signRow(names){
+  return '<div class="sign">'+names.map(function(x){
+    return '<div><i></i>'+esc(x)+'<br><span style="font-size:10px;color:#666">วันที่ ......../......../........</span></div>';
+  }).join('')+'</div>';
+}
+
+/* ---- 1. แผนการผลิตประจำวัน ---- */
+function formPlan(){
+  var lines=linesCfg();
+  var body='<div class="meta"><span>วันที่ <span class="ln"></span></span>'+
+    '<span>กะ <span class="ln"></span></span>'+
+    '<span>หัวหน้ากะ <span class="ln w2"></span></span></div>'+
+    '<table><thead><tr><th style="width:28px">#</th><th class="l">สินค้า</th><th>ไลน์</th>'+
+    '<th>เป้าหมาย (แพ็ค)</th><th>เริ่ม</th><th>เลิก</th><th>ชม.เดินเครื่อง</th>'+
+    '<th>ผลิตได้จริง</th><th>ของเสีย</th><th class="l">ผู้คุมเครื่อง</th></tr></thead><tbody>';
+  for(var i=1;i<=16;i++){
+    body+='<tr><td>'+i+'</td><td class="l">&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>'+
+      '<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="l">&nbsp;</td></tr>';
+  }
+  body+='</tbody><tfoot><tr><th colspan="3" class="l">รวม</th><th>&nbsp;</th><th colspan="2">&nbsp;</th>'+
+    '<th>&nbsp;</th><th>&nbsp;</th><th>&nbsp;</th><th>&nbsp;</th></tr></tfoot></table>'+
+    '<h2>ปัญหาที่พบระหว่างผลิต / เครื่องหยุด</h2>'+
+    '<table><thead><tr><th style="width:70px">เวลา</th><th>ไลน์</th><th class="l">อาการ / สาเหตุ</th>'+
+    '<th style="width:70px">หยุดกี่นาที</th><th class="l">แก้ไขอย่างไร</th></tr></thead><tbody>'+
+    blankRows(5,5)+'</tbody></table>'+
+    '<div class="note">ไลน์ที่ใช้งาน · '+
+      lines.map(function(l){return '<b>'+esc(l.name||l.id)+'</b> = '+esc(lineMakesText(l))}).join(' &nbsp;|&nbsp; ')+'</div>'+
+    signRow(['ผู้บันทึก','หัวหน้าฝ่ายผลิต','ผู้จัดการ']);
+  return formDoc('แผนการผลิตประจำวัน',body,'FM-PR-01');
+}
+
+/* ---- 2. ใบแจ้งซ่อมเครื่องจักร ---- */
+function formRepair(){
+  var body='<div class="meta"><span>เลขที่ใบแจ้ง <span class="ln"></span></span>'+
+    '<span>วันที่แจ้ง <span class="ln"></span></span>'+
+    '<span>เวลา <span class="ln" style="min-width:70px"></span></span></div>'+
+    '<h2>ส่วนที่ 1 — ผู้แจ้ง</h2>'+
+    '<div class="meta"><span>ชื่อผู้แจ้ง <span class="ln w2"></span></span>'+
+    '<span>แผนก / ไลน์ <span class="ln"></span></span></div>'+
+    '<div class="meta"><span>เครื่องจักร / อุปกรณ์ <span class="ln w3"></span></span></div>'+
+    '<table><thead><tr><th class="l">อาการที่พบ</th></tr></thead><tbody>'+blankRows(1,4)+'</tbody></table>'+
+    '<div class="meta" style="margin-top:8px"><span>ความเร่งด่วน: '+
+    '&#9744; หยุดผลิตทันที &nbsp; &#9744; ผลิตต่อได้แต่ต้องซ่อม &nbsp; &#9744; ซ่อมเมื่อว่าง</span></div>'+
+    '<h2>ส่วนที่ 2 — ช่างซ่อมบำรุง</h2>'+
+    '<div class="meta"><span>ผู้รับงาน <span class="ln w2"></span></span>'+
+    '<span>เริ่มซ่อม <span class="ln" style="min-width:90px"></span></span>'+
+    '<span>เสร็จ <span class="ln" style="min-width:90px"></span></span>'+
+    '<span>รวม <span class="ln" style="min-width:60px"></span> นาที</span></div>'+
+    '<table><thead><tr><th class="l">สาเหตุ และวิธีแก้ไข</th></tr></thead><tbody>'+blankRows(1,4)+'</tbody></table>'+
+    '<h2>อะไหล่ที่ใช้</h2>'+
+    '<table><thead><tr><th style="width:28px">#</th><th class="l">รายการ</th><th>จำนวน</th>'+
+    '<th>หน่วย</th><th>ราคา/หน่วย</th><th>รวมเงิน</th></tr></thead><tbody>'+
+    blankRows(6,5)+'</tbody></table>'+
+    '<div class="meta" style="margin-top:10px"><span>ผลการซ่อม: '+
+    '&#9744; ใช้งานได้ปกติ &nbsp; &#9744; ใช้งานได้ชั่วคราว &nbsp; &#9744; ต้องส่งซ่อมภายนอก</span></div>'+
+    signRow(['ผู้แจ้ง','ช่างผู้ซ่อม','หัวหน้าฝ่ายผลิต']);
+  return formDoc('ใบแจ้งซ่อมเครื่องจักร',body,'FM-MT-01');
+}
+
+/* ---- 3. ใบเบิกสินค้า / วัตถุดิบจากคลัง ---- */
+function formIssue(){
+  var body='<div class="meta"><span>เลขที่ใบเบิก <span class="ln"></span></span>'+
+    '<span>วันที่ <span class="ln"></span></span>'+
+    '<span>แผนก / ไลน์ที่เบิก <span class="ln w2"></span></span></div>'+
+    '<table><thead><tr><th style="width:28px">#</th><th class="l">รายการ</th>'+
+    '<th>จำนวนที่ขอ</th><th>จำนวนที่จ่าย</th><th>หน่วย</th><th class="l">หมายเหตุ</th></tr></thead><tbody>'+
+    blankRows(6,14)+'</tbody></table>'+
+    '<div class="note">เบิกแล้วต้องบันทึกเข้าระบบทุกครั้ง โดยใส่เลขที่ใบเบิกใบนี้ในช่อง "เลขที่เอกสาร"</div>'+
+    signRow(['ผู้ขอเบิก','ผู้อนุมัติ','ผู้จ่ายของ']);
+  return formDoc('ใบเบิกสินค้าจากคลัง',body,'FM-WH-01');
+}
+
+/* ---- 4. ใบรับสินค้า / วัตถุดิบ ---- */
+function formReceive(){
+  var body='<div class="meta"><span>เลขที่ใบรับ <span class="ln"></span></span>'+
+    '<span>วันที่รับ <span class="ln"></span></span></div>'+
+    '<div class="meta"><span>ผู้ขาย / ซัพพลายเออร์ <span class="ln w3"></span></span></div>'+
+    '<div class="meta"><span>เลขที่ใบส่งของผู้ขาย <span class="ln w2"></span></span>'+
+    '<span>ทะเบียนรถ <span class="ln"></span></span></div>'+
+    '<table><thead><tr><th style="width:28px">#</th><th class="l">รายการ</th><th>จำนวนตามบิล</th>'+
+    '<th>นับได้จริง</th><th>หน่วย</th><th>LOT / วันผลิต</th><th class="l">สภาพสินค้า</th></tr></thead><tbody>'+
+    blankRows(7,12)+'</tbody></table>'+
+    '<div class="meta" style="margin-top:10px"><span>ผลการตรวจรับ: '+
+    '&#9744; รับครบ ถูกต้อง &nbsp; &#9744; รับไม่ครบ &nbsp; &#9744; มีของเสียหาย (ระบุ <span class="ln w2"></span>)</span></div>'+
+    '<div class="note">รับแล้วต้องบันทึกเข้าระบบทุกครั้ง โดยใส่เลขที่ใบรับใบนี้ในช่อง "เลขที่เอกสาร"</div>'+
+    signRow(['ผู้รับของ','ผู้ตรวจนับ','หัวหน้าคลัง']);
+  return formDoc('ใบรับสินค้า / วัตถุดิบ',body,'FM-WH-02');
+}
+
+/* ---- 5. ใบส่งของ / ใบจ่ายสินค้า ---- */
+function formDelivery(){
+  var body='<div class="meta"><span>เลขที่บิล <span class="ln"></span></span>'+
+    '<span>วันที่ <span class="ln"></span></span></div>'+
+    '<div class="meta"><span>ชื่อลูกค้า <span class="ln w3"></span></span></div>'+
+    '<div class="meta"><span>ที่อยู่จัดส่ง <span class="ln w3"></span></span></div>'+
+    '<div class="meta"><span>ชื่อคนส่ง <span class="ln w2"></span></span>'+
+    '<span>ทะเบียนรถ <span class="ln"></span></span></div>'+
+    '<table><thead><tr><th style="width:28px">#</th><th class="l">สินค้า</th><th>จำนวน (แพ็ค)</th>'+
+    '<th>ราคา/แพ็ค</th><th>รวมเงิน</th></tr></thead><tbody>'+blankRows(5,12)+
+    '</tbody><tfoot><tr><th colspan="2" class="l">รวมทั้งสิ้น</th><th>&nbsp;</th><th>&nbsp;</th><th>&nbsp;</th></tr></tfoot></table>'+
+    '<div class="meta" style="margin-top:10px"><span>การชำระเงิน: '+
+    '&#9744; เงินสด <span class="ln" style="min-width:80px"></span> บาท &nbsp; '+
+    '&#9744; เงินโอน <span class="ln" style="min-width:80px"></span> บาท &nbsp; &#9744; ลงบัญชี</span></div>'+
+    signRow(['ผู้ออกบิล','ผู้ส่งของ','ผู้รับสินค้า']);
+  return formDoc('ใบส่งของ / ใบจ่ายสินค้า',body,'FM-SL-01');
+}
+
+/* ---- 6. ใบตรวจนับสต๊อก — ใส่รายชื่อสินค้าให้เลย ---- */
+function formCount(){
+  var list=activeSkus();
+  var rows='';
+  list.forEach(function(sk,i){
+    rows+='<tr><td>'+(i+1)+'</td><td class="l">'+esc(sk.brand)+' '+esc(sk.size)+'</td>'+
+      '<td>'+esc(unitOf(sk))+'</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="l">&nbsp;</td></tr>';
+  });
+  var body='<div class="meta"><span>วันที่ตรวจนับ <span class="ln"></span></span>'+
+    '<span>ผู้ตรวจนับ <span class="ln w2"></span></span>'+
+    '<span>รอบที่ <span class="ln" style="min-width:60px"></span></span></div>'+
+    '<table><thead><tr><th style="width:28px">#</th><th class="l">สินค้า</th><th>หน่วย</th>'+
+    '<th>พาเลท</th><th>+ เศษ</th><th>รวมนับได้</th><th class="l">หมายเหตุ</th></tr></thead><tbody>'+
+    rows+'</tbody></table>'+
+    '<div class="note">นับเสร็จแล้วนำตัวเลขช่อง "รวมนับได้" ไปกรอกในระบบ ที่แท็บสต๊อก &gt; ตรวจนับสต๊อก</div>'+
+    signRow(['ผู้ตรวจนับ','ผู้ทาน','หัวหน้าคลัง']);
+  return formDoc('ใบตรวจนับสต๊อกสินค้า',body,'FM-WH-03');
+}
+
+/* ---- 7. คู่มือใช้งานระบบ ---- */
+function formManual(){
+  var body='<div class="man">'+
+  '<p>คู่มือนี้เขียนให้พนักงานทุกคนอ่านเข้าใจได้ ไม่ต้องมีความรู้คอมพิวเตอร์</p>'+
+  '<h2>1. เข้าใช้งาน</h2>'+
+  '<ol><li>เปิดเว็บของบริษัทในมือถือหรือคอมพิวเตอร์</li>'+
+  '<li>ใส่ชื่อผู้ใช้และรหัสผ่านที่ได้รับ แล้วกด "เข้าสู่ระบบ"</li>'+
+  '<li>ติ๊ก "จำเครื่องนี้ไว้ 30 วัน" ถ้าเป็นเครื่องของตัวเอง</li></ol>'+
+  '<div class="tip">แต่ละคนใช้บัญชีของตัวเองเท่านั้น เพราะระบบจะบันทึกชื่อคนทำทุกครั้ง ห้ามใช้บัญชีคนอื่น</div>'+
+  '<h2>2. ขายหน้าโรงงาน</h2>'+
+  '<ol><li>ไปแท็บ <b>ขายและส่งของ</b> เลือก "ขายหน้าโรงงาน"</li>'+
+  '<li>ระบบใส่ <b>เลขที่บิล</b> ให้อัตโนมัติ (แก้ได้) — ช่องนี้ว่างไม่ได้</li>'+
+  '<li>พิมพ์ชื่อลูกค้า ถ้าเป็นลูกค้าประจำจะมีชื่อขึ้นมาให้เลือก</li>'+
+  '<li>ใส่จำนวนแพ็คในช่องของสินค้านั้น ระบบคิดเงินให้เอง</li>'+
+  '<li>ใส่เงินสด / เงินโอน แล้วกด <b>บันทึกบิล</b> สต๊อกจะถูกตัดทันที</li></ol>'+
+  '<h2>3. ขายส่ง / ขนส่ง</h2>'+
+  '<ol><li>เลือก "ขายส่ง / ขนส่ง"</li>'+
+  '<li>ต้องใส่ <b>เลขที่บิล</b> และ <b>ทะเบียนรถ</b> ทุกครั้ง ไม่ใส่จะบันทึกไม่ได้</li>'+
+  '<li>ใส่ชื่อคนส่งและชื่อลูกค้า</li>'+
+  '<li>ราคาคิดตามเรตของลูกค้ารายนั้น หรือเรตตามจำนวนที่สั่ง อันไหนถูกกว่าใช้อันนั้น</li></ol>'+
+  '<h2>4. รับเข้า / เบิกวัตถุดิบ</h2>'+
+  '<ol><li>ไปแท็บ <b>วัตถุดิบ</b> เลือกว่า "รับเข้า" หรือ "เบิกใช้"</li>'+
+  '<li>เลือกรายการ ใส่จำนวน</li>'+
+  '<li>ต้องใส่ <b>เลขที่เอกสาร</b> (เลขใบเบิกหรือใบรับของ) ทุกครั้ง</li>'+
+  '<li>กดบันทึก</li></ol>'+
+  '<h2>5. คุมเครื่องที่ไลน์ผลิต</h2>'+
+  '<ol><li>ไปแท็บ <b>ไลน์ผลิต</b> เลือกไลน์ที่ตัวเองคุม</li>'+
+  '<li>เลือกสินค้า แล้วกด "เริ่มเดินเครื่อง"</li>'+
+  '<li>ผลิตเสร็จ กด "ปิดงาน" แล้วใส่จำนวนที่ผลิตได้จริงกับของเสีย</li>'+
+  '<li>ระบบจะตัดขวดและฝาออกจากคลังให้เอง</li></ol>'+
+  '<h2>6. ป้ายพาเลท</h2>'+
+  '<ol><li>ไปแท็บ <b>ไลน์ผลิต</b> เลื่อนลงหา "ป้ายติดพาเลท"</li>'+
+  '<li>เลือกสินค้า ใส่ LOT และจำนวนป้ายที่ต้องการ</li>'+
+  '<li>กด <b>พิมพ์ป้ายเลย</b> หรือ <b>ดาวน์โหลดเก็บไว้</b></li>'+
+  '<li>ป้ายมีบาร์โค้ด สแกน 1 ครั้งเท่ากับรับเข้าสต๊อก 1 พาเลท</li></ol>'+
+  '<h2>7. สรุปยอดขายประจำวัน</h2>'+
+  '<ol><li>ไปแท็บ <b>รายงาน &amp; KPI</b></li>'+
+  '<li>เลือกช่วงวันที่ต้องการ</li>'+
+  '<li>กด <b>สรุปยอดขายรายวัน (พิมพ์)</b> จะได้รายงาน A4 พร้อมช่องเซ็น</li></ol>'+
+  '<h2>8. สิ่งที่ต้องทำทุกวัน</h2>'+
+  '<ul><li>ออกบิลทุกใบในระบบ อย่าจดใส่กระดาษอย่างเดียว</li>'+
+  '<li>ลงยอดผลิตและของเสียก่อนเลิกกะ</li>'+
+  '<li>ลงเงินสดและเงินโอนที่รับมาจริง</li>'+
+  '<li>ตรวจนับสต๊อกอย่างน้อยสัปดาห์ละครั้ง</li></ul>'+
+  '<h2>9. ถ้ามีปัญหา</h2>'+
+  '<ul><li><b>บันทึกไม่ได้ ขึ้นว่าต้องใส่เลขบิล</b> — ช่องที่มีดอกจันสีแดงต้องใส่ให้ครบ</li>'+
+  '<li><b>สต๊อกติดลบ</b> — แปลว่ายังไม่ได้ลงยอดผลิต หรือยังไม่ได้ตรวจนับใหม่ ไม่ใช่ความผิดพลาดของระบบ</li>'+
+  '<li><b>เข้าระบบไม่ได้</b> — แจ้งผู้จัดการให้ตั้งรหัสผ่านใหม่</li>'+
+  '<li><b>ตัวเลขผิด</b> — เฉพาะผู้จัดการแก้ได้ ที่แท็บรายงาน &gt; กรอกยอดขายย้อนหลัง</li></ul>'+
+  '</div>';
+  return formDoc('คู่มือใช้งานระบบ',body,'ฉบับพนักงาน');
+}
+
+var FORMS=[
+  {id:'plan',   ic:'🗓️', name:'แผนการผลิตประจำวัน',
+   desc:'ตารางลงเป้าหมาย ยอดผลิตจริง ของเสีย และปัญหาที่เครื่องหยุด', make:formPlan},
+  {id:'repair', ic:'🔧', name:'ใบแจ้งซ่อมเครื่องจักร',
+   desc:'แจ้งอาการ ช่างลงวิธีแก้ อะไหล่ที่ใช้ และเวลาที่เครื่องหยุด', make:formRepair},
+  {id:'issue',  ic:'📤', name:'ใบเบิกสินค้าจากคลัง',
+   desc:'ขอเบิกของออกจากคลัง มีช่องผู้อนุมัติและผู้จ่ายของ', make:formIssue},
+  {id:'recv',   ic:'📥', name:'ใบรับสินค้า / วัตถุดิบ',
+   desc:'ตรวจรับของจากผู้ขาย เทียบจำนวนตามบิลกับที่นับได้จริง', make:formReceive},
+  {id:'deliv',  ic:'🚚', name:'ใบส่งของ / ใบจ่ายสินค้า',
+   desc:'ใบส่งของให้ลูกค้า มีช่องทะเบียนรถ คนส่ง และลายเซ็นผู้รับ', make:formDelivery},
+  {id:'count',  ic:'📋', name:'ใบตรวจนับสต๊อก',
+   desc:'มีรายชื่อสินค้าทุกตัวพิมพ์มาให้แล้ว แค่เดินนับแล้วเติมตัวเลข', make:formCount},
+  {id:'manual', ic:'📘', name:'คู่มือใช้งานระบบ',
+   desc:'อธิบายทีละขั้นสำหรับพนักงานทุกคน แจกให้อ่านหรือติดไว้หน้างาน', make:formManual}
+];
+function renderForms(){
+  var host=$('form-list'); if(!host)return;
+  var sig=FORMS.length+'|'+skuSig;
+  if(host.dataset.sig===sig)return;
+  host.dataset.sig=sig; host.innerHTML='';
+  FORMS.forEach(function(f){
+    var c=el('div','formcard');
+    c.innerHTML='<div class="ic" aria-hidden="true">'+f.ic+'</div>'+
+      '<h3>'+esc(f.name)+'</h3><p>'+esc(f.desc)+'</p>'+
+      '<div class="row"><button class="btn sm primary" data-fprint="'+f.id+'">พิมพ์</button>'+
+      '<button class="btn sm" data-fdl="'+f.id+'">ดาวน์โหลด</button></div>';
+    host.appendChild(c);
+  });
+}
+function formById(id){ for(var i=0;i<FORMS.length;i++)if(FORMS[i].id===id)return FORMS[i];return null }
+$('form-list').addEventListener('click',async function(ev){
+  var b=ev.target.closest('button'); if(!b)return;
+  var f=formById(b.dataset.fprint||b.dataset.fdl); if(!f)return;
+  if(b.dataset.fprint){ printDoc(f.make(),'กำลังเปิดหน้าต่างพิมพ์ — '+f.name); return }
+  try{
+    await saveFile(f.name+'.html', f.make(), 'text/html;charset=utf-8');
+    toast('ดาวน์โหลดแล้ว — เปิดไฟล์แล้วกด Ctrl+P เพื่อพิมพ์');
+  }catch(e){ toast('ดาวน์โหลดไม่สำเร็จ') }
+});
+
 /* ---------------- กรอกยอดขายย้อนหลัง ---------------- */
 var BACKID='ยอดยกมา';
 function backEntries(iso){
@@ -2944,10 +4614,10 @@ function backEntries(iso){
   return (rec.entries||[]).filter(function(e){return e.back===true});
 }
 function renderBackfill(){
-  var can=S.admin;
-  $('back-locked').classList.toggle('hidden',can);
-  $('back-ui').classList.toggle('hidden',!can);
-  if(!can)return;
+  var ok=can('sale.backdate');
+  $('back-locked').classList.toggle('hidden',ok);
+  $('back-ui').classList.toggle('hidden',!ok);
+  if(!ok)return;
   if(!$('back-date').value)$('back-date').value=todayISO();
   var iso=$('back-date').value;
   var have={},rec=S.days[iso]||{};
@@ -3042,11 +4712,115 @@ async function saveBackfill(){
     toast(list.length? ('บันทึกยอดวัน '+thDate(iso)+' แล้ว '+n(list.length)+' รายการ') : ('ลบยอดย้อนหลังวัน '+thDate(iso)+' แล้ว'));
     $('back-body').dataset.sig='';
     renderBackfill();
-  }catch(e){toast('บันทึกไม่สำเร็จ — ต้องเป็นผู้จัดการ')}
+  }catch(e){toast('บันทึกไม่สำเร็จ — ต้องมีสิทธิ์กรอกยอดขายย้อนหลัง')}
   $('btn-back-save').disabled=false;
 }
 
+/* ---------------- สรุปรายเดือน ---------------- */
+var THMONTH=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+function thMonth(ym){
+  var p=ym.split('-');
+  return THMONTH[(+p[1]||1)-1]+' '+((+p[0]||0)+543);
+}
+/* รวมทุกเดือนที่มีข้อมูล ใหม่สุดขึ้นก่อน */
+function monthRows(){
+  var by={};
+  sortedDays().forEach(function(iso){
+    var ym=iso.slice(0,7);
+    var m=by[ym]||(by[ym]={ym:ym,days:0,sold:0,walk:0,wh:0,prod:0,waste:0,
+      income:0,cogs:0,cogsMissing:0,expense:0,profit:0,billCount:0,hours:0,theo:0});
+    var d=dayStats(iso);
+    if(d.sold>0||d.prod>0||d.expense>0)m.days++;
+    ['sold','walk','wh','prod','waste','income','cogs','cogsMissing','expense','profit','billCount','hours','theo']
+      .forEach(function(k){m[k]+=d[k]||0});
+  });
+  var out=[];
+  for(var k in by){
+    var m=by[k];
+    m.margin=m.income>0?(m.profit/m.income*100):null;
+    m.eff=m.theo>0?Math.round(m.prod/m.theo*100):null;
+    out.push(m);
+  }
+  out.sort(function(a,b){return a.ym<b.ym?1:-1});
+  return out;
+}
+function renderMonths(){
+  var host=$('month-table'); if(!host)return;
+  var money=canMoney();
+  var rows=monthRows();
+  $('month-note').textContent= rows.length? ('มีข้อมูล '+n(rows.length)+' เดือน') : 'ยังไม่มีข้อมูล';
+  if(!rows.length){host.innerHTML='<tbody><tr><td><div class="empty">ยังไม่มีข้อมูล</div></td></tr></tbody>';return}
+  var h='<thead><tr><th class="l">เดือน</th><th>วันที่ทำงาน</th><th>ขาย (แพ็ค)</th><th>ผลิต (แพ็ค)</th>'+
+    (money?'<th>รายรับ</th><th>ค่าขวด+ฝา</th><th>ค่าใช้จ่าย</th><th>กำไรสุทธิ</th><th>% กำไร</th>':'')+
+    '<th>ประสิทธิภาพ</th></tr></thead><tbody>';
+  var T={days:0,sold:0,prod:0,income:0,cogs:0,expense:0,profit:0};
+  rows.forEach(function(m){
+    ['days','sold','prod','income','cogs','expense','profit'].forEach(function(k){T[k]+=m[k]});
+    h+='<tr><td class="l"><b class="ui">'+esc(thMonth(m.ym))+'</b></td>'+
+      '<td class="num">'+n(m.days)+'</td>'+
+      '<td class="num"><b>'+n(m.sold)+'</b></td>'+
+      '<td class="num">'+n(m.prod)+'</td>'+
+      (money?('<td class="num">'+baht(m.income)+'</td>'+
+        '<td class="num" style="color:var(--muted)">'+(m.cogs>0?baht(m.cogs):'—')+'</td>'+
+        '<td class="num" style="color:var(--muted)">'+(m.expense>0?baht(m.expense):'—')+'</td>'+
+        '<td class="num"><b style="color:'+(m.profit<0?'var(--crit)':'var(--good)')+'">'+baht(m.profit)+'</b></td>'+
+        '<td class="num">'+(m.margin!==null?(Math.round(m.margin)+'%'):'—')+'</td>'):'')+
+      '<td class="num">'+(m.eff!==null?(m.eff+'%'):'—')+'</td></tr>';
+  });
+  h+='</tbody><tfoot><tr><td class="l"><b class="ui">รวมทุกเดือน</b></td>'+
+    '<td class="num"><b>'+n(T.days)+'</b></td><td class="num"><b>'+n(T.sold)+'</b></td>'+
+    '<td class="num"><b>'+n(T.prod)+'</b></td>'+
+    (money?('<td class="num"><b>'+baht(T.income)+'</b></td>'+
+      '<td class="num">'+baht(T.cogs)+'</td><td class="num">'+baht(T.expense)+'</td>'+
+      '<td class="num"><b style="color:'+(T.profit<0?'var(--crit)':'var(--good)')+'">'+baht(T.profit)+'</b></td>'+
+      '<td class="num">'+(T.income>0?(Math.round(T.profit/T.income*100)+'%'):'—')+'</td>'):'')+
+    '<td class="num"></td></tr></tfoot>';
+  host.innerHTML=h;
+  var miss=rows.reduce(function(t,m){return t+m.cogsMissing},0);
+  if(miss>0)$('month-note').innerHTML='มีข้อมูล '+n(rows.length)+' เดือน · '+
+    '<span style="color:var(--serious)">'+n(miss)+' แพ็คยังไม่ได้ใส่ราคาทุนขวด/ฝา กำไรจึงสูงกว่าจริง</span>';
+}
+function monthDocHTML(){
+  var rows=monthRows(), money=canMoney();
+  var h='<p class="sub">พิมพ์เมื่อ '+esc(thDate(todayISO()))+' โดย '+esc(whoNow())+'</p>'+
+    '<table><thead><tr><th class="l">เดือน</th><th>วันทำงาน</th><th>ขาย (แพ็ค)</th><th>ผลิต (แพ็ค)</th>'+
+    (money?'<th>รายรับ</th><th>ค่าขวด+ฝา</th><th>ค่าใช้จ่าย</th><th>กำไรสุทธิ</th><th>%</th>':'')+
+    '</tr></thead><tbody>';
+  var T={days:0,sold:0,prod:0,income:0,cogs:0,expense:0,profit:0};
+  rows.forEach(function(m){
+    ['days','sold','prod','income','cogs','expense','profit'].forEach(function(k){T[k]+=m[k]});
+    h+='<tr><td class="l">'+esc(thMonth(m.ym))+'</td><td>'+n(m.days)+'</td><td>'+n(m.sold)+'</td>'+
+      '<td>'+n(m.prod)+'</td>'+
+      (money?('<td>'+baht(m.income)+'</td><td>'+baht(m.cogs)+'</td><td>'+baht(m.expense)+'</td>'+
+        '<td><b>'+baht(m.profit)+'</b></td><td>'+(m.margin!==null?Math.round(m.margin)+'%':'—')+'</td>'):'')+
+      '</tr>';
+  });
+  h+='</tbody><tfoot><tr><td class="l"><b>รวม</b></td><td><b>'+n(T.days)+'</b></td>'+
+    '<td><b>'+n(T.sold)+'</b></td><td><b>'+n(T.prod)+'</b></td>'+
+    (money?('<td><b>'+baht(T.income)+'</b></td><td><b>'+baht(T.cogs)+'</b></td>'+
+      '<td><b>'+baht(T.expense)+'</b></td><td><b>'+baht(T.profit)+'</b></td>'+
+      '<td><b>'+(T.income>0?Math.round(T.profit/T.income*100)+'%':'—')+'</b></td>'):'')+
+    '</tr></tfoot></table>'+
+    '<div class="note">กำไรสุทธิ = รายรับ − ค่าขวดและฝาของที่ขายไป − ค่าใช้จ่ายที่บันทึกไว้ '+
+    '· ยังไม่รวมค่าแรง ค่าไฟ ค่าเสื่อม ถ้าไม่ได้ลงเป็นค่าใช้จ่าย</div>'+
+    signRow(['ผู้จัดทำ','ฝ่ายบัญชี','ผู้จัดการ']);
+  return formDoc('สรุปผลประกอบการรายเดือน',h,'RPT-MT-01');
+}
+$('btn-month-print').onclick=function(){ printDoc(monthDocHTML(),'กำลังเปิดหน้าต่างพิมพ์ — สรุปรายเดือน') };
+$('btn-month-csv').onclick=async function(){
+  var rows=monthRows(), money=canMoney();
+  var out=[['สรุปผลประกอบการรายเดือน'],[],
+    ['เดือน','วันทำงาน','ขาย (แพ็ค)','ผลิต (แพ็ค)'].concat(
+      money?['รายรับ','ค่าขวดฝา','ค่าใช้จ่าย','กำไรสุทธิ','% กำไร']:[])];
+  rows.forEach(function(m){
+    out.push([thMonth(m.ym),m.days,m.sold,m.prod].concat(
+      money?[m.income,m.cogs,m.expense,m.profit,m.margin!==null?Math.round(m.margin):'']:[]));
+  });
+  await saveRows(out,'finra-monthly.csv');
+};
+
 /* ---------------- สรุปยอดขายรายวัน (พิมพ์) ---------------- */
+function XPLEN(iso){ return expOf(iso).length }
 function dayReportHTML(iso){
   var d=dayStats(iso), money=canMoney();
   var h='<h1>สรุปยอดขายประจำวัน</h1>'+
@@ -3079,6 +4853,35 @@ function dayReportHTML(iso){
       '</tbody></table>';
   }
 
+  if(money){
+    h+='<h2>สรุปกำไรของวันนี้</h2><table><tbody>'+
+      '<tr><td class="l">รายรับ</td><td><b>'+baht(d.income)+'</b></td>'+
+        '<td class="l">'+(d.money>0?'จากเงินที่รับจริง':'จากยอดตามบิล (ยังไม่ได้ลงเงินรับ)')+'</td></tr>'+
+      '<tr><td class="l">หัก ค่าขวดและฝาของที่ขายไป</td><td>'+(d.cogs>0?('−'+baht(d.cogs)):'—')+'</td>'+
+        '<td class="l">'+(d.cogsMissing>0?('อีก '+n(d.cogsMissing)+' แพ็คยังไม่ได้ใส่ราคาทุน'):'')+'</td></tr>'+
+      '<tr><td class="l">หัก ค่าใช้จ่าย</td><td>'+(d.expense>0?('−'+baht(d.expense)):'—')+'</td>'+
+        '<td class="l">'+(XPLEN(iso)?(n(XPLEN(iso))+' รายการ'):'')+'</td></tr>'+
+      '<tr><td class="l"><b>กำไรสุทธิ</b></td><td><b>'+baht(d.profit)+'</b></td>'+
+        '<td class="l">'+(d.margin!==null?(Math.round(d.margin)+'% ของรายรับ'):'')+'</td></tr>'+
+      '</tbody></table>'+
+      '<div class="note">ยังไม่รวมค่าแรง ค่าไฟ ค่าเสื่อม ถ้าไม่ได้ลงเป็นค่าใช้จ่าย</div>';
+  }
+  var XP=expOf(iso);
+  if(money&&XP.length){
+    var xt=0; XP.forEach(function(e){xt+=parseFloat(e.amount)||0});
+    h+='<h2>ค่าใช้จ่ายวันนี้ ('+n(XP.length)+' รายการ)</h2>'+
+      '<table><thead><tr><th class="l">ประเภท</th><th class="l">รายละเอียด</th>'+
+      '<th class="l">จ่ายให้</th><th class="l">เลขที่เอกสาร</th><th>จำนวนเงิน</th></tr></thead><tbody>';
+    XP.forEach(function(e){
+      h+='<tr><td class="l">'+esc(e.cat||'อื่นๆ')+'</td><td class="l">'+esc(e.note||'—')+'</td>'+
+         '<td class="l">'+esc(e.payTo||'—')+'</td><td class="l">'+esc(e.docNo||'—')+'</td>'+
+         '<td>'+baht(e.amount)+'</td></tr>';
+    });
+    h+='</tbody><tfoot><tr><td class="l" colspan="4"><b>รวมค่าใช้จ่าย</b></td>'+
+       '<td><b>'+baht(xt)+'</b></td></tr>'+
+       '<tr><td class="l" colspan="4"><b>เหลือหลังหักค่าใช้จ่าย</b></td>'+
+       '<td><b>'+baht(d.money-xt)+'</b></td></tr></tfoot></table>';
+  }
   h+='<h2>แยกตามสินค้า</h2><table><thead><tr><th class="l">สินค้า</th>'+
      '<th>หน้าโรงงาน</th><th>ขายส่ง</th><th>รวม (แพ็ค)</th></tr></thead><tbody>';
   var any=false;
@@ -3153,12 +4956,19 @@ function renderPlan(){
   todo.forEach(function(r){packs+=r.need;hrs+=r.hours;pallets+=r.need/packsPerPallet(r.sku)});
   var cfg=linesCfg(),H=(+S.config.hoursPerDay||8),OT=(+S.config.otHours||0);
   var perDay=cfg.length*(H+OT);
-  var days=perDay>0?hrs/perDay:0;
+  /* เผื่อเวลาเปลี่ยนขนาดขวด: อย่างน้อยต้องเปลี่ยน (จำนวนขนาดที่ต้องทำ − จำนวนไลน์) ครั้ง */
+  var sizes={};todo.forEach(function(r){sizes[sizeKey(r.sku)]=1});
+  var nSizes=Object.keys(sizes).length;
+  var minSwitch=Math.max(0,nSizes-cfg.length);
+  var setupHrs=minSwitch*changeHours();
+  var days=perDay>0?(hrs+setupHrs)/perDay:0;
 
   $('plan-kpis').innerHTML=
-    '<div class="kpi"><span class="k">รายการที่ต้องผลิต</span><span class="v num">'+n(todo.length)+'</span><span class="u">จากทั้งหมด '+n(rs.length)+' รายการ</span></div>'+
+    '<div class="kpi"><span class="k">รายการที่ต้องผลิต</span><span class="v num">'+n(todo.length)+'</span><span class="u">'+
+      n(nSizes)+' ขนาด · จากทั้งหมด '+n(rs.length)+' รายการ</span></div>'+
     '<div class="kpi"><span class="k">ต้องผลิตรวม</span><span class="v num">'+n(packs)+'</span><span class="u">แพ็ค ≈ '+n(Math.ceil(pallets))+' พาเลท</span></div>'+
-    '<div class="kpi"><span class="k">ใช้เวลาเดินเครื่อง</span><span class="v num">'+n1(hrs)+'</span><span class="u">ชั่วโมงรวมทุกไลน์</span></div>'+
+    '<div class="kpi"><span class="k">ใช้เวลาเดินเครื่อง</span><span class="v num">'+n1(hrs)+'</span><span class="u">ชั่วโมงรวมทุกไลน์'+
+      (setupHrs>0?(' + ตั้งเครื่อง '+n1(setupHrs)+' ชม.'):'')+'</span></div>'+
     '<div class="kpi'+(days>7?' alert':'')+'"><span class="k">เสร็จภายใน</span><span class="v num">'+(perDay>0?n1(days):'—')+'</span><span class="u">วันทำงาน ('+cfg.length+' ไลน์)</span></div>';
 
   $('plan-cfg-note').textContent='ตอนนี้ใช้ยอดขาย '+S.win+' วันย้อนหลัง · เผื่อสต๊อก '+S.cover+' วันทำการ';
@@ -3187,29 +4997,66 @@ function renderPlan(){
 }
 function renderSched(rs){
   var cfg=linesCfg(),H=+S.config.hoursPerDay||8,OT=+S.config.otHours||0;
-  $('cap-note').textContent=cfg.length+' ไลน์ · ทำงาน '+n1(H)+' ชม./วัน'+(OT>0?' + OT ได้อีก '+n1(OT)+' ชม.':'');
+  $('cap-note').textContent=cfg.length+' ไลน์ · ทำงาน '+n1(H)+' ชม./วัน'+(OT>0?' + OT ได้อีก '+n1(OT)+' ชม.':'')+
+    ' · เปลี่ยนขนาดขวดครั้งละ '+n(changeMin())+' นาที';
   var host=$('sched');host.innerHTML='';
   var queue=rs.filter(function(r){return r.need>0}).map(function(r){return {sku:r.sku,left:r.need,size:sizeKey(r.sku)}});
   if(!queue.length){host.innerHTML='<div class="empty">ไม่มีรายการที่ต้องผลิตในรอบนี้ — สต๊อกพอตามเป้าหมาย</div>';return}
+  /* รายการที่ไม่มีไลน์ไหนผลิตได้เลย ต้องบอกให้รู้ ไม่ใช่เงียบหายไป */
+  var orphan=queue.filter(function(q){return !linesForSku(q.sku).length});
+  if(orphan.length){
+    var ow=el('div','banner demo');
+    ow.innerHTML='<span>'+ICON.warn+'</span><div class="grow"><b>ยังไม่มีไลน์ไหนผลิตได้ '+n(orphan.length)+' รายการ</b> — '+
+      esc(orphan.slice(0,4).map(function(q){return q.sku.brand+' '+q.sku.size}).join(', '))+
+      (orphan.length>4?(' และอีก '+n(orphan.length-4)+' รายการ'):'')+
+      ' · ไปติ๊กให้ที่ <b>ตั้งค่า → ไลน์ไหนผลิตอะไรได้</b></div>';
+    host.appendChild(ow);
+  }
   var tbl=el('table');
   tbl.innerHTML='<thead><tr><th class="l">วัน</th><th class="l">ไลน์</th><th class="l">สินค้า</th><th>แพ็ค</th><th>พาเลท</th><th>ชั่วโมง</th><th class="l">หมายเหตุ</th></tr></thead>';
-  var body=el('tbody'),qi=0,rowsOut=0;
-  for(var d=0;d<7&&qi<queue.length;d++){
+  var body=el('tbody'),rowsOut=0;
+  /* เวลาที่เสียไปตอนเปลี่ยนขนาดขวด — ตั้งค่าได้เอง ค่าเริ่มต้น 30 นาที */
+  var CH=changeHours();
+  /* ขนาดที่แต่ละไลน์ตั้งเครื่องค้างไว้ · ข้ามวันได้ เพราะเครื่องไม่ได้ถูกรื้อตอนกลางคืน */
+  var setUp={}, switches=0, lostHours=0;
+  linesCfg().forEach(function(L){
+    var st=S.lines[L.id];
+    setUp[L.id]=(st&&st.status==='run'&&st.skuId&&skuById(st.skuId))?sizeKey(skuById(st.skuId)):null;
+  });
+  function anyLeft(){ return queue.some(function(q){return q.left>0}) }
+  for(var d=0;d<7&&anyLeft();d++){
     var iso=addDays(todayISO(),d),dayHas=false;
-    for(var li=0;li<cfg.length&&qi<queue.length;li++){
+    for(var li=0;li<cfg.length;li++){
       var L=cfg[li],room=H+OT,used=0;
-      while(room>0.01&&qi<queue.length){
-        var item=null,idx=-1;
-        for(var q=qi;q<queue.length;q++){
-          if(queue[q].left>0&&L.sizes.indexOf(queue[q].size)>=0){item=queue[q];idx=q;break}
-        }
-        if(!item)break;
+      while(room>0.01){
+        /* งานที่ไลน์นี้ทำได้ เรียงตามความด่วนอยู่แล้ว */
+        var cand=queue.filter(function(q){return q.left>0&&canMake(L,q.sku)});
+        if(!cand.length)break;
+        /* ทำขนาดเดิมให้หมดก่อน จะได้ไม่ต้องเปลี่ยนเครื่องบ่อย */
+        var same=cand.filter(function(q){return q.size===setUp[L.id]});
+        var item=same.length?same[0]:cand[0];
+        var needSwitch=(!same.length&&setUp[L.id]!==null&&setUp[L.id]!==item.size);
+        var setup=needSwitch?CH:0;
+        /* เวลาที่เหลือน้อยกว่าเวลาเปลี่ยนเครื่อง ไม่คุ้มที่จะเปลี่ยน เก็บไว้พรุ่งนี้ */
+        if(setup>0&&room<setup+0.25)break;
         var rate=rateOf(item.sku);
-        var take=Math.min(item.left,Math.floor(room*rate));
+        var take=Math.min(item.left,Math.floor((room-setup)*rate));
         if(take<=0)break;
+        if(setup>0){
+          switches++; lostHours+=setup; room-=setup; used+=setup;
+          var trc=el('tr');
+          trc.innerHTML='<td class="l">'+(dayHas?'':'<b>'+thShort(iso)+'</b><div class="brandline">'+thDate(iso)+'</div>')+'</td>'+
+            '<td class="l"><b class="ui">'+esc(L.name)+'</b></td>'+
+            '<td class="l" style="color:var(--serious)">'+ICON.warn+' เปลี่ยนขนาดขวด '+
+              esc(setUp[L.id])+' → '+esc(item.size)+'</td>'+
+            '<td class="num">—</td><td class="num">—</td>'+
+            '<td class="num" style="color:var(--serious)">'+n1(setup)+'</td>'+
+            '<td class="l"><span class="stat serious">เสียเวลาตั้งเครื่อง</span></td>';
+          body.appendChild(trc); dayHas=true; rowsOut++;
+        }
         var hrs=take/rate;
-        item.left-=take;room-=hrs;used+=hrs;
-        var ot=Math.max(0,used-H), otRow=ot>0;
+        item.left-=take; room-=hrs; used+=hrs; setUp[L.id]=item.size;
+        var otRow=used>H;
         var tr=el('tr');
         tr.innerHTML='<td class="l">'+(dayHas?'':'<b>'+thShort(iso)+'</b><div class="brandline">'+thDate(iso)+'</div>')+'</td>'+
           '<td class="l"><b class="ui">'+esc(L.name)+'</b></td>'+
@@ -3219,12 +5066,16 @@ function renderSched(rs){
           '<td class="num">'+n1(hrs)+'</td>'+
           '<td class="l">'+(otRow?'<span class="stat warn">'+ICON.warn+'ต้อง OT</span>':'<span class="note">ในเวลาปกติ</span>')+'</td>';
         body.appendChild(tr);dayHas=true;rowsOut++;
-        while(qi<queue.length&&queue[qi].left<=0)qi++;
-        if(idx===qi&&item.left<=0)qi++;
       }
     }
   }
   tbl.appendChild(body);host.appendChild(tbl);
+  var note=el('p','note');
+  note.innerHTML= switches
+    ? ('ตารางนี้จัดให้ทำขนาดเดียวกันติดกันให้มากที่สุด · ยังต้องเปลี่ยนขนาดขวด <b class="num">'+n(switches)+
+       '</b> ครั้ง เสียเวลารวม <b class="num">'+n1(lostHours)+'</b> ชม. (ครั้งละ '+n(CH*60)+' นาที)')
+    : 'ตารางนี้ไม่ต้องเปลี่ยนขนาดขวดเลย — แต่ละไลน์ทำขนาดเดียวรวดเดียวจบ';
+  host.appendChild(note);
   var leftTotal=0;queue.forEach(function(q){if(q.left>0)leftTotal+=q.left});
   if(leftTotal>0)host.appendChild(el('p','note','เหลืออีก '+n(leftTotal)+' แพ็คที่ลงตาราง 7 วันไม่พอ — ต้องเพิ่ม OT หรือเพิ่มกะ'));
   if(!rowsOut)host.innerHTML='<div class="empty">ไม่มีไลน์ไหนผลิตขนาดที่ต้องการได้ — ไปตั้งค่าไลน์ที่แท็บตั้งค่า</div>';
@@ -3269,6 +5120,15 @@ function renderMoney(){
 /* ---------------- render: settings ---------------- */
 function renderSet(){
   $('bk-panel').classList.toggle('hidden',!P('user.manage'));
+  var sgb=$('sgb-sys');
+  if(sgb){
+    /* หมวด "ผู้ใช้และสำรองข้อมูล" เห็นเฉพาะคนที่จัดการผู้ใช้ได้ */
+    var canSys=P('user.manage');
+    sgb.classList.toggle('hidden',!canSys);
+    if(!canSys&&setGroup==='sys')showSetGroup('cust');
+  }
+  renderExpCats();
+  renderDrivers();
   renderCust();
   renderPrices();
   renderOem();
@@ -3296,13 +5156,20 @@ function renderSet(){
     ['350','600','1500'].forEach(function(k){
       boxes+='<label style="margin-inline-end:14px;font-family:var(--f-ui);font-size:13.5px"><input type="checkbox" id="ls-'+L.id+'-'+k+'" '+(L.sizes.indexOf(k)>=0?'checked':'')+' '+(S.admin?'':'disabled')+'> '+k+' ml</label>';
     });
-    tr.innerHTML='<td class="l"><b class="ui">'+esc(L.name)+'</b> <span class="note">'+L.id+'</span></td><td class="l">'+boxes+'</td>';
+    tr.innerHTML='<td class="l"><b class="ui">'+esc(L.name)+'</b> <span class="note">'+L.id+'</span></td>'+
+      '<td class="l">'+boxes+'</td>'+
+      '<td class="l"><label style="font-family:var(--f-ui);font-size:13.5px">'+
+        '<input type="checkbox" id="lstrict-'+L.id+'" '+(L.strict?'checked':'')+' '+(S.admin?'':'disabled')+'> '+
+        'ล็อกไลน์นี้</label> <span class="note">สินค้าใหม่จะไม่ขึ้นเอง</span></td>';
     lb.appendChild(tr);
   });
+  renderMakeGrid();
   $('f-hours').value=S.config.hoursPerDay||8;
   $('f-ot').value=S.config.otHours||0;
+  $('f-change').value=changeMin();
   $('f-staff').value=(S.config.staff||[]).join(', ');
   $('f-hours').disabled=!S.admin;$('f-ot').disabled=!S.admin;$('f-staff').disabled=!S.admin;
+  $('f-change').disabled=!S.admin;
 
   var tb=$('set-body');
   var sig=skuSig+'|'+S.admin+'|'+(S.costs?'c':'n');
@@ -3310,25 +5177,416 @@ function renderSet(){
   tb.dataset.sig=sig;tb.innerHTML='';
   S.skus.forEach(function(s){
     var tr=el('tr'),cost=S.costs&&S.costs.cost?(S.costs.cost[s.id]||''):'',price=S.costs&&S.costs.price?(S.costs.price[s.id]||''):'';
-    tr.innerHTML='<td class="name l"><input type="text" id="sn-'+s.id+'" value="'+esc(s.name)+'" '+(S.admin?'':'disabled')+'></td>'+
+    tr.innerHTML='<td class="name l">'+
+        '<input type="text" id="sn-'+s.id+'" value="'+esc(s.name)+'" '+(S.admin?'':'disabled')+'>'+
+        '<div class="row" style="gap:6px;margin-top:5px">'+
+          '<input type="text" id="sbr-'+s.id+'" value="'+esc(s.brand||'')+'" placeholder="ยี่ห้อ" '+
+            'style="max-width:150px" '+(S.admin?'':'disabled')+'>'+
+          '<input type="text" id="ssz-'+s.id+'" value="'+esc(s.size||'')+'" placeholder="ขนาด เช่น 600 ml หรือ 18.9 L" '+
+            'style="max-width:170px" '+(S.admin?'':'disabled')+'>'+
+          '<span class="note">'+esc(unitOf(s))+'</span>'+
+        '</div></td>'+
       '<td><input type="number" id="sp-'+s.id+'" value="'+bottlesPerPack(s)+'" min="1" style="max-width:80px;text-align:right" '+(S.admin?'':'disabled')+'></td>'+
       '<td><input type="number" id="sm-'+s.id+'" value="'+(+s.min||0)+'" min="0" style="max-width:92px;text-align:right" '+(S.admin?'':'disabled')+'></td>'+
       '<td class="l"><input type="text" id="sb-'+s.id+'" value="'+esc(s.barcode||'')+'" placeholder="เช่น 8850123456789" style="max-width:170px" '+(S.admin?'':'disabled')+'></td>'+
       (S.costs?'<td><input type="number" id="sc-'+s.id+'" value="'+cost+'" min="0" step="0.25" style="max-width:92px;text-align:right"></td>'+
                '<td><input type="number" id="sr-'+s.id+'" value="'+price+'" min="0" step="0.25" style="max-width:92px;text-align:right"></td>'
               :'<td class="num" style="color:var(--muted)">—</td><td class="num" style="color:var(--muted)">—</td>')+
-      '<td><input type="checkbox" id="sa-'+s.id+'" '+(s.active!==false?'checked':'')+' '+(S.admin?'':'disabled')+'></td>';
+      '<td><input type="checkbox" id="sa-'+s.id+'" '+(s.active!==false?'checked':'')+' '+(S.admin?'':'disabled')+'></td>'+
+      '<td class="l">'+(S.admin?('<button class="btn sm danger" data-delsku="'+s.id+'">ลบ</button>'):'')+'</td>';
     tb.appendChild(tr);
   });
 }
 
+/* สินค้าตัวนี้เคยถูกใช้งานไปแล้วแค่ไหน — ถ้าเคยใช้ ห้ามลบ */
+function skuUsage(id){
+  var u={entries:0,mat:0,stock:0,days:{},lines:[],price:false};
+  sortedDays().forEach(function(d){
+    var rec=S.days[d]||{};
+    (rec.entries||[]).forEach(function(e){
+      if(e.skuId===id){u.entries++;u.days[d]=1}
+    });
+  });
+  var st=stockMap(); u.stock=+st[id]||0;
+  if(S.baseline&&S.baseline.qty&&S.baseline.qty[id])u.baseline=+S.baseline.qty[id]||0;
+  linesCfg().forEach(function(L){
+    var ls=S.lines[L.id]||{};
+    if(ls.status==='run'&&ls.skuId===id)u.lines.push(L.id);
+  });
+  var P2=S.prices||{};
+  if((P2.walk||{})[id]||(P2.skuTiers||{})[id])u.price=true;
+  (S.customers||[]).forEach(function(c){ if(c.rates&&c.rates[id])u.price=true });
+  u.dayCount=Object.keys(u.days).length;
+  return u;
+}
+async function deleteSku(id){
+  if(!requireDb())return;
+  var s2=skuById(id); if(!s2)return;
+  var nm=s2.brand+' '+s2.size;
+  var u=skuUsage(id);
+  if(u.lines.length){
+    toast('ตอนนี้ '+u.lines.join(', ')+' กำลังเดินเครื่องผลิต '+nm+' อยู่ — ปิดรอบผลิตก่อนถึงจะลบได้');
+    return;
+  }
+  if(u.entries>0||u.stock!==0||u.baseline){
+    var why=[];
+    if(u.entries>0)why.push('มีรายการซื้อขาย/ผลิต '+n(u.entries)+' รายการ ใน '+n(u.dayCount)+' วัน');
+    if(u.stock!==0)why.push('ยังมีสต๊อกค้างอยู่ '+n1(u.stock)+' '+unitOf(s2));
+    if(u.baseline)why.push('มีอยู่ในยอดตรวจนับล่าสุด');
+    var ok=await askConfirm('ลบ '+nm+' ไม่ได้ เพราะ '+why.join(' · ')+
+      '\n\nถ้าเลิกขายแล้ว ให้ซ่อนแทน — ยอดเก่าในรายงานจะยังอยู่ครบ จะซ่อนเลยไหม?','ซ่อนสินค้านี้');
+    if(!ok)return;
+    var a=$('sa-'+id); if(a)a.checked=false;
+    await saveMaster();
+    toast('ซ่อน '+nm+' แล้ว — ยอดเก่ายังอยู่ในรายงาน');
+    return;
+  }
+  if(!await askConfirm('ลบ '+nm+' ออกจากระบบถาวรใช่ไหม?\nสินค้านี้ยังไม่เคยมีการซื้อขายหรือผลิต จึงลบได้','ลบถาวร'))return;
+  var items=S.skus.filter(function(x){return x.id!==id});
+  try{
+    await S.db.doc('master/skus').set({items:items,updatedAt:new Date().toISOString()});
+    /* เก็บกวาดค่าที่ผูกกับสินค้านี้ ไม่ให้เหลือขยะ */
+    await cleanupSkuRefs(id);
+    toast('ลบ '+nm+' แล้ว');
+  }catch(e){toast('ลบไม่สำเร็จ — ต้องมีสิทธิ์แก้ข้อมูลหลัก')}
+}
+/* ลบร่องรอยของสินค้าที่ถูกลบ ออกจากราคา ต้นทุน และกติกาไลน์ */
+async function cleanupSkuRefs(id){
+  try{
+    var P2=S.prices||{}, changed=false;
+    var walk={},tiers={};
+    for(var k in (P2.walk||{})) if(k!==id)walk[k]=P2.walk[k]; else changed=true;
+    for(var k2 in (P2.skuTiers||{})) if(k2!==id)tiers[k2]=P2.skuTiers[k2]; else changed=true;
+    var promos=(P2.promos||[]).map(function(p){
+      if(!p.skus||p.skus.indexOf(id)<0)return p;
+      changed=true; var c={};for(var q in p)c[q]=p[q];
+      c.skus=p.skus.filter(function(x){return x!==id});return c;
+    });
+    if(changed)await savePrices({walk:walk,tiers:P2.tiers||[],skuTiers:tiers,promos:promos});
+  }catch(e){}
+  try{
+    var cs=(S.customers||[]),touched=false;
+    var out=cs.map(function(c){
+      if(!c.rates||!c.rates[id])return c;
+      touched=true; var o={};for(var q in c)o[q]=c[q];
+      o.rates={};for(var r in c.rates)if(r!==id)o.rates[r]=c.rates[r];
+      return o;
+    });
+    if(touched)await saveCustomers(out);
+  }catch(e){}
+  try{
+    var ls=lineSkuMap(),hit=false,clean={};
+    for(var L in ls){
+      clean[L]={};
+      for(var sid in ls[L]) if(sid!==id)clean[L][sid]=ls[L][sid]; else hit=true;
+      if(!Object.keys(clean[L]).length)delete clean[L];
+    }
+    if(hit)await S.db.doc('master/config').set(Object.assign({},S.config,{lineSkus:clean,
+      updatedAt:new Date().toISOString()}));
+  }catch(e){}
+}
+
+/* ---------------- ค่าใช้จ่าย: หน้าจอ ---------------- */
+function renderExpense(){
+  var ok=can('expense.log');
+  $('exp-locked').classList.toggle('hidden',ok);
+  $('exp-ui').classList.toggle('hidden',!ok);
+  if(!ok)return;
+  if(!$('ex-date').value)$('ex-date').value=todayISO();
+  var dl=$('expcats'), cs=expCats();
+  if(dl.dataset.sig!==cs.join(',')){
+    dl.dataset.sig=cs.join(','); dl.innerHTML='';
+    cs.forEach(function(c){var o=el('option');o.value=c;dl.appendChild(o)});
+  }
+  var r=repDates(), R=expRange(r.from,r.to);
+  var cats=Object.keys(R.byCat).sort(function(a,b){return R.byCat[b]-R.byCat[a]});
+  $('exp-sum').innerHTML=
+    '<span class="note">ช่วงที่เลือก: <b class="num" style="color:var(--crit)">'+baht(R.total)+'</b> จาก '+n(R.list.length)+' รายการ</span>'+
+    cats.slice(0,6).map(function(c){
+      return '<span class="note"><b class="ui" style="color:var(--ink-2)">'+esc(c)+'</b> <span class="num">'+baht(R.byCat[c])+'</span></span>';
+    }).join('');
+  var host=$('exp-list'); host.innerHTML='';
+  if(!R.list.length){
+    host.innerHTML='<div class="entry"><div class="empty" style="flex:1">ยังไม่มีค่าใช้จ่ายในช่วงที่เลือก</div></div>';
+    return;
+  }
+  R.list.slice(0,80).forEach(function(x){
+    var e=x.e, row=el('div','entry');
+    row.innerHTML='<span class="when">'+esc(thShort(x.date))+'</span>'+
+      '<span class="tag" style="background:var(--crit-soft);color:var(--crit)">'+esc(e.cat||'อื่นๆ')+'</span>'+
+      '<span class="nm">'+esc(e.note||'—')+'</span>'+
+      '<span class="meta">'+esc([e.payTo,e.docNo].filter(Boolean).join(' · '))+'</span>'+
+      (e.uname?('<span class="bywho">ลงโดย <b>'+esc(e.uname)+'</b></span>'):'')+
+      '<span class="q minus">−'+baht(e.amount)+'</span>';
+    var del=el('button','btn sm danger','ลบ');
+    del.style.marginInlineStart='8px';
+    del.onclick=function(){removeExpense(x.date,e.id)};
+    row.appendChild(del);
+    host.appendChild(row);
+  });
+  if(R.list.length>80)host.appendChild(el('div','entry','แสดง 80 รายการล่าสุด จากทั้งหมด '+n(R.list.length)+' รายการ'));
+}
+$('btn-exp-add').onclick=async function(){
+  if(!requireDb())return;
+  var iso=$('ex-date').value||todayISO();
+  var amt=parseFloat($('ex-amt').value)||0;
+  var note=$('ex-note').value.trim(), cat=$('ex-cat').value.trim();
+  if(amt<=0){toast('ใส่จำนวนเงินก่อน');$('ex-amt').focus();return}
+  if(!note&&!cat){toast('ใส่รายละเอียด หรือเลือกประเภทก่อน');$('ex-note').focus();return}
+  var e={id:'x'+uid(),ts:iso+'T'+new Date().toTimeString().slice(0,5)+':00+07:00',
+    rts:new Date().toISOString(),cat:cat||'อื่นๆ',note:note,amount:amt,
+    payTo:$('ex-to').value.trim(),docNo:$('ex-doc').value.trim()};
+  $('btn-exp-add').disabled=true;
+  try{
+    await withDay(iso,function(entries,cur){
+      return {entries:entries, exp:(cur.exp||[]).concat([e])};
+    });
+    toast('บันทึกค่าใช้จ่าย '+baht(amt)+' แล้ว');
+    ['ex-note','ex-amt','ex-to','ex-doc'].forEach(function(id){$(id).value=''});
+  }catch(err){toast('บันทึกไม่สำเร็จ — ต้องมีสิทธิ์บันทึกค่าใช้จ่าย')}
+  $('btn-exp-add').disabled=false;
+};
+async function removeExpense(iso,id){
+  if(!requireDb())return;
+  if(!await askConfirm('ลบรายการค่าใช้จ่ายนี้ใช่ไหม?','ลบ'))return;
+  try{
+    await withDay(iso,function(entries,cur){
+      return {entries:entries, exp:(cur.exp||[]).filter(function(x){return x.id!==id})};
+    });
+    toast('ลบแล้ว');
+  }catch(e){toast('ลบไม่สำเร็จ')}
+}
+$('ex-date').addEventListener('change',renderExpense);
+
+/* ---------------- ประเภทค่าใช้จ่าย ---------------- */
+function expCatUse(name){
+  var c=0;
+  sortedDays().forEach(function(d){
+    expOf(d).forEach(function(e){ if((e.cat||'อื่นๆ')===name)c++ });
+  });
+  return c;
+}
+function renderExpCats(){
+  var ok=can('expense.log');
+  $('expcat-locked').classList.toggle('hidden',ok);
+  $('expcat-ui').classList.toggle('hidden',!ok);
+  if(!ok)return;
+  var list=expCats();
+  $('ec-count').textContent=n(list.length)+' ประเภท';
+  var tb=$('ec-body'), sig=list.join('|');
+  if(tb.dataset.sig===sig)return;
+  tb.dataset.sig=sig; tb.innerHTML='';
+  list.forEach(function(c,i){
+    var used=expCatUse(c);
+    var tr=el('tr');
+    tr.innerHTML='<td class="l"><input type="text" id="ec-'+i+'" value="'+esc(c)+'" style="max-width:260px"></td>'+
+      '<td class="num" style="color:var(--muted)">'+(used?n(used):'—')+'</td>'+
+      '<td class="l"><button class="btn sm danger" data-ecdel="'+i+'">ลบ</button></td>';
+    tb.appendChild(tr);
+  });
+}
+async function saveExpCats(list){
+  try{ await S.db.doc('master/expcats').set({items:list,updatedAt:new Date().toISOString()}); return true }
+  catch(e){ toast('บันทึกไม่สำเร็จ — ต้องมีสิทธิ์บันทึกค่าใช้จ่าย'); return false }
+}
+$('btn-ec-add').onclick=async function(){
+  if(!requireDb())return;
+  var nm=$('ec-name').value.trim();
+  if(!nm){toast('ใส่ชื่อประเภทก่อน');return}
+  if(expCats().some(function(c){return c.toLowerCase()===nm.toLowerCase()})){toast('มีประเภทนี้อยู่แล้ว');return}
+  if(await saveExpCats(expCats().concat([nm]))){$('ec-name').value='';toast('เพิ่ม '+nm+' แล้ว')}
+};
+$('btn-ec-save').onclick=async function(){
+  if(!requireDb())return;
+  var out=[];
+  expCats().forEach(function(c,i){
+    var b=$('ec-'+i); var v=b? b.value.trim() : c;
+    if(v&&out.indexOf(v)<0)out.push(v);
+  });
+  if(await saveExpCats(out))toast('บันทึกประเภทค่าใช้จ่ายแล้ว');
+};
+$('ec-body').addEventListener('click',async function(ev){
+  var b=ev.target.closest('button[data-ecdel]'); if(!b)return;
+  var i=+b.dataset.ecdel, list=expCats(), nm=list[i];
+  if(nm===undefined)return;
+  var used=expCatUse(nm);
+  var msg= used? ('ลบประเภท "'+nm+'" ใช่ไหม?\nมีค่าใช้จ่ายเก่าใช้ประเภทนี้อยู่ '+n(used)+' รายการ — รายการเก่าจะยังอยู่ครบ แค่ไม่มีให้เลือกตอนบันทึกใหม่')
+                : ('ลบประเภท "'+nm+'" ใช่ไหม?');
+  if(!await askConfirm(msg,'ลบ'))return;
+  if(await saveExpCats(list.filter(function(_,j){return j!==i})))toast('ลบแล้ว');
+});
+
+/* ---------------- ตารางราคาที่ตกลงกับลูกค้า ---------------- */
+var RATEFOR=null;
+function openRateTable(id){
+  var c=custById(id); if(!c)return;
+  RATEFOR=id;
+  revealPanel('rate-panel');
+  $('rate-panel').classList.remove('hidden');
+  $('rate-title').textContent='ราคาที่ตกลงกับ '+c.name;
+  $('rate-find').value='';
+  $('rate-body').dataset.sig='';
+  renderRateTable();
+  $('rate-panel').scrollIntoView({block:'start',behavior:'smooth'});
+}
+function closeRateTable(){ RATEFOR=null; $('rate-panel').classList.add('hidden') }
+function renderRateTable(){
+  if(!RATEFOR)return;
+  var c=custById(RATEFOR); if(!c){closeRateTable();return}
+  var cur=c.rates||{};
+  var find=($('rate-find').value||'').trim().toLowerCase();
+  var list=activeSkus().filter(isPack).filter(function(sk){
+    return !find||(sk.brand+' '+sk.size+' '+(sk.name||'')).toLowerCase().indexOf(find)>=0;
+  });
+  var set=0; for(var k in cur) if(pnum(cur[k])>0)set++;
+  $('rate-note').textContent= set? ('ตั้งราคาไว้แล้ว '+n(set)+' รายการ') : 'ยังไม่ได้ตั้งราคาให้ลูกค้ารายนี้';
+  var tb=$('rate-body');
+  var sig=RATEFOR+'|'+find+'|'+skuSig+'|'+JSON.stringify(cur);
+  if(tb.dataset.sig===sig)return;
+  tb.dataset.sig=sig; tb.innerHTML='';
+  if(!list.length){tb.innerHTML='<tr><td colspan="4"><div class="empty">ไม่พบสินค้าที่ค้นหา</div></td></tr>';return}
+  list.forEach(function(sk){
+    var v=pnum(cur[sk.id]);
+    /* เรตปกติ = ราคาที่ระบบจะคิดให้ถ้าไม่มีราคาตกลง */
+    var base=priceFor(sk.id,'ขายส่ง',0,null,todayISO());
+    var tr=el('tr');
+    tr.innerHTML='<td class="name l"><b>'+esc(sk.brand)+'</b> '+esc(sk.size)+'</td>'+
+      '<td><input type="number" class="ratebox" data-sku="'+sk.id+'" id="rb-'+sk.id+
+        '" value="'+(v>0?v:'')+'" min="0" step="0.25" placeholder="—" style="max-width:110px;text-align:right"></td>'+
+      '<td class="num" style="color:var(--muted)">'+(base.price>0?n1(base.price):'—')+'</td>'+
+      '<td class="num" id="rd-'+sk.id+'"></td>';
+    tb.appendChild(tr);
+  });
+  rateDiffs();
+}
+function rateDiffs(){
+  [].forEach.call(document.querySelectorAll('.ratebox'),function(i){
+    var sk=skuById(i.dataset.sku); if(!sk)return;
+    var base=priceFor(sk.id,'ขายส่ง',0,null,todayISO()).price;
+    var v=pnum(i.value), cell=$('rd-'+sk.id);
+    if(!cell)return;
+    if(v<=0||base<=0){cell.textContent='';return}
+    var d=v-base;
+    cell.innerHTML= d===0 ? '<span class="note">เท่ากัน</span>'
+      : '<span style="color:'+(d<0?'var(--good)':'var(--serious)')+'">'+(d>0?'+':'')+n1(d)+'</span>';
+  });
+}
+$('rate-find').addEventListener('input',function(){$('rate-body').dataset.sig='';renderRateTable()});
+$('rate-body').addEventListener('input',function(ev){
+  if(ev.target.classList.contains('ratebox'))rateDiffs();
+});
+$('btn-rate-close').onclick=closeRateTable;
+$('btn-rate-clear').onclick=function(){
+  [].forEach.call(document.querySelectorAll('.ratebox'),function(i){i.value=''});
+  rateDiffs();
+  $('rate-note').textContent='ล้างแล้ว — กดบันทึกเพื่อยืนยัน';
+};
+$('btn-rate-fill').onclick=function(){
+  var nfill=0;
+  [].forEach.call(document.querySelectorAll('.ratebox'),function(i){
+    if(String(i.value).trim())return;
+    var w=pnum(((S.prices||{}).walk||{})[i.dataset.sku]);
+    if(w>0){i.value=w;nfill++}
+  });
+  rateDiffs();
+  $('rate-note').textContent= nfill? ('เติมให้ '+n(nfill)+' รายการ — กดบันทึกเพื่อยืนยัน')
+                                   : 'ยังไม่ได้ตั้งราคาหน้าโรงงานไว้ จึงไม่มีอะไรให้เติม';
+};
+$('btn-rate-save').onclick=async function(){
+  if(!RATEFOR||!requireDb())return;
+  var rates={};
+  [].forEach.call(document.querySelectorAll('.ratebox'),function(i){
+    var v=pnum(i.value); if(v>0)rates[i.dataset.sku]=v;
+  });
+  /* รายการที่ถูกกรองออกด้วยช่องค้นหา ต้องไม่หายไป */
+  var c=custById(RATEFOR), old=c&&c.rates?c.rates:{};
+  for(var k in old){
+    if(!document.querySelector('.ratebox[data-sku="'+k+'"]')&&pnum(old[k])>0)rates[k]=pnum(old[k]);
+  }
+  var items=(S.customers||[]).map(function(x){
+    if(x.id!==RATEFOR)return x;
+    var o={};for(var q in x)o[q]=x[q];o.rates=rates;return o;
+  });
+  $('btn-rate-save').disabled=true;
+  if(await saveCustomers(items)){
+    toast('บันทึกราคาของ '+(c?c.name:'')+' แล้ว ('+n(Object.keys(rates).length)+' รายการ)');
+    $('cust-body').dataset.sig=''; $('rate-body').dataset.sig='';
+  }
+  $('btn-rate-save').disabled=false;
+};
+
+/* ---------------- ทะเบียนพนักงานส่งของ ---------------- */
+function renderDrivers(){
+  var ok=can('cust.edit');
+  $('drv-locked').classList.toggle('hidden',ok);
+  $('drv-ui').classList.toggle('hidden',!ok);
+  if(!ok)return;
+  var list=S.drivers||[];
+  $('drv-count').textContent= list.length? (n(list.length)+' คน · ใช้งานอยู่ '+n(drvList().length)+' คน')
+                                         : 'ยังไม่มีรายชื่อ — เพิ่มด้านบนได้เลย';
+  var tb=$('drv-body');
+  var sig=list.map(function(d){return d.id+d.name+d.phone+d.plate+d.active}).join('|');
+  if(tb.dataset.sig===sig)return;
+  tb.dataset.sig=sig; tb.innerHTML='';
+  if(!list.length){
+    tb.innerHTML='<tr><td colspan="5"><div class="empty">ยังไม่มีพนักงานส่งในระบบ</div></td></tr>';return;
+  }
+  list.forEach(function(d){
+    var tr=el('tr');
+    tr.innerHTML='<td class="l"><input type="text" id="dn-'+d.id+'" value="'+esc(d.name||'')+'" style="max-width:170px"></td>'+
+      '<td class="l"><input type="text" id="dp-'+d.id+'" value="'+esc(d.phone||'')+'" style="max-width:140px"></td>'+
+      '<td class="l"><input type="text" id="dl-'+d.id+'" value="'+esc(d.plate||'')+'" style="max-width:140px"></td>'+
+      '<td><input type="checkbox" id="dx-'+d.id+'"'+(d.active!==false?' checked':'')+'></td>'+
+      '<td class="l"><button class="btn sm danger" data-drvdel="'+d.id+'">ลบ</button></td>';
+    tb.appendChild(tr);
+  });
+}
+async function saveDrivers(items){
+  try{ await S.db.doc('master/drivers').set({items:items,updatedAt:new Date().toISOString()}); return true }
+  catch(e){ toast('บันทึกไม่สำเร็จ — ต้องมีสิทธิ์เพิ่ม-แก้ทะเบียนลูกค้า'); return false }
+}
+$('btn-drv-add').onclick=async function(){
+  if(!requireDb())return;
+  var nm=$('dv-name').value.trim();
+  if(!nm){toast('ใส่ชื่อพนักงานส่งก่อน');return}
+  if(drvByName(nm)){toast('มีชื่อนี้อยู่แล้ว');return}
+  var d={id:'d'+uid(),name:nm,phone:$('dv-phone').value.trim(),
+         plate:$('dv-plate').value.trim(),active:true};
+  if(await saveDrivers((S.drivers||[]).concat([d]))){
+    $('dv-name').value='';$('dv-phone').value='';$('dv-plate').value='';
+    toast('เพิ่ม '+nm+' แล้ว');
+  }
+};
+$('btn-drv-save').onclick=async function(){
+  if(!requireDb())return;
+  var items=(S.drivers||[]).map(function(d){
+    var nm=$('dn-'+d.id),ph=$('dp-'+d.id),pl=$('dl-'+d.id),ac=$('dx-'+d.id);
+    var o={};for(var k in d)o[k]=d[k];
+    if(nm)o.name=nm.value.trim()||d.name;
+    if(ph)o.phone=ph.value.trim();
+    if(pl)o.plate=pl.value.trim();
+    if(ac)o.active=ac.checked;
+    return o;
+  });
+  if(await saveDrivers(items))toast('บันทึกรายชื่อแล้ว');
+};
+$('drv-body').addEventListener('click',async function(ev){
+  var b=ev.target.closest('button[data-drvdel]'); if(!b)return;
+  var id=b.dataset.drvdel, d=(S.drivers||[]).filter(function(x){return x.id===id})[0];
+  if(!d)return;
+  /* ชื่อที่เคยออกบิลไปแล้ว ยังอยู่ในบิลเก่าเสมอ ลบออกจากทะเบียนได้ ไม่กระทบยอด */
+  if(!await askConfirm('ลบ '+d.name+' ออกจากรายชื่อใช่ไหม?\nบิลเก่าที่มีชื่อนี้จะยังอยู่ครบเหมือนเดิม','ลบ'))return;
+  if(await saveDrivers((S.drivers||[]).filter(function(x){return x.id!==id})))
+    toast('ลบ '+d.name+' แล้ว');
+});
+
 /* ---------------- ทะเบียนลูกค้า ---------------- */
 var CUSTTYPE={wh:'ขายส่ง',walk:'หน้าโรงงาน',oem:'OEM'};
 function renderCust(){
-  var can=S.admin;
-  $('cust-locked').classList.toggle('hidden',can);
-  $('cust-ui').classList.toggle('hidden',!can);
-  if(!can)return;
+  var ok=can('cust.edit');
+  $('cust-locked').classList.toggle('hidden',ok);
+  $('cust-ui').classList.toggle('hidden',!ok);
+  if(!ok)return;
   var find=($('cust-find').value||'').trim().toLowerCase();
   var list=(S.customers||[]).filter(function(c){
     return !find||String(c.name||'').toLowerCase().indexOf(find)>=0;
@@ -3356,7 +5614,7 @@ function renderCust(){
 }
 async function saveCustomers(items){
   try{ await S.db.doc('master/customers').set({items:items,updatedAt:new Date().toISOString()}); return true }
-  catch(e){ toast('บันทึกไม่สำเร็จ — ต้องมีสิทธิ์แก้ข้อมูลหลัก'); return false }
+  catch(e){ toast('บันทึกไม่สำเร็จ — ต้องมีสิทธิ์เพิ่ม-แก้ทะเบียนลูกค้า'); return false }
 }
 $('btn-cust-add').onclick=async function(){
   if(!requireDb())return;
@@ -3393,41 +5651,16 @@ $('cust-body').addEventListener('click',async function(ev){
     b.disabled=false;
     return;
   }
-  /* ตั้งราคาที่ตกลงกับลูกค้ารายนี้ */
-  var c=custById(id); if(!c)return;
-  var packs=activeSkus().filter(isPack);
-  var cur=c.rates||{};
-  var lines=packs.map(function(sk){
-    return sk.brand+' '+sk.size+' = '+(pnum(cur[sk.id])||'');
-  }).join('\n');
-  var v=await askPrompt('ราคาที่ตกลงกับ "'+c.name+'" (บาท/แพ็ค)\n'+
-    'ใส่แบบ  ชื่อสินค้า = ราคา  บรรทัดละ 1 อย่าง\nเว้นว่างหรือใส่ 0 = ไม่มีราคาตกลง ใช้เรตปกติ',lines);
-  if(v===null)return;
-  var rates={};
-  String(v).split('\n').forEach(function(ln){
-    var i=ln.lastIndexOf('=');if(i<0)return;
-    var nm=ln.slice(0,i).trim().toLowerCase(),p=pnum(ln.slice(i+1));
-    if(p<=0)return;
-    packs.forEach(function(sk){
-      if((sk.brand+' '+sk.size).toLowerCase()===nm)rates[sk.id]=p;
-    });
-  });
-  var items2=(S.customers||[]).map(function(x){
-    if(x.id!==id)return x;
-    var o={};for(var k in x)o[k]=x[k];o.rates=rates;return o;
-  });
-  if(await saveCustomers(items2)){
-    toast('ตั้งราคาให้ '+c.name+' แล้ว '+Object.keys(rates).length+' รายการ');
-    $('cust-body').dataset.sig='';
-  }
+  /* ตั้งราคาที่ตกลงกับลูกค้ารายนี้ — เปิดเป็นตาราง กรอกง่ายกว่าพิมพ์ทีละบรรทัด */
+  openRateTable(id);
 });
 
 /* ---------------- ราคาขาย: เรต / โปรโมชั่น / ราคาหน้าร้าน ---------------- */
 function renderPrices(){
-  var can=S.admin;
-  $('price-locked').classList.toggle('hidden',can);
-  $('price-ui').classList.toggle('hidden',!can);
-  if(!can)return;
+  var ok=can('price.edit');
+  $('price-locked').classList.toggle('hidden',ok);
+  $('price-ui').classList.toggle('hidden',!ok);
+  if(!ok)return;
   var P=S.prices||{};
 
   var tl=$('tier-list');
@@ -3501,7 +5734,7 @@ function collectPrices(){
 }
 async function savePrices(body){
   try{ await S.db.doc('master/prices').set(body||collectPrices()); return true }
-  catch(e){ toast('บันทึกไม่สำเร็จ — ต้องมีสิทธิ์แก้ข้อมูลหลัก'); return false }
+  catch(e){ toast('บันทึกไม่สำเร็จ — ต้องมีสิทธิ์ตั้งราคาขาย'); return false }
 }
 $('btn-tier-add').onclick=function(){
   var P=S.prices||{};
@@ -3620,7 +5853,7 @@ $('btn-oem-add').onclick=async function(){
   var want=pickedSizes('ob-size');
   if(!want.length){toast('ติ๊กขนาดอย่างน้อย 1 ขนาด');return}
   var dup=S.skus.some(function(s){return String(s.brand).trim()===brand});
-  if(dup&&!await askConfirm('มีแบรนด์ "'+brand+'" อยู่แล้ว จะปรับขนาดที่ทำให้ตรงกับที่ติ๊กใช่หรือไม่?','ปรับขนาด'))return;
+  if(dup&&!await askConfirm('มีแบรนด์ "'+brand+'" อยู่แล้ว จะปรับขนาดที่ทำให้ตรงกับที่ติ๊กใช่ไหม?','ปรับขนาด'))return;
   $('btn-oem-add').disabled=true;
   if(await applyBrandSizes(brand,want)){
     toast(dup?('ปรับขนาดของ '+brand+' แล้ว'):('เพิ่มแบรนด์ '+brand+' แล้ว '+want.length+' ขนาด'));
@@ -3642,6 +5875,21 @@ $('oem-body').addEventListener('click',async function(ev){
 /* ---------------- banners ---------------- */
 function renderBanners(){
   var host=$('banners');host.innerHTML='';
+  /* อัปเดตไฟล์แล้วแต่ยังไม่ได้ปิด-เปิดเซิร์ฟเวอร์ใหม่ */
+  if(S.stale){
+    var bs=el('div','banner demo');
+    bs.innerHTML='<span>'+ICON.warn+'</span><div class="grow"><b>ระบบยังใช้เวอร์ชันเก่าอยู่</b> — '+
+      'ไฟล์ถูกอัปเดตแล้ว แต่เซิร์ฟเวอร์ยังไม่ได้ปิด-เปิดใหม่ ของใหม่จะยังไม่ขึ้น '+
+      'ให้ปิดหน้าต่างเซิร์ฟเวอร์แล้วเปิดใหม่อีกครั้ง</div>';
+    host.appendChild(bs);
+  }
+  if(S.newBuild){
+    var bn=el('div','banner info');
+    bn.innerHTML='<span>'+ICON.warn+'</span><div class="grow"><b>มีเวอร์ชันใหม่แล้ว</b> — กดปุ่มนี้เพื่อโหลดหน้าใหม่</div>';
+    var rb=el('button','btn sm primary','โหลดหน้าใหม่');
+    rb.onclick=function(){try{location.reload(true)}catch(e){location.reload()}};
+    bn.appendChild(rb); host.appendChild(bn);
+  }
   var demo=sortedDays().some(function(d){return S.days[d].demo});
   if(demo){
     var b=el('div','banner demo');
@@ -3683,18 +5931,22 @@ async function withDay(iso,mutate){
       var snap=await ref.get();
       var cur=snap.exists?snap.data():{date:iso,entries:[]};
       var entries=(cur.entries||[]).slice();
-      var extra=null,matList=null;
+      var extra=null,matList=null,expList=null;
       var res=mutate(entries,cur);
       if(Array.isArray(res))entries=res;
       else if(res&&typeof res==='object'){
         if(Array.isArray(res.entries))entries=res.entries;
         extra=res.revenue; if(Array.isArray(res.mat))matList=res.mat;
+        if(Array.isArray(res.exp))expList=res.exp;
         if(res.revenueSet){cur=Object.assign({},cur);cur.revenue=null;extra=res.revenueSet}
       }
       if(!Array.isArray(entries))entries=[];
       if(!matList)matList=(cur.mat||[]);
+      if(!expList)expList=(cur.exp||[]);
       var body={date:iso,entries:entries,net:recomputeNet(entries),
-        mat:matList,matNet:recomputeMatNet(matList),updatedAt:new Date().toISOString()};
+        mat:matList,matNet:recomputeMatNet(matList),
+        exp:expList,expTotal:expList.reduce(function(t,e){return t+(parseFloat(e.amount)||0)},0),
+        updatedAt:new Date().toISOString()};
       if(cur.revenue||extra){
         var rv=cur.revenue||{};
         var out={walkCash:+rv.walkCash||0,walkTr:+rv.walkTr||0,whCash:+rv.whCash||0,whTr:+rv.whTr||0};
@@ -3756,10 +6008,19 @@ async function saveMaster(){
   if(!requireDb())return;
   var items=S.skus.map(function(s){
     var nm=$('sn-'+s.id),ps=$('sp-'+s.id),mn=$('sm-'+s.id),bc=$('sb-'+s.id),ac=$('sa-'+s.id);
-    return {id:s.id,brand:s.brand,size:s.size,
-      name:nm?nm.value:s.name,packSize:ps?+ps.value||12:12,
-      min:mn?+mn.value||0:0,barcode:bc?bc.value.trim():(s.barcode||''),
-      active:ac?ac.checked:true};
+    /* ขวดต่อแพ็คใช้กับสินค้าที่ขายเป็นแพ็คเท่านั้น น้ำถังนับเป็นถัง */
+    /* คัดลอกของเดิมมาทั้งหมดก่อน แล้วค่อยทับเฉพาะช่องที่แก้ได้ในตาราง
+       ไม่งั้นหน่วย (น้ำถัง) การผูกขวด-ฝา และธง OEM จะหายไปทุกครั้งที่กดบันทึก */
+    var o={}; for(var k in s)o[k]=s[k];
+    if(nm)o.name=nm.value;
+    var br=$('sbr-'+s.id),sz=$('ssz-'+s.id);
+    if(br&&br.value.trim())o.brand=br.value.trim();
+    if(sz)o.size=sz.value.trim();
+    if(ps)o.packSize=+ps.value||12;
+    if(mn)o.min=+mn.value||0;
+    if(bc)o.barcode=bc.value.trim();
+    if(ac)o.active=ac.checked;
+    return o;
   });
   try{
     await S.db.doc('master/skus').set({items:items,updatedAt:new Date().toISOString()});
@@ -3775,6 +6036,39 @@ async function saveMaster(){
     toast('บันทึกการตั้งค่าแล้ว');
   }catch(e){toast('บันทึกไม่สำเร็จ — ต้องมีสิทธิ์แก้ข้อมูลหลัก')}
 }
+/* ตารางติ๊ก สินค้า x ไลน์ */
+function renderMakeGrid(){
+  var cfg=linesCfg(), list=activeSkus().filter(isPack);
+  var find=(($('mk-find')||{}).value||'').trim().toLowerCase();
+  if(find)list=list.filter(function(s2){
+    return (s2.brand+' '+s2.size+' '+(s2.name||'')).toLowerCase().indexOf(find)>=0});
+  $('mk-head').innerHTML=cfg.map(function(L){
+    return '<span style="display:inline-block;min-width:96px">'+esc(L.name)+'</span>'}).join('');
+  var none=activeSkus().filter(isPack).filter(function(s2){return !linesForSku(s2).length}).length;
+  $('mk-count').innerHTML= none
+    ? ('<span style="color:var(--crit)">'+n(none)+' รายการยังไม่มีไลน์ไหนผลิตได้</span>')
+    : ('ทุกรายการมีไลน์ผลิตแล้ว ('+n(list.length)+' รายการ)');
+  var tb=$('mk-body');
+  var sig=find+'|'+skuSig+'|'+JSON.stringify(lineSkuMap())+'|'+
+          cfg.map(function(L){return L.id+L.sizes.join('')+(L.strict?'S':'')}).join(',')+'|'+S.admin;
+  if(tb.dataset.sig===sig)return;
+  tb.dataset.sig=sig; tb.innerHTML='';
+  if(!list.length){tb.innerHTML='<tr><td colspan="2"><div class="empty">ไม่พบสินค้าที่ค้นหา</div></td></tr>';return}
+  list.forEach(function(s2){
+    var tr=el('tr'), boxes='', any=false;
+    cfg.forEach(function(L){
+      var on=canMake(L,s2); if(on)any=true;
+      boxes+='<label style="display:inline-block;min-width:96px;font-family:var(--f-ui);font-size:13px">'+
+        '<input type="checkbox" class="mkbox" data-line="'+L.id+'" data-sku="'+s2.id+'" '+
+        (on?'checked':'')+' '+(S.admin?'':'disabled')+'> '+esc(L.id)+'</label>';
+    });
+    tr.innerHTML='<td class="name l"><b>'+esc(s2.brand)+'</b> '+esc(s2.size)+
+        (any?'':' <span class="stat crit">'+ICON.warn+'ไม่มีไลน์</span>')+'</td>'+
+      '<td class="l">'+boxes+'</td>';
+    tb.appendChild(tr);
+  });
+}
+
 async function saveConfig(){
   if(!requireDb())return;
   var rates={},pp={};
@@ -3784,14 +6078,31 @@ async function saveConfig(){
   });
   var lines=linesCfg().map(function(L){
     var sizes=['350','600','1500'].filter(function(k){var c=$('ls-'+L.id+'-'+k);return c&&c.checked});
-    return {id:L.id,name:L.name,sizes:sizes.length?sizes:['600']};
+    var st=$('lstrict-'+L.id);
+    var o={id:L.id,name:L.name,sizes:sizes.length?sizes:['600']};
+    if(st&&st.checked)o.strict=true;
+    return o;
+  });
+  /* เก็บเฉพาะข้อยกเว้น: ช่องที่ติ๊กไม่ตรงกับกติกาขนาด/ล็อกไลน์ */
+  var lineSkus={};
+  lines.forEach(function(L){
+    var m={};
+    activeSkus().filter(isPack).forEach(function(s2){
+      var b=document.querySelector('.mkbox[data-line="'+L.id+'"][data-sku="'+s2.id+'"]');
+      if(!b)return;
+      var want=b.checked;
+      var base= L.strict ? false : ((L.sizes||[]).indexOf(sizeKey(s2))>=0);
+      if(want!==base)m[s2.id]=want;
+    });
+    if(Object.keys(m).length)lineSkus[L.id]=m;
   });
   var staff=$('f-staff').value.split(',').map(function(s){return s.trim()}).filter(Boolean);
   try{
-    await S.db.doc('master/config').set({lines:lines,rates:rates,palletPacks:pp,
+    await S.db.doc('master/config').set({lines:lines,rates:rates,palletPacks:pp,lineSkus:lineSkus,
       hoursPerDay:+$('f-hours').value||8,otHours:+$('f-ot').value||0,
+      changeMin:Math.max(0,+$('f-change').value||0),
       staff:staff,coverTarget:S.cover,updatedAt:new Date().toISOString()});
-    toast('บันทึกกำลังผลิตแล้ว');
+    toast('บันทึกแล้ว — แผนผลิตและหน้าจอไลน์จะใช้กติกาใหม่ทันที');
   }catch(e){toast('บันทึกไม่สำเร็จ — ต้องมีสิทธิ์แก้ข้อมูลหลัก')}
 }
 async function addSku(){
@@ -3805,7 +6116,7 @@ async function addSku(){
 }
 async function clearDemo(){
   if(!requireDb())return;
-  if(!await askConfirm('ลบข้อมูลตัวอย่างทั้งหมด และตั้งสต๊อกเป็น 0 ใช่หรือไม่?','ล้างข้อมูล'))return;
+  if(!await askConfirm('ลบข้อมูลตัวอย่างทั้งหมด และตั้งสต๊อกเป็น 0 ใช่ไหม?','ล้างข้อมูล'))return;
   var days=sortedDays().filter(function(d){return S.days[d].demo});
   try{
     for(var i=0;i<days.length;i++){await S.db.doc('ledger/'+days[i]).delete()}
@@ -3902,7 +6213,7 @@ $('btn-csv-import').onclick=async function(){
   });
   var dayKeys=Object.keys(byDay);
   if(!dayKeys.length){toast('ไม่พบแถวที่นำเข้าได้ — ตรวจการจับคู่คอลัมน์');return}
-  if(!await askConfirm('นำเข้า '+n(ok)+' รายการ ใน '+dayKeys.length+' วัน'+(bad?' (ข้าม '+n(bad)+' แถวที่อ่านไม่ได้)':'')+' ใช่หรือไม่?','นำเข้า'))return;
+  if(!await askConfirm('นำเข้า '+n(ok)+' รายการ ใน '+dayKeys.length+' วัน'+(bad?' (ข้าม '+n(bad)+' แถวที่อ่านไม่ได้)':'')+' ใช่ไหม?','นำเข้า'))return;
   $('btn-csv-import').disabled=true;
   var done=0;
   for(var i=0;i<dayKeys.length;i++){
@@ -3946,11 +6257,10 @@ async function exportCsv(kind){
 }
 async function saveRows(rowsOut,name){
   var csv='﻿'+rowsOut.map(function(r){return r.map(csvEscape).join(',')}).join('\r\n');
-  if(!S.downloads){toast('หน้านี้ดาวน์โหลดไฟล์ไม่ได้');return}
   try{
-    await FS.download(name,csv,'text/csv;charset=utf-8');
+    await saveFile(name,csv,'text/csv;charset=utf-8');
     toast('ดาวน์โหลดไฟล์แล้ว');
-  }catch(e){toast(e&&e.code==='user_declined'?'ยกเลิกการบันทึกไฟล์':'บันทึกไฟล์ไม่สำเร็จ')}
+  }catch(e){toast(e&&e.code==='user_declined'?'ยกเลิกการบันทึกไฟล์':'ดาวน์โหลดไม่สำเร็จ')}
 }
 
 /* ---------------- tabs & wiring ---------------- */
@@ -3999,6 +6309,20 @@ $('btn-save').onclick=saveEntry;
 $('btn-count').onclick=saveCount;
 $('btn-save-master').onclick=saveMaster;
 $('btn-save-config').onclick=saveConfig;
+$('set-body').addEventListener('click',function(ev){
+  var b=ev.target.closest('button[data-delsku]'); if(!b)return;
+  deleteSku(b.dataset.delsku);
+});
+$('mk-find').addEventListener('input',function(){$('mk-body').dataset.sig='';renderMakeGrid()});
+$('mk-body').addEventListener('change',function(ev){
+  if(!ev.target.classList.contains('mkbox'))return;
+  $('mk-count').textContent='ยังไม่ได้บันทึก — กดปุ่ม "บันทึกกำลังผลิต" ด้านล่าง';
+});
+['L1','L2','L3'].forEach(function(id){
+  ['350','600','1500'].forEach(function(k){
+    var c=$('ls-'+id+'-'+k); if(c)c.addEventListener('change',function(){$('mk-body').dataset.sig='';renderMakeGrid()});
+  });
+});
 $('btn-add-sku').onclick=addSku;
 $('btn-csv-ledger').onclick=function(){exportCsv('ledger')};
 /* ---- สำรองข้อมูล / กู้คืนข้อมูล ---- */
@@ -4157,6 +6481,8 @@ function startApp(me){
   S.tabs=me.tabs||['dash']; S.roles=me.roles; S.permLabels=me.permLabels;
   S.admin=P('master.edit');
   S.me=me.user;
+  S.build=me.build||''; S.stale=!!me.stale; S.newBuild=false;
+  watchBuild();
   $('login').classList.add('hidden');
   $('chip-role').textContent=me.user.name;
   $('um-name').textContent=me.user.name;
@@ -4173,10 +6499,12 @@ function startApp(me){
     var d=s.exists?s.data():{};
     var c=JSON.parse(JSON.stringify(DEFAULT_CFG));
     if(d.lines&&d.lines.length)c.lines=d.lines;
+    if(d.lineSkus)c.lineSkus=d.lineSkus;
     if(d.rates)c.rates=Object.assign(c.rates,d.rates);
     if(d.palletPacks)c.palletPacks=Object.assign(c.palletPacks,d.palletPacks);
     if(d.hoursPerDay)c.hoursPerDay=+d.hoursPerDay;
     if(d.otHours!=null)c.otHours=+d.otHours;
+    if(d.changeMin!=null)c.changeMin=+d.changeMin;
     if(d.staff)c.staff=d.staff;
     S.config=c;
     var rb=$('set-body');if(rb)rb.dataset.sig='';
@@ -4187,6 +6515,26 @@ function startApp(me){
     var tb=$('set-body');if(tb)tb.dataset.sig='';
     renderAll();
   },function(){S.costs=null;renderAll()});
+  db.doc('master/expcats').onSnapshot(function(s){
+    var d=s.exists?s.data():null;
+    S.expCats=(d&&Array.isArray(d.items))?d.items:[];
+    var eb=$('ec-body');if(eb)eb.dataset.sig='';
+    var dl=$('expcats');if(dl)dl.dataset.sig='';
+    renderAll();
+  },function(){});
+  db.doc('master/matcosts').onSnapshot(function(s){
+    S.matCosts=s.exists?s.data():null;
+    var mb=$('matedit-body');if(mb)mb.dataset.sig='';
+    var bb=$('bom-body');if(bb)bb.dataset.sig='';
+    renderAll();
+  },function(){S.matCosts=null;renderAll()});
+  db.doc('master/drivers').onSnapshot(function(s){
+    var d=s.exists?s.data():null;
+    S.drivers=(d&&Array.isArray(d.items))?d.items:[];
+    var db2=$('drv-body');if(db2)db2.dataset.sig='';
+    var dd=$('drv-opts');if(dd)dd.dataset.sig='';
+    renderAll();
+  },function(){});
   db.doc('master/customers').onSnapshot(function(s){
     var d=s.exists?s.data():null;
     S.customers=(d&&Array.isArray(d.items))?d.items:[];
@@ -4216,11 +6564,28 @@ function startApp(me){
   db.collection('ledger').onSnapshot(function(q){
     var m={};
     q.docs.forEach(function(d){var v=d.data()||{};
-      m[d.id]={entries:v.entries||[],net:v.net||{},demo:!!v.demo,revenue:v.revenue||null,mat:v.mat||[],matNet:v.matNet||{}}});
+      m[d.id]={entries:v.entries||[],net:v.net||{},demo:!!v.demo,revenue:v.revenue||null,
+        mat:v.mat||[],matNet:v.matNet||{},exp:v.exp||[],expTotal:v.expTotal||0}});
     S.days=m;S.ready=true;
     setConn(true,'เชื่อมต่อแล้ว · อัปเดตสด');
     renderAll();
   },err);
+}
+/* คอยดูว่าเซิร์ฟเวอร์เปลี่ยนเวอร์ชันหรือยัง จะได้เตือนให้โหลดหน้าใหม่ */
+function watchBuild(){
+  if(S.buildTimer)return;
+  S.buildTimer=setInterval(function(){
+    fetch('/api/health',{credentials:'same-origin',cache:'no-store'})
+      .then(function(r){return r.json()})
+      .then(function(h){
+        if(!h||!h.build)return;
+        var changed=(S.build&&h.build!==S.build);
+        var stale=!!h.stale;
+        if(changed!==S.newBuild||stale!==S.stale){
+          S.newBuild=changed; S.stale=stale; renderBanners();
+        }
+      },function(){});
+  },60000);
 }
 FS.me().then(function(r){
   if(r.__status===200){ startApp(r) }
