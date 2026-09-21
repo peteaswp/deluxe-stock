@@ -22,6 +22,32 @@ const BUILD=(()=>{
 })();
 const STARTED=new Date().toISOString();
 
+/* ---------- เติมข้อมูลที่ยังไม่ครบ ทำอัตโนมัติตอนเปิดเซิร์ฟเวอร์ ----------
+   แตะเฉพาะช่องที่ยังว่างอยู่จริง ๆ ของที่คนกรอกไว้เองไม่ถูกทับ
+   (เซิร์ฟเวอร์ออนไลน์เก็บข้อมูลไว้บนดิสก์ของตัวเอง ไม่ได้อ่านจากไฟล์ seed
+    หลังติดตั้งครั้งแรก จึงต้องเติมให้ตรงนี้)                                */
+const FILL_SKU={ tank:{size:'18.9 L', name:'น้ำถัง 18.9 ลิตร'} };
+function fillMissingSkuFields(){
+  try{
+    const d=store.readDoc('master/skus');
+    if(!d||!Array.isArray(d.items))return;
+    const changed=[];
+    d.items.forEach(s=>{
+      const want=FILL_SKU[s.id]; if(!want)return;
+      const cur=String(s.size||'').trim();
+      if(cur&&cur!=='-')return;                 /* มีขนาดแล้ว ไม่ยุ่ง */
+      s.size=want.size;
+      const nm=String(s.name||'').trim();
+      if(!nm||nm===String(s.brand||'').trim())s.name=want.name;
+      changed.push(s.id);
+    });
+    if(!changed.length)return;
+    store.writeDoc('master/skus',d)
+      .then(()=>console.log('   [i] เติมขนาดสินค้าที่ยังว่างให้แล้ว: '+changed.join(', ')))
+      .catch(e=>console.log('   [!] เติมขนาดสินค้าไม่สำเร็จ: '+(e&&e.message||e)));
+  }catch(e){}
+}
+
 const PORT=process.env.PORT||8080;
 const PUB=path.join(__dirname,'public');
 const AUDIT=path.join(__dirname,'data','audit.log');
@@ -356,6 +382,7 @@ const server=http.createServer(async (req,res)=>{
     });
   }catch(e){ send(res,500,{error:String(e&&e.message||e)}) }
 });
+fillMissingSkuFields();
 server.listen(PORT,()=>{
   const nets=require('os').networkInterfaces(); const ips=[];
   Object.values(nets).forEach(a=>a.forEach(x=>{if(x.family==='IPv4'&&!x.internal)ips.push(x.address)}));
